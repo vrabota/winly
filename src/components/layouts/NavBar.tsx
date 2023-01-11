@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Link from 'next/link';
 import { createStyles, Navbar } from '@mantine/core';
 import { IconSettings, IconLogout, IconMail, IconInbox, IconSend, IconChartDots3 } from '@tabler/icons';
 
@@ -90,10 +91,10 @@ const NavBarBox = () => {
       <Navbar.Section grow>{links}</Navbar.Section>
 
       <Navbar.Section className={classes.footer}>
-        <a href="/api/auth/logout" className={classes.link}>
+        <Link href="/api/auth/logout" className={classes.link}>
           <IconLogout className={classes.linkIcon} stroke={1.5} />
           <span>Logout</span>
-        </a>
+        </Link>
       </Navbar.Section>
     </Navbar>
   );
