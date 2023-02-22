@@ -1,89 +1,26 @@
-import { useState } from 'react';
 import Link from 'next/link';
-import { createStyles, Navbar } from '@mantine/core';
+import { Navbar } from '@mantine/core';
 import { IconSettings, IconLogout, IconMail, IconInbox, IconSend, IconChartDots3 } from '@tabler/icons';
 
-const useStyles = createStyles((theme, _params, getRef) => {
-  const icon = getRef('icon');
-  return {
-    footer: {
-      paddingTop: theme.spacing.md,
-      marginTop: theme.spacing.md,
-      borderTop: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[2]}`,
-    },
+import NavLink from '@components/layouts/NavLink';
 
-    link: {
-      ...theme.fn.focusStyles(),
-      display: 'flex',
-      alignItems: 'center',
-      textDecoration: 'none',
-      fontSize: theme.fontSizes.sm,
-      color: theme.colorScheme === 'dark' ? theme.colors.dark[1] : theme.colors.gray[7],
-      padding: `${theme.spacing.xs}px ${theme.spacing.sm}px`,
-      borderRadius: theme.radius.sm,
-      fontWeight: 500,
-
-      '&:hover': {
-        backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
-        color: theme.colorScheme === 'dark' ? theme.white : theme.black,
-
-        [`& .${icon}`]: {
-          color: theme.colorScheme === 'dark' ? theme.white : theme.black,
-        },
-      },
-    },
-
-    linkIcon: {
-      ref: icon,
-      color: theme.colorScheme === 'dark' ? theme.colors.dark[2] : theme.colors.gray[6],
-      marginRight: theme.spacing.sm,
-    },
-
-    linkActive: {
-      '&, &:hover': {
-        backgroundColor: theme.fn.variant({
-          variant: 'light',
-          color: theme.primaryColor,
-        }).background,
-        color: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).color,
-        [`& .${icon}`]: {
-          color: theme.fn.variant({
-            variant: 'light',
-            color: theme.primaryColor,
-          }).color,
-        },
-      },
-    },
-  };
-});
+import { useStyles } from './styles';
 
 const data = [
-  { link: '', label: 'Email Accounts', icon: IconMail },
-  { link: '', label: 'Campaigns', icon: IconSend },
-  { link: '', label: 'Analytics', icon: IconChartDots3 },
-  { link: '', label: 'Inbox', icon: IconInbox },
-  { link: '', label: 'Settings', icon: IconSettings },
+  { link: '/', label: 'Email Accounts', icon: IconMail },
+  { link: '/campaigns', label: 'Campaigns', icon: IconSend },
+  { link: '/analytics', label: 'Analytics', icon: IconChartDots3 },
+  { link: '/inbox', label: 'Inbox', icon: IconInbox },
+  { link: '/settings', label: 'Settings', icon: IconSettings },
 ];
 
 const NavBarBox = () => {
-  const { classes, cx } = useStyles();
-  const [active, setActive] = useState('Email Accounts');
-
+  const { classes } = useStyles();
   const links = data.map(item => (
-    <a
-      className={cx(classes.link, {
-        [classes.linkActive]: item.label === active,
-      })}
-      href={item.link}
-      key={item.label}
-      onClick={event => {
-        event.preventDefault();
-        setActive(item.label);
-      }}
-    >
+    <NavLink activeClassName={classes.linkActive} className={classes.link} href={item.link} key={item.label}>
       <item.icon className={classes.linkIcon} stroke={1.5} />
       <span>{item.label}</span>
-    </a>
+    </NavLink>
   ));
 
   return (

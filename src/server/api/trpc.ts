@@ -30,6 +30,9 @@ import { type CreateNextContextOptions } from '@trpc/server/adapters/next';
 
 import { prisma } from '../db';
 
+import type { User } from '@prisma/client';
+import type { inferAsyncReturnType } from '@trpc/server';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import type { Session } from '@auth0/nextjs-auth0';
 
 /**
@@ -38,8 +41,12 @@ import type { Session } from '@auth0/nextjs-auth0';
  * @link https://trpc.io/docs/context
  */
 
-type CreateContextOptions = {
-  session?: Session | null;
+export type CreateContextOptions = {
+  session: Session;
+  organizationId: string;
+  req?: NextApiRequest;
+  res?: NextApiResponse;
+  user: User;
 };
 
 /**
@@ -53,30 +60,47 @@ type CreateContextOptions = {
  */
 const createInnerTRPCContext = (_opts: CreateContextOptions) => {
   return {
+    req: _opts.req,
+    res: _opts.res,
     session: _opts.session,
+    user: _opts.user,
+    organizationId: _opts.organizationId,
     prisma,
   };
 };
 export const createTRPCContext = async (_opts: CreateNextContextOptions) => {
   const { req, res } = _opts;
-  const session = await getSession(req, res);
-  return createInnerTRPCContext({ session });
+  const session = (await getSession(req, res)) as Session;
+  return createInnerTRPCContext({
+    session,
+    req,
+    res,
+    user: {} as User,
+    organizationId: req?.headers.organization as string,
+  });
 };
 
-const t = initTRPC.context<typeof createTRPCContext>().create({
+export type Context = inferAsyncReturnType<typeof createTRPCContext>;
+
+const t = initTRPC.context<Context>().create({
   transformer: superjson,
   errorFormatter({ shape }) {
     return shape;
   },
 });
 
-const isAuthed = t.middleware(({ ctx, next }) => {
-  if (!ctx.session || !ctx.session.user) {
+const isAuthed = t.middleware(async ({ ctx, next, path }) => {
+  const user = await ctx.prisma.user.findUnique({ where: { auth0Id: ctx.session.user.sub } });
+  if (!ctx.session || !ctx.session.user || !user) {
     throw new TRPCError({ code: 'UNAUTHORIZED' });
+  }
+  if (!ctx?.organizationId && path !== 'organization.getOrganizations') {
+    throw new TRPCError({ code: 'BAD_REQUEST', message: 'There is a missing organization for your request' });
   }
   return next({
     ctx: {
       session: { ...ctx.session, user: ctx.session.user },
+      user,
     },
   });
 });

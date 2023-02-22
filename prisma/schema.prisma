@@ -1,19 +1,189 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-    provider = "prisma-client-js"
-    previewFeatures = ["referentialIntegrity"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "mysql"
-    url      = env("DATABASE_URL")
-    relationMode = "prisma"
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
-model Example {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model User {
+  id        String    @id @default(uuid()) @db.VarChar(36)
+  auth0Id   String    @unique @map("auth0_id") @db.VarChar(100)
+  firstName String?   @map("first_name") @db.VarChar(100)
+  lastName  String?   @map("last_name") @db.VarChar(100)
+  picture   String?   @map("picture") @db.VarChar(300)
+  provider  String?   @map("provider") @db.VarChar(100)
+  isSocial  Boolean?  @map("is_social")
+  email     String    @db.VarChar(100)
+  role      UserRole? @default(ADMIN)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  organizations          Organization[]
+  accountAddedBy         Account[]      @relation("addedBy")
+  modifiedBy             Account[]      @relation("modifiedBy")
+  organizationAddedBy    Campaign[]     @relation("addedBy")
+  organizationModifiedBy Campaign[]     @relation("modifiedBy")
+
+  @@index([role])
+  @@index([auth0Id])
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  MANAGER
+
+  @@map("user_roles_enum")
+}
+
+model Organization {
+  id       String  @id @default(uuid()) @db.VarChar(36)
+  name     String? @default("My Organization") @db.VarChar(100)
+  contacts Int?    @default(0) @db.SmallInt
+  ownerId  String? @map("owner_id") @db.VarChar(100)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  users     User[]
+  accounts  Account[]
+  campaigns Campaign[]
+  leads     Lead[]
+  Sequence  Sequence[]
+
+  @@map("organizations")
+}
+
+model Account {
+  id             String      @id @default(uuid()) @db.VarChar(36)
+  refreshToken   String?     @map("refresh_token") @db.Text
+  email          String      @unique @db.VarChar(100)
+  appPassword    String?     @map("app_password") @db.VarChar(100)
+  firstName      String?     @map("first_name") @db.VarChar(100)
+  lastName       String?     @map("last_name") @db.VarChar(100)
+  organizationId String      @map("organization_id") @db.VarChar(36)
+  addedById      String      @map("added_by_id") @db.VarChar(100)
+  modifiedById   String      @map("modified_by_id") @db.VarChar(100)
+  type           AccountType
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  addedBy      User         @relation("addedBy", fields: [addedById], references: [id])
+  modifiedBy   User         @relation("modifiedBy", fields: [modifiedById], references: [id])
+
+  @@index([organizationId])
+  @@index([type])
+  @@index([addedById])
+  @@index([modifiedById])
+  @@map("accounts")
+}
+
+enum AccountType {
+  GOOGLE_OAUTH
+  GOOGLE_APP_PASSWORD
+
+  @@map("account_type_enum")
+}
+
+model Campaign {
+  id             String         @id @default(uuid()) @db.VarChar(36)
+  name           String         @db.VarChar(100)
+  accountIds     Json?          @map("account_ids")
+  scheduleDays   Json?          @map("schedule_days")
+  time           Json?          @map("time")
+  startDate      DateTime?      @map("start_date")
+  endDate        DateTime?      @map("end_date")
+  dailyLimit     Int?           @map("daily_limit")
+  timezone       String?        @map("timezone")
+  organizationId String         @map("organization_id") @db.VarChar(36)
+  addedById      String         @map("added_by_id") @db.VarChar(100)
+  modifiedById   String         @map("modified_by_id") @db.VarChar(100)
+  sendOnReply    Boolean?       @map("send_on_reply")
+  openTracking   Boolean?       @map("open_tracking")
+  status         CampaignStatus
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  leads Lead[]
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  addedBy      User         @relation("addedBy", fields: [addedById], references: [id])
+  modifiedBy   User         @relation("modifiedBy", fields: [modifiedById], references: [id])
+  Sequence     Sequence[]
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([addedById])
+  @@index([modifiedById])
+  @@map("campaigns")
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSE
+
+  @@map("campaign_status_enum")
+}
+
+model Lead {
+  id             String     @id @default(uuid()) @db.VarChar(36)
+  organizationId String     @map("organization_id") @db.VarChar(36)
+  campaignId     String     @map("campaign_id") @db.VarChar(36)
+  email          String     @db.VarChar(100)
+  firstName      String?    @map("first_name") @db.VarChar(100)
+  lastName       String?    @map("last_name") @db.VarChar(100)
+  details        Json?
+  status         LeadStatus @default(LEAD)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  campaign     Campaign     @relation(fields: [campaignId], references: [id])
+
+  @@unique([campaignId, email])
+  @@index([organizationId])
+  @@index([campaignId])
+  @@map("leads")
+}
+
+enum LeadStatus {
+  LEAD
+  INTERESTED
+  MEETING_BOOKED
+  MEETING_COMPLETED
+  CLOSED
+  OUT_OF_OFFICE
+  WRONG_PERSON
+  NOT_INTERESTED
+
+  @@map("lead_status_enum")
+}
+
+model Sequence {
+  id             String   @id @default(uuid()) @db.VarChar(36)
+  organizationId String   @map("organization_id") @db.VarChar(36)
+  campaignId     String   @map("campaign_id") @db.VarChar(36)
+  delay          Int?     @db.SmallInt
+  order          Int      @db.SmallInt
+  body           String   @db.Text
+  subject        String?  @db.VarChar(100)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  campaign     Campaign     @relation(fields: [campaignId], references: [id])
+
+  @@index([organizationId])
+  @@index([campaignId])
+  @@map("sequences")
 }

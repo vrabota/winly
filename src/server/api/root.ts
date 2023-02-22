@@ -1,14 +1,17 @@
-import { createTRPCRouter } from './trpc';
-import { exampleRouter } from './routers/example';
+import { leadsRoutes } from '@server/api/leads/leads.routes';
+import { sequencesRoutes } from '@server/api/sequences/sequences.route';
 
-/**
- * This is the primary router for your server.
- *
- * All routers added in /api/routers should be manually added here
- */
+import { createTRPCRouter } from './trpc';
+import { accountsRoutes } from './accounts/accounts.routes';
+import { organizationRoutes } from './organizations/organizations.routes';
+import { campaignRoutes } from './campaigns/campaigns.routes';
+
 export const appRouter = createTRPCRouter({
-  example: exampleRouter,
+  account: accountsRoutes,
+  organization: organizationRoutes,
+  campaign: campaignRoutes,
+  leads: leadsRoutes,
+  sequence: sequencesRoutes,
 });
 
-// export type definition of API
 export type AppRouter = typeof appRouter;

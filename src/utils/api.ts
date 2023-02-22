@@ -10,9 +10,10 @@ import { createTRPCNext } from '@trpc/next';
 import { type inferRouterInputs, type inferRouterOutputs } from '@trpc/server';
 import superjson from 'superjson';
 
-import { type AppRouter } from '../server/api/root';
+import { type AppRouter } from '@server/api/root';
+import { LOCAL_STORAGE_KEYS } from '@utils/localStorageKeys';
 
-const getBaseUrl = () => {
+export const getBaseUrl = (): string => {
   if (typeof window !== 'undefined') return ''; // browser should use relative url
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`; // SSR should use vercel url
   return `http://localhost:${process.env.PORT ?? 3000}`; // dev SSR should use localhost
@@ -36,12 +37,29 @@ export const api = createTRPCNext<AppRouter>({
        * */
       links: [
         loggerLink({
-          enabled: opts => process.env.NODE_ENV === 'development' || (opts.direction === 'down' && opts.result instanceof Error),
+          enabled: opts =>
+            process.env.NODE_ENV === 'development' || (opts.direction === 'down' && opts.result instanceof Error),
         }),
         httpBatchLink({
           url: `${getBaseUrl()}/api/trpc`,
+          async headers() {
+            try {
+              const organizationId = localStorage.getItem(LOCAL_STORAGE_KEYS.ORGANIZATION_ID);
+              return organizationId ? { organization: JSON.parse(organizationId) } : {};
+            } catch {
+              localStorage.removeItem(LOCAL_STORAGE_KEYS.ORGANIZATION_ID);
+              return {};
+            }
+          },
         }),
       ],
+      queryClientConfig: {
+        defaultOptions: {
+          queries: {
+            refetchOnWindowFocus: false,
+          },
+        },
+      },
     };
   },
   /**

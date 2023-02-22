@@ -8,7 +8,7 @@ import type { ReactNode } from 'react';
 
 const MainLayout = ({ children }: { children: ReactNode }) => {
   return (
-    <AppShell header={<Header />} navbar={<NavBar />}>
+    <AppShell header={<Header />} navbar={<NavBar />} padding="xl">
       {children}
     </AppShell>
   );
