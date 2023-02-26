@@ -54,7 +54,6 @@ model Organization {
   accounts  Account[]
   campaigns Campaign[]
   leads     Lead[]
-  Sequence  Sequence[]
 
   @@map("organizations")
 }
@@ -98,6 +97,7 @@ model Campaign {
   accountIds     Json?          @map("account_ids")
   scheduleDays   Json?          @map("schedule_days")
   time           Json?          @map("time")
+  sequences      Json?          @map("sequences")
   startDate      DateTime?      @map("start_date")
   endDate        DateTime?      @map("end_date")
   dailyLimit     Int?           @map("daily_limit")
@@ -117,7 +117,6 @@ model Campaign {
   organization Organization @relation(fields: [organizationId], references: [id])
   addedBy      User         @relation("addedBy", fields: [addedById], references: [id])
   modifiedBy   User         @relation("modifiedBy", fields: [modifiedById], references: [id])
-  Sequence     Sequence[]
 
   @@index([organizationId])
   @@index([status])
@@ -167,23 +166,4 @@ enum LeadStatus {
   NOT_INTERESTED
 
   @@map("lead_status_enum")
-}
-
-model Sequence {
-  id             String   @id @default(uuid()) @db.VarChar(36)
-  organizationId String   @map("organization_id") @db.VarChar(36)
-  campaignId     String   @map("campaign_id") @db.VarChar(36)
-  delay          Int?     @db.SmallInt
-  order          Int      @db.SmallInt
-  body           String   @db.Text
-  subject        String?  @db.VarChar(100)
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
-
-  organization Organization @relation(fields: [organizationId], references: [id])
-  campaign     Campaign     @relation(fields: [campaignId], references: [id])
-
-  @@index([organizationId])
-  @@index([campaignId])
-  @@map("sequences")
 }

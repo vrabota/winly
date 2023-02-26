@@ -4,8 +4,13 @@ import omit from 'lodash/omit';
 import { prisma } from '@server/db';
 import { logger } from '@utils/logger';
 
-import type { withUserId, withOrgId, withUserOrgIds } from '@server/types/withUserOrgIds';
-import type { CreateCampaignInput, GetCampaignByIdInput, UpdateCampaignInput } from '@server/api/campaigns/data/dtos';
+import type { withUserId, withUserOrgIds } from '@server/types/withUserOrgIds';
+import type {
+  CreateCampaignInput,
+  GetCampaignByIdInput,
+  UpdateCampaignInput,
+  UpdateCampaignSequenceInput,
+} from '@server/api/campaigns/data/dtos';
 import type { Campaign } from '@prisma/client';
 
 export const createCampaign = async (payload: withUserOrgIds<CreateCampaignInput>): Promise<Campaign> => {
@@ -71,6 +76,24 @@ export const updateCampaign = async (payload: withUserId<UpdateCampaignInput>): 
   });
 
   logger.info({ campaign }, `Successfully updated campaign ${payload.campaignId}`);
+
+  return campaign;
+};
+
+export const updateCampaignSequences = async (payload: withUserId<UpdateCampaignSequenceInput>): Promise<Campaign> => {
+  logger.info({ payload }, `Updating campaign sequences ${payload.sequences}`);
+
+  const campaign = await prisma.campaign.update({
+    where: {
+      id: payload.campaignId,
+    },
+    data: {
+      sequences: payload.sequences,
+      modifiedById: payload.userId,
+    },
+  });
+
+  logger.info({ campaign }, `Successfully updated campaign sequences ${payload.campaignId}`);
 
   return campaign;
 };

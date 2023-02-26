@@ -1,8 +1,20 @@
 import { TRPCError } from '@trpc/server';
 
-import { createCampaign, getCampaigns, getCampaignById, updateCampaign } from '../data/repositories';
+import {
+  createCampaign,
+  getCampaigns,
+  getCampaignById,
+  updateCampaign,
+  updateCampaignSequences,
+} from '../data/repositories';
 
-import type { CreateCampaignInput, GetCampaignByIdInput, UpdateCampaignInput } from '../data/dtos';
+import type {
+  CreateCampaignInput,
+  GetCampaignByIdInput,
+  UpdateCampaignInput,
+  SequencesType,
+  UpdateCampaignSequenceInput,
+} from '../data/dtos';
 import type { Context } from '@server/api/trpc';
 
 export const createCampaignHandler = async ({ ctx, input }: { ctx: Context; input: CreateCampaignInput }) => {
@@ -43,6 +55,7 @@ export const getCampaignByIdHandler = async ({ ctx, input }: { ctx: Context; inp
 
     return {
       ...campaign,
+      sequences: campaign.sequences as SequencesType[],
       scheduleDays: campaign.scheduleDays as string[],
       accountIds: campaign.accountIds as string[],
       time: { from: timing?.from, to: timing?.to },
@@ -63,6 +76,24 @@ export const updateCampaignHandler = async ({ ctx, input }: { ctx: Context; inpu
     throw new TRPCError({
       code: 'BAD_REQUEST',
       message: `Unfortunately can not update campaign ${input.campaignId} for user ${ctx.user.id}.`,
+      cause: error,
+    });
+  }
+};
+
+export const updateCampaignSequenceHandler = async ({
+  ctx,
+  input,
+}: {
+  ctx: Context;
+  input: UpdateCampaignSequenceInput;
+}) => {
+  try {
+    return updateCampaignSequences({ userId: ctx.user.id, ...input });
+  } catch (error) {
+    throw new TRPCError({
+      code: 'BAD_REQUEST',
+      message: `Unfortunately can not update ${input.campaignId} campaign sequences for user ${ctx.user.id}.`,
       cause: error,
     });
   }

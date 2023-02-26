@@ -1,5 +1,4 @@
 import { leadsRoutes } from '@server/api/leads/leads.routes';
-import { sequencesRoutes } from '@server/api/sequences/sequences.route';
 
 import { createTRPCRouter } from './trpc';
 import { accountsRoutes } from './accounts/accounts.routes';
@@ -11,7 +10,6 @@ export const appRouter = createTRPCRouter({
   organization: organizationRoutes,
   campaign: campaignRoutes,
   leads: leadsRoutes,
-  sequence: sequencesRoutes,
 });
 
 export type AppRouter = typeof appRouter;
