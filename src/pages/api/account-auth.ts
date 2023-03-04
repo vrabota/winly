@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ message: `Can't process the request for this account` });
   }
 
-  oAuth2Client.setCredentials({ refresh_token: decrypt(payload.refreshToken) });
+  oAuth2Client.setCredentials({ refresh_token: decrypt(payload.refreshToken as string) });
   const accessToken = await oAuth2Client.getAccessToken();
 
   return res.json({ user: payload.email, accessToken: accessToken.token });

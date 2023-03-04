@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import Link from 'next/link';
 import {
   Header as HeaderMantine,
   Group,
@@ -30,7 +31,9 @@ const Header = () => {
     <Box>
       <HeaderMantine height={60} px="md" withBorder={false} className={classes.header}>
         <Group position="apart" sx={{ height: '100%' }}>
-          <MantineLogo size={30} />
+          <Link href="/">
+            <MantineLogo size={30} />
+          </Link>
           <Group h="100%" spacing={0}>
             {!user && (
               <Group>
