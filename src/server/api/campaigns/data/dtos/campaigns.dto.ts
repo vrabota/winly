@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import type { TypeOf } from 'zod';
 
-export const sequencesSchema = z.object({ subject: z.string(), body: z.string() });
+export const sequencesSchema = z.object({ subject: z.string(), body: z.string(), delay: z.string().optional() });
 
 export const createCampaignSchema = z.object({ name: z.string() });
 export const updateCampaignSchema = z.object({

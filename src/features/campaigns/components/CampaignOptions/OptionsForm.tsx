@@ -3,12 +3,11 @@ import { z } from 'zod';
 import omit from 'lodash/omit';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Stack } from '@mantine/core';
+import { Button, Stack, Group } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
 import { IconCheck } from '@tabler/icons';
 import { useRouter } from 'next/router';
 
-import { DayOfWeek } from '@server/types/DayOfWeek';
 import { api } from '@utils/api';
 
 import Accounts from './Accounts';
@@ -41,7 +40,7 @@ const OptionsForm = () => {
   const methods = useForm<ValidationSchema>({
     defaultValues: {
       accounts: [[], []], // TODO validation for selected accounts min 1
-      days: Object.values(DayOfWeek).filter(item => item !== DayOfWeek.Saturday && item !== DayOfWeek.Sunday),
+      days: ['1', '2', '3', '4', '5'],
       from: '9:00 AM',
       to: '6:00 PM',
       sendOnReply: true,
@@ -86,17 +85,8 @@ const OptionsForm = () => {
     }
   }, [campaignData?.accountIds, accountsData?.accounts, methods]);
 
-  const { mutate } = api.campaign.updateCampaign.useMutation({
-    onSuccess: data => {
-      showNotification({
-        color: 'teal',
-        title: 'Campaign update',
-        message: `We updated ${data.name} campaign successfully.`,
-        autoClose: 2000,
-        icon: <IconCheck size={16} />,
-      });
-    },
-  });
+  const { mutate: saveCampaign } = api.campaign.updateCampaign.useMutation();
+  const { mutate: startCampaign } = api.campaign.startCampaign.useMutation();
   const onSubmit = async (data: ValidationSchema) => {
     const payload = {
       ...data,
@@ -110,7 +100,17 @@ const OptionsForm = () => {
         to: data?.to,
       },
     };
-    mutate(omit(payload, ['schedule', 'from', 'to', 'accounts']));
+    saveCampaign(omit(payload, ['schedule', 'from', 'to', 'accounts']), {
+      onSuccess: data => {
+        showNotification({
+          color: 'teal',
+          title: 'Campaign update',
+          message: `We updated ${data.name} campaign successfully.`,
+          autoClose: 2000,
+          icon: <IconCheck size={16} />,
+        });
+      },
+    });
   };
 
   return (
@@ -123,9 +123,10 @@ const OptionsForm = () => {
       <OpenTracking />
       <DailyLimit />
       <Stack align="center">
-        <Button w={800} onClick={methods.handleSubmit(onSubmit)}>
-          Save
-        </Button>
+        <Group position="right" w={800}>
+          <Button onClick={methods.handleSubmit(onSubmit)}>Save</Button>
+          <Button onClick={() => startCampaign({ campaignId: query.campaignId as string })}>Launch</Button>
+        </Group>
       </Stack>
     </FormProvider>
   );

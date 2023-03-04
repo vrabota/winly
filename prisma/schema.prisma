@@ -76,6 +76,7 @@ model Account {
   organization Organization @relation(fields: [organizationId], references: [id])
   addedBy      User         @relation("addedBy", fields: [addedById], references: [id])
   modifiedBy   User         @relation("modifiedBy", fields: [modifiedById], references: [id])
+  Activity     Activity[]
 
   @@index([organizationId])
   @@index([type])
@@ -112,7 +113,8 @@ model Campaign {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  leads Lead[]
+  leads      Lead[]
+  activities Activity[]
 
   organization Organization @relation(fields: [organizationId], references: [id])
   addedBy      User         @relation("addedBy", fields: [addedById], references: [id])
@@ -166,4 +168,42 @@ enum LeadStatus {
   NOT_INTERESTED
 
   @@map("lead_status_enum")
+}
+
+model Activity {
+  id         String          @id @default(uuid()) @db.VarChar(36)
+  campaignId String          @map("campaign_id") @db.VarChar(36)
+  leadEmail  String          @map("lead_email") @db.VarChar(100)
+  messageId  String          @map("message_id") @db.VarChar(100)
+  queueId    String?         @map("queue_id") @db.VarChar(36)
+  accountId  String          @map("account_id") @db.VarChar(36)
+  step       Int?            @db.SmallInt
+  status     ActivityStatus? @default(QUEUED)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  campaign Campaign @relation(fields: [campaignId], references: [id])
+  account  Account  @relation(fields: [accountId], references: [id])
+
+  @@index([queueId])
+  @@index([accountId])
+  @@index([status])
+  @@index([leadEmail])
+  @@index([messageId])
+  @@index([campaignId])
+  @@map("activities")
+}
+
+enum ActivityStatus {
+  REPLIED
+  OPENED
+  UNSUBSCRIBED
+  BOUNCED
+  CONTACTED
+  CLICKED
+  COMPLETED
+  QUEUED
+
+  @@map("activity_status_enum")
 }

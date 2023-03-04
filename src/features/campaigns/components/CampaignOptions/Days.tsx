@@ -21,8 +21,8 @@ const Days = ({ isLoading }: { isLoading: boolean }) => {
           </Stack>
           <Skeleton isLoading={isLoading}>
             <CheckboxGroup name="days">
-              {Object.values(DayOfWeek).map(day => (
-                <Checkbox key={day} value={day} label={day} />
+              {Object.values(DayOfWeek).map((day, index) => (
+                <Checkbox key={day} value={`${index + 1}`} label={day} />
               ))}
             </CheckboxGroup>
           </Skeleton>

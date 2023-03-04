@@ -19,3 +19,15 @@ export const createOrUpdateAccount = async (payload: Prisma.AccountUncheckedCrea
 
   return createdAccount;
 };
+
+export const getAccounts = async (payload: string[]): Promise<Account[]> => {
+  logger.info({ payload }, `Getting all accounts`);
+
+  const accounts = await prisma.account.findMany({
+    where: { id: { in: payload } },
+  });
+
+  logger.info({ accounts }, `Successfully return list of accounts`);
+
+  return accounts;
+};

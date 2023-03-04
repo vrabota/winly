@@ -3,13 +3,21 @@ import { Box, Stack, Group, Text, Title, ActionIcon, Divider, TextInput } from '
 import { IconMail, IconTrash } from '@tabler/icons';
 
 const SequenceTab = ({
+  updateSequence,
   subject,
   isActive,
+  isFirst,
   setActive,
   deleteStep,
+  index,
+  delay,
 }: {
+  updateSequence: ({ delay }: { delay?: string }) => void;
   subject: string;
+  delay: string;
   isActive: boolean;
+  isFirst: boolean;
+  index: number;
   setActive: () => void;
   deleteStep: () => void;
 }) => {
@@ -24,7 +32,7 @@ const SequenceTab = ({
         <Group position="apart" align="center">
           <Group align="center">
             <IconMail />
-            <Title order={6}>Step 1</Title>
+            <Title order={6}>{`Step ${index + 1}`}</Title>
           </Group>
           <ActionIcon
             onClick={e => {
@@ -35,16 +43,25 @@ const SequenceTab = ({
             <IconTrash />
           </ActionIcon>
         </Group>
+        {!isFirst && (
+          <>
+            <Divider mx="-20px" />
+            <Group>
+              <Text weight="bolder">Wait for </Text>
+              <TextInput
+                value={delay}
+                onChange={e => updateSequence({ delay: e.target.value })}
+                sx={{ input: { textAlign: 'center' } }}
+                w={50}
+              />
+              <Text weight="bolder">days, then</Text>
+            </Group>
+          </>
+        )}
         <Divider mx="-20px" />
         <Stack>
           <Text>{subject || '<Empty subject>'}</Text>
         </Stack>
-        <Divider mx="-20px" />
-        {/*<Group>*/}
-        {/*  <Text weight="bolder">Wait for </Text>*/}
-        {/*  <TextInput sx={{ input: { textAlign: 'center' } }} w={50} />*/}
-        {/*  <Text weight="bolder">days, then</Text>*/}
-        {/*</Group>*/}
       </Stack>
     </Box>
   );

@@ -9,12 +9,14 @@ import {
   Menu,
   Text,
   Divider,
+  ActionIcon,
 } from '@mantine/core';
 import { MantineLogo } from '@mantine/ds';
 import { IconSettings, IconChevronDown, IconCirclePlus, IconLogout } from '@tabler/icons';
 import { useUser } from '@auth0/nextjs-auth0/client';
 
 import { OrganizationContext } from '@context/OrganizationContext';
+import { HelpIcon, AlertBell } from '@assets/icons';
 
 import { useStyles } from './styles';
 
@@ -26,22 +28,29 @@ const Header = () => {
   const { organizations = [], setSelectedOrganizationId, selectedOrganization } = useContext(OrganizationContext);
   return (
     <Box>
-      <HeaderMantine height={60} px="md">
+      <HeaderMantine height={60} px="md" withBorder={false} className={classes.header}>
         <Group position="apart" sx={{ height: '100%' }}>
           <MantineLogo size={30} />
-
-          {!user && (
-            <Group>
-              <Button variant="default" component="a" href="/api/auth/login">
-                Log in
-              </Button>
-              <Button component="a" href="/api/auth/logout">
-                Logout
-              </Button>
-            </Group>
-          )}
-
           <Group h="100%" spacing={0}>
+            {!user && (
+              <Group>
+                <Button variant="default" component="a" href="/api/auth/login">
+                  Log in
+                </Button>
+                <Button component="a" href="/api/auth/logout">
+                  Logout
+                </Button>
+              </Group>
+            )}
+            <Group mr="sm" spacing="sm">
+              <ActionIcon radius="xl" size="lg" sx={{ ':hover': { transition: 'all 0.3s' } }}>
+                <HelpIcon size={20} />
+              </ActionIcon>
+              <ActionIcon radius="xl" size="lg" sx={{ ':hover': { transition: 'all 0.3s' } }}>
+                <AlertBell size={20} />
+              </ActionIcon>
+            </Group>
+            <Divider size="sm" orientation="vertical" color="gray.0" />
             <Menu
               width={260}
               position="bottom-end"
@@ -56,7 +65,7 @@ const Header = () => {
                   })}
                 >
                   <Group spacing={7} h="100%">
-                    <Avatar color="cyan" radius="xl" size={28}>
+                    <Avatar color="purple" radius="xl" size={28}>
                       <Text sx={{ textTransform: 'uppercase' }}>{selectedOrganization?.name?.substring(0, 2)}</Text>
                     </Avatar>
                     <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>
@@ -83,7 +92,7 @@ const Header = () => {
               </Menu.Dropdown>
             </Menu>
 
-            <Divider size="sm" orientation="vertical" color="gray.1" />
+            <Divider size="sm" orientation="vertical" color="gray.0" />
 
             {user && (
               <Menu

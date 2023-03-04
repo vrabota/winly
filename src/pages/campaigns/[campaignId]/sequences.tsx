@@ -25,12 +25,13 @@ const Sequences: NextPage = () => {
       },
     },
   );
-  const updateSequence = ({ subject, body }: { subject?: string; body?: string }) => {
+  const updateSequence = ({ subject, body, delay }: { subject?: string; body?: string; delay?: string }) => {
     setSequences(sequences => {
       return sequences.map((sequence, i) => {
         if (activeIndex === i) {
           if (subject || subject === '') return { ...sequence, subject };
           if (body || body === '') return { ...sequence, body };
+          if (delay) return { ...sequence, delay };
           return sequence;
         } else {
           return sequence;
@@ -38,6 +39,7 @@ const Sequences: NextPage = () => {
       });
     });
   };
+  console.log(sequences);
   const addNewStep = () => {
     setSequences(sequences => [...sequences, { subject: '', body: '' }]);
     setActiveIndex(sequences.length);
@@ -61,9 +63,13 @@ const Sequences: NextPage = () => {
               <SequenceTab
                 deleteStep={() => deleteStep(index)}
                 setActive={() => onStepClick(index)}
+                index={index}
                 isActive={index === activeIndex}
+                isFirst={index === 0}
+                updateSequence={updateSequence}
                 key={`${sequence.subject}-${index}`}
                 subject={sequence?.subject || ''}
+                delay={sequences[activeIndex]?.delay || ''}
               />
             ))}
             <Button variant="outline" onClick={addNewStep}>
