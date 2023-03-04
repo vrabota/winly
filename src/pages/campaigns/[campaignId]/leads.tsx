@@ -25,7 +25,7 @@ const Leads: NextPage = () => {
         }
       />
       {data.map(lead => (
-        <ListItem name={lead.email} />
+        <ListItem key={lead.id} name={lead.email} />
       ))}
     </>
   );

@@ -13,7 +13,7 @@ const Home: NextPage = () => {
   useConnectAccount();
   return (
     <>
-      <Title mb={40} order={2}>
+      <Title mb={40} order={3}>
         Email Accounts
       </Title>
       <AccountBar />
