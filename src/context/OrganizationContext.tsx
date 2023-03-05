@@ -26,6 +26,7 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
         setSelectedOrganizationId(data?.[0]?.id || '');
       }
     },
+    retry: false,
   });
   const selectedOrganization = organizations.filter(organization => organization.id === organizationId)[0];
 
