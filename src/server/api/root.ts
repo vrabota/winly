@@ -4,12 +4,14 @@ import { createTRPCRouter } from './trpc';
 import { accountsRoutes } from './accounts/accounts.routes';
 import { organizationRoutes } from './organizations/organizations.routes';
 import { campaignRoutes } from './campaigns/campaigns.routes';
+import { infoRoutes } from './info/info.routes';
 
 export const appRouter = createTRPCRouter({
   account: accountsRoutes,
   organization: organizationRoutes,
   campaign: campaignRoutes,
   leads: leadsRoutes,
+  info: infoRoutes,
 });
 
 export type AppRouter = typeof appRouter;

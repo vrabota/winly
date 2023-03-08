@@ -97,7 +97,7 @@ export const startCampaignService = async ({
             params: {
               firstName: lead.firstName,
             },
-            // sendAt: nextAvailableDateTime.format(),
+            sendAt: nextAvailableDateTime.format(),
           };
 
           logger.info({ payload }, `Message payload for campaign submit.`);

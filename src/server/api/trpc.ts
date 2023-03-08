@@ -90,17 +90,20 @@ const t = initTRPC.context<Context>().create({
 });
 
 const isAuthed = t.middleware(async ({ ctx, next, path }) => {
-  const user = await ctx.prisma.user.findUnique({ where: { auth0Id: ctx.session.user.sub } });
-  if (!ctx.session || !ctx.session.user || !user) {
+  let user = null;
+  if (path !== 'info.init') {
+    user = await ctx.prisma.user.findUnique({ where: { auth0Id: ctx.session.user.sub } });
+  }
+  if (!ctx.session || !ctx.session.user || (!user && path !== 'info.init')) {
     throw new TRPCError({ code: 'UNAUTHORIZED' });
   }
-  if (!ctx?.organizationId && path !== 'organization.getOrganizations') {
+  if (!ctx?.organizationId && path !== 'info.init') {
     throw new TRPCError({ code: 'BAD_REQUEST', message: 'There is a missing organization for your request' });
   }
   return next({
     ctx: {
       session: { ...ctx.session, user: ctx.session.user },
-      user,
+      user: user as User,
     },
   });
 });

@@ -20,7 +20,7 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
   const [organizationId, setSelectedOrganizationId] = useLocalStorage<string>({
     key: LOCAL_STORAGE_KEYS.ORGANIZATION_ID,
   });
-  const { data: organizations = [], isLoading } = api.organization.getOrganizations.useQuery(undefined, {
+  const { data: organizations = [], isLoading } = api.info.init.useQuery(undefined, {
     onSuccess: data => {
       if (data?.length && !organizationId) {
         setSelectedOrganizationId(data?.[0]?.id || '');
