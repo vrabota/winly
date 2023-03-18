@@ -1,11 +1,13 @@
 import { TRPCError } from '@trpc/server';
 
 import {
+  renameCampaign,
   createCampaign,
   getCampaigns,
   getCampaignById,
   updateCampaign,
   updateCampaignSequences,
+  deleteCampaign,
 } from '../data/repositories';
 
 import type {
@@ -14,6 +16,7 @@ import type {
   UpdateCampaignInput,
   SequencesType,
   UpdateCampaignSequenceInput,
+  RenameCampaignInput,
 } from '../data/dtos';
 import type { Context } from '@server/api/trpc';
 
@@ -97,4 +100,12 @@ export const updateCampaignSequenceHandler = async ({
       cause: error,
     });
   }
+};
+
+export const renameCampaignHandler = async ({ input }: { input: RenameCampaignInput }) => {
+  return renameCampaign(input);
+};
+
+export const deleteCampaignHandler = async ({ input }: { input: GetCampaignByIdInput }) => {
+  return deleteCampaign(input);
 };

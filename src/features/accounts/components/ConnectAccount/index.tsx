@@ -1,13 +1,13 @@
 import React from 'react';
-import { IconPlugConnected } from '@tabler/icons';
 import { Button } from '@mantine/core';
+import { IconPlus } from '@tabler/icons';
 
 import { getProvidersModal } from './modals/getProvidersModal';
 
 const ConnectAccount = () => {
   return (
-    <Button onClick={() => getProvidersModal()} leftIcon={<IconPlugConnected size={18} />}>
-      Connect Account
+    <Button radius="md" h={48} onClick={() => getProvidersModal()} leftIcon={<IconPlus size={18} />}>
+      New Account
     </Button>
   );
 };

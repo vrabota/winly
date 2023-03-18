@@ -18,7 +18,12 @@ const Campaigns: NextPage = () => {
       </Title>
       <CampaignBar />
       {data.map(campaign => (
-        <CampaignItem onClick={() => push(`/campaigns/${campaign.id}`)} key={campaign.id} name={campaign.name} />
+        <CampaignItem
+          onClick={() => push(`/campaigns/${campaign.id}/analytics`)}
+          key={campaign.id}
+          campaignId={campaign.id}
+          name={campaign.name}
+        />
       ))}
     </>
   );

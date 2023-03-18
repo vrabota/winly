@@ -29,22 +29,12 @@ const Header = () => {
   const { organizations = [], setSelectedOrganizationId, selectedOrganization } = useContext(OrganizationContext);
   return (
     <Box>
-      <HeaderMantine height={60} px="md" withBorder={false} className={classes.header}>
+      <HeaderMantine height={60} px={50} withBorder={false} className={classes.header}>
         <Group position="apart" sx={{ height: '100%' }}>
           <Link href="/">
             <MantineLogo size={30} />
           </Link>
           <Group h="100%" spacing={0}>
-            {!user && (
-              <Group>
-                <Button variant="default" component="a" href="/api/auth/login">
-                  Log in
-                </Button>
-                <Button component="a" href="/api/auth/logout">
-                  Logout
-                </Button>
-              </Group>
-            )}
             <Group mr="sm" spacing="sm">
               <ActionIcon radius="xl" size="lg" sx={{ ':hover': { transition: 'all 0.3s' } }}>
                 <HelpIcon size={20} />

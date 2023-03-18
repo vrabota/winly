@@ -10,6 +10,8 @@ import { api } from '@utils/api';
 import { MainLayout } from '@components/layouts';
 import { OrganizationProvider } from '@context/OrganizationContext';
 
+import type { MantineTheme, ButtonStylesParams } from '@mantine/core';
+
 const inter = Inter({ subsets: ['latin'] });
 
 const MyApp: AppType = ({ Component, pageProps }) => {
@@ -24,7 +26,9 @@ const MyApp: AppType = ({ Component, pageProps }) => {
         withGlobalStyles
         withNormalizeCSS
         theme={{
+          white: '#fff',
           primaryColor: 'purple',
+          primaryShade: 6,
           colors: {
             purple: [
               '#F8F2FD',
@@ -89,6 +93,129 @@ const MyApp: AppType = ({ Component, pageProps }) => {
           },
           colorScheme: 'light',
           fontFamily: inter.style.fontFamily,
+          cursorType: 'pointer',
+          components: {
+            Menu: {
+              defaultProps: {
+                styles: (theme: MantineTheme) => ({
+                  dropdown: {
+                    borderRadius: theme.radius.md,
+                    boxShadow: theme.shadows.md,
+                  },
+                }),
+              },
+            },
+            Table: {
+              styles: (theme: MantineTheme) => ({
+                root: {
+                  '&[data-hover] tbody tr:hover': {
+                    background: '#fcfcfc',
+                  },
+                  'tbody tr, thead tr': {
+                    background: theme.white,
+                    transition: 'all 0.2s',
+                  },
+                  'tbody tr td, thead tr th': {
+                    borderColor: theme.colors.gray[0],
+                    borderWidth: 2,
+                  },
+                  'tbody tr td': {
+                    padding: '10px 24px',
+                  },
+                  'thead tr th': {
+                    color: theme.colors.gray[4],
+                    fontSize: 11,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                  },
+                  'tbody tr:last-of-type td': {
+                    border: 'none',
+                  },
+                  'thead tr': {
+                    boxShadow: 'none',
+                  },
+                },
+              }),
+            },
+            RadioGroup: {
+              defaultProps: {
+                styles: (theme: MantineTheme) => ({
+                  root: {
+                    ':hover': {
+                      cursor: 'pointer',
+                    },
+                    '.mantine-Radio-root': {
+                      backgroundColor: theme.colors.gray[0],
+                      borderRadius: theme.radius.md,
+                      transition: 'all 0.3s',
+                      ':hover': {
+                        backgroundColor: theme.colors.purple?.[1],
+                      },
+                    },
+                    '.mantine-Radio-labelWrapper': {
+                      width: '100%',
+                    },
+                    '.mantine-Radio-label': {
+                      padding: `${theme.spacing.md}px 0`,
+                      fontWeight: 500,
+                    },
+                    '.mantine-Radio-inner': {
+                      padding: `${theme.spacing.md}px`,
+                    },
+                  },
+                }),
+              },
+            },
+            TextInput: {
+              defaultProps: {
+                size: 'md',
+                radius: 'md',
+                styles: (theme: MantineTheme) => ({
+                  input: {
+                    fontSize: 14,
+                    borderColor: theme.colors.gray[2],
+                    ':hover': {
+                      borderColor: theme.colors.gray[3],
+                    },
+                    ':focus': {
+                      borderColor: theme.colors.purple?.[5],
+                    },
+                  },
+                }),
+              },
+            },
+            Textarea: {
+              defaultProps: {
+                size: 'md',
+                radius: 'md',
+                styles: (theme: MantineTheme) => ({
+                  input: {
+                    fontSize: 14,
+                    borderColor: theme.colors.gray[2],
+                    ':hover': {
+                      borderColor: theme.colors.gray[3],
+                    },
+                    ':focus': {
+                      borderColor: theme.colors.purple?.[5],
+                    },
+                  },
+                  description: {
+                    marginBottom: 10,
+                  },
+                }),
+              },
+            },
+            Button: {
+              styles: (theme: MantineTheme, params: ButtonStylesParams) => ({
+                root: {
+                  transition: 'background 0.3s',
+                  ':hover': {
+                    backgroundColor: params.variant === 'light' ? theme.colors.purple?.[1] : undefined,
+                  },
+                },
+              }),
+            },
+          },
         }}
       >
         <ModalsProvider
@@ -101,7 +228,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
             padding: 40,
           }}
         >
-          <NotificationsProvider position="bottom-center">
+          <NotificationsProvider position="top-center" style={{ marginTop: 15 }}>
             <UserProvider>
               <OrganizationProvider>
                 <MainLayout>

@@ -10,7 +10,7 @@ import type { ReactNode } from 'react';
 const MainLayout = ({ children }: { children: ReactNode }) => {
   const { classes } = useStyles();
   return (
-    <AppShell header={<Header />} navbar={<NavBar />} padding={30} className={classes.main}>
+    <AppShell header={<Header />} navbar={<NavBar />} py={30} px={50} className={classes.main}>
       {children}
     </AppShell>
   );

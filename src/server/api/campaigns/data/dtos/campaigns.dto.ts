@@ -5,6 +5,7 @@ import type { TypeOf } from 'zod';
 export const sequencesSchema = z.object({ subject: z.string(), body: z.string(), delay: z.string().optional() });
 
 export const createCampaignSchema = z.object({ name: z.string() });
+export const renameCampaignSchema = createCampaignSchema.extend({ campaignId: z.string() });
 export const updateCampaignSchema = z.object({
   accountIds: z.array(z.string()).min(1),
   scheduleDays: z.array(z.string()).optional(),
@@ -25,6 +26,7 @@ export const updateCampaignSequenceSchema = z.object({
 });
 
 export type CreateCampaignInput = TypeOf<typeof createCampaignSchema>;
+export type RenameCampaignInput = TypeOf<typeof renameCampaignSchema>;
 export type UpdateCampaignInput = TypeOf<typeof updateCampaignSchema>;
 export type GetCampaignByIdInput = TypeOf<typeof getCampaignByIdSchema>;
 export type UpdateCampaignSequenceInput = TypeOf<typeof updateCampaignSequenceSchema>;

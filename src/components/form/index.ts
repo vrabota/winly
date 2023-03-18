@@ -7,3 +7,4 @@ export * from './SelectField';
 export * from './SwitchField';
 export * from './NumberInput';
 export * from './DateRangeField';
+export * from './RadioGroup';

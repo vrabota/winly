@@ -8,6 +8,7 @@ import type { withUserId, withUserOrgIds } from '@server/types/withUserOrgIds';
 import type {
   CreateCampaignInput,
   GetCampaignByIdInput,
+  RenameCampaignInput,
   UpdateCampaignInput,
   UpdateCampaignSequenceInput,
 } from '@server/api/campaigns/data/dtos';
@@ -94,6 +95,31 @@ export const updateCampaignSequences = async (payload: withUserId<UpdateCampaign
   });
 
   logger.info({ campaign }, `Successfully updated campaign sequences ${payload.campaignId}`);
+
+  return campaign;
+};
+
+export const renameCampaign = async (payload: RenameCampaignInput): Promise<Campaign> => {
+  logger.info({ payload }, `Updating campaign name ${payload.name}`);
+
+  const campaign = await prisma.campaign.update({
+    where: { id: payload.campaignId },
+    data: { name: payload.name },
+  });
+
+  logger.info({ campaign }, `Successfully updated campaign name ${payload.name}`);
+
+  return campaign;
+};
+
+export const deleteCampaign = async (payload: GetCampaignByIdInput): Promise<Campaign> => {
+  logger.info({ payload }, `Deleting campaign ${payload.campaignId}`);
+
+  const campaign = await prisma.campaign.delete({
+    where: { id: payload.campaignId },
+  });
+
+  logger.info({ campaign }, `Successfully deleted campaign ${payload.campaignId}`);
 
   return campaign;
 };

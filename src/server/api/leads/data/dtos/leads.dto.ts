@@ -8,8 +8,11 @@ export const createLeadsSchema = z.object({
   email: z.string().email(),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
+  website: z.string().optional(),
+  companyName: z.string().optional(),
+  phone: z.string().optional(),
   status: z.nativeEnum(LeadStatus).optional(),
-  details: z.any().optional(),
+  customVariables: z.any().optional(),
 });
 
 export const batchCreateLeads = z.array(createLeadsSchema);

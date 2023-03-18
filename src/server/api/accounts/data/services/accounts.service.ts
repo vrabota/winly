@@ -7,9 +7,16 @@ import { oAuth2Client } from '@utils/authClient';
 import { encrypt } from '@utils/crypto';
 
 import type { Account } from '@prisma/client';
-import type { AccountsListOutput } from '@server/api/accounts/data/dtos/accounts.dto';
 
-export const oauth2AccountService = async (code: string): Promise<{ email: string; refreshToken: string }> => {
+interface GoogleOauth {
+  email: string;
+  refreshToken: string;
+  given_name?: string;
+  family_name?: string;
+  picture?: string;
+}
+
+export const oauth2AccountService = async (code: string): Promise<GoogleOauth> => {
   logger.info(`Connecting Google Account based with ${code} code`);
 
   const { tokens } = await oAuth2Client.getToken(code);
@@ -20,13 +27,15 @@ export const oauth2AccountService = async (code: string): Promise<{ email: strin
   oAuth2Client.setCredentials(tokens);
 
   const { email } = await oAuth2Client.getTokenInfo(tokens.access_token as string);
+  const response = await oAuth2Client.verifyIdToken({ idToken: tokens.id_token as string });
+  const { given_name, family_name, picture } = response.getPayload() || {};
 
   logger.info({ email }, `Receive email from access token`);
 
   if (!email || !refreshToken) {
     throw new TRPCError({ code: 'BAD_REQUEST', message: 'Can not receive email and token for this request' });
   }
-  return { email, refreshToken };
+  return { email, refreshToken, given_name, family_name, picture };
 };
 
 export const connectAccountService = async (account: Account, type: AccountType) => {
@@ -66,21 +75,6 @@ export const connectAccountService = async (account: Account, type: AccountType)
     throw new TRPCError({
       code: 'BAD_REQUEST',
       message: `Unfortunately can not connect the account to EmailEngine server.`,
-      cause: error,
-    });
-  }
-};
-
-export const getAccountsService = async (): Promise<AccountsListOutput> => {
-  try {
-    const { data } = await emailApi.get('/accounts?page=0');
-    return data;
-  } catch (error) {
-    logger.info({ error }, `Can not return list of accounts from Email Engine service.`);
-
-    throw new TRPCError({
-      code: 'BAD_REQUEST',
-      message: `Unfortunately can not return accounts from service.`,
       cause: error,
     });
   }

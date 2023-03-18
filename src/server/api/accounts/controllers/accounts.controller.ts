@@ -3,8 +3,8 @@ import { AccountType } from '@prisma/client';
 
 import { logger } from '@utils/logger';
 
-import { createOrUpdateAccount } from '../data/repositories';
-import { oauth2AccountService, connectAccountService, getAccountsService } from '../data/services';
+import { createOrUpdateAccount, getAccounts } from '../data/repositories';
+import { oauth2AccountService, connectAccountService } from '../data/services';
 
 import type { AppPasswordAccountInput } from '@server/api/accounts/data/dtos/accounts.dto';
 import type { Context } from '@server/api/trpc';
@@ -15,6 +15,9 @@ export const connectGoogleOauthHandler = async ({ input, ctx }: { input: Oauth2A
     const oauth2Account = await oauth2AccountService(input.code);
 
     const payload = {
+      firstName: oauth2Account?.given_name,
+      lastName: oauth2Account?.family_name,
+      picture: oauth2Account?.picture,
       refreshToken: oauth2Account.refreshToken,
       organizationId: ctx.organizationId,
       addedById: ctx.user.id,
@@ -72,8 +75,8 @@ export const connectGoogleAppPasswordHandler = async ({
   }
 };
 
-export const getAccountsHandler = async () => {
-  const accounts = await getAccountsService();
+export const getAccountsHandler = async ({ ctx }: { ctx: Context }) => {
+  const accounts = await getAccounts({ organizationId: ctx.organizationId });
 
   logger.info({ accounts }, `Successfully received list of accounts`);
 

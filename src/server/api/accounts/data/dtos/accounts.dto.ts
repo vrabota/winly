@@ -11,7 +11,12 @@ export const appPasswordAccountSchema = z.object({
   email: z.string().email(),
 });
 
+export const accountsSchema = z.object({
+  organizationId: z.string(),
+});
+
 export type Oauth2AccountInput = TypeOf<typeof oauth2AccountSchema>;
+export type AccountsInput = TypeOf<typeof accountsSchema>;
 export type AppPasswordAccountInput = TypeOf<typeof appPasswordAccountSchema>;
 
 export type AccountsListOutput = components['schemas']['AccountsFilterResponse'];

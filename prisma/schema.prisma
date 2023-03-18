@@ -51,22 +51,23 @@ model Organization {
   users     User[]
   accounts  Account[]
   campaigns Campaign[]
-  leads     Lead[]
 
   @@map("organizations")
 }
 
 model Account {
-  id             String      @id @default(uuid()) @db.VarChar(36)
-  refreshToken   String?     @map("refresh_token") @db.Text
-  email          String      @unique @db.VarChar(100)
-  appPassword    String?     @map("app_password") @db.VarChar(100)
-  firstName      String?     @map("first_name") @db.VarChar(100)
-  lastName       String?     @map("last_name") @db.VarChar(100)
-  organizationId String      @map("organization_id") @db.VarChar(36)
-  addedById      String      @map("added_by_id") @db.VarChar(100)
-  modifiedById   String      @map("modified_by_id") @db.VarChar(100)
+  id             String       @id @default(uuid()) @db.VarChar(36)
+  refreshToken   String?      @map("refresh_token") @db.Text
+  picture        String?      @map("picture") @db.Text
+  email          String       @unique @db.VarChar(100)
+  appPassword    String?      @map("app_password") @db.VarChar(100)
+  firstName      String?      @map("first_name") @db.VarChar(100)
+  lastName       String?      @map("last_name") @db.VarChar(100)
+  organizationId String       @map("organization_id") @db.VarChar(36)
+  addedById      String       @map("added_by_id") @db.VarChar(100)
+  modifiedById   String       @map("modified_by_id") @db.VarChar(100)
   type           AccountType
+  state          AccountState @default(UNSET)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -88,6 +89,19 @@ enum AccountType {
   GOOGLE_APP_PASSWORD
 
   @@map("account_type_enum")
+}
+
+enum AccountState {
+  INIT
+  SYNCING
+  CONNECTING
+  CONNECTED
+  AUTHENTICATION_ERROR
+  CONNECT_ERROR
+  UNSET
+  DISCONNECTED
+
+  @@map("account_state_enum")
 }
 
 model Campaign {
@@ -134,23 +148,23 @@ enum CampaignStatus {
 }
 
 model Lead {
-  id             String     @id @default(uuid()) @db.VarChar(36)
-  organizationId String     @map("organization_id") @db.VarChar(36)
-  campaignId     String     @map("campaign_id") @db.VarChar(36)
-  email          String     @db.VarChar(100)
-  firstName      String?    @map("first_name") @db.VarChar(100)
-  lastName       String?    @map("last_name") @db.VarChar(100)
-  details        Json?
-  status         LeadStatus @default(LEAD)
+  id              String     @id @default(uuid()) @db.VarChar(36)
+  campaignId      String     @map("campaign_id") @db.VarChar(36)
+  email           String     @db.VarChar(100)
+  firstName       String?    @map("first_name") @db.VarChar(100)
+  lastName        String?    @map("last_name") @db.VarChar(100)
+  website         String?    @map("website") @db.VarChar(100)
+  companyName     String?    @map("companyName") @db.VarChar(100)
+  phone           String?    @map("phone") @db.VarChar(100)
+  customVariables Json?
+  status          LeadStatus @default(LEAD)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  organization Organization @relation(fields: [organizationId], references: [id])
-  campaign     Campaign     @relation(fields: [campaignId], references: [id])
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 
   @@unique([campaignId, email])
-  @@index([organizationId])
   @@index([campaignId])
   @@map("leads")
 }
@@ -181,7 +195,7 @@ model Activity {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  campaign Campaign @relation(fields: [campaignId], references: [id])
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   account  Account  @relation(fields: [accountId], references: [id])
 
   @@index([queueId])

@@ -7,12 +7,10 @@ import {
 } from '@server/api/accounts/controllers';
 import { appPasswordAccountSchema } from '@server/api/accounts/data/dtos/accounts.dto';
 
-import type { AccountsListOutput } from '@server/api/accounts/data/dtos/accounts.dto';
-
 export const accountsRoutes = createTRPCRouter({
   connectGoogleOauthAccount: protectedProcedure.input(oauth2AccountSchema).query(connectGoogleOauthHandler),
   connectAppPasswordAccount: protectedProcedure
     .input(appPasswordAccountSchema)
     .mutation(connectGoogleAppPasswordHandler),
-  getAccounts: protectedProcedure.query<AccountsListOutput>(getAccountsHandler),
+  getAccounts: protectedProcedure.query(getAccountsHandler),
 });

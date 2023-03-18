@@ -24,7 +24,7 @@ const CampaignBar = () => {
         </Group>
       </Box>
       <Button onClick={createCampaign} leftIcon={<IconPlus size={18} />}>
-        Create New Campaign
+        New Campaign
       </Button>
     </Group>
   );

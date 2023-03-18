@@ -11,7 +11,11 @@ export default withApiAuthRequired(function handler(req: NextApiRequest, res: Ne
   const authorizeUrl = oAuth2Client.generateAuthUrl({
     access_type: 'offline',
     prompt: 'consent', // can be disabled after store refresh_token in DB
-    scope: ['https://mail.google.com', 'https://www.googleapis.com/auth/userinfo.email'],
+    scope: [
+      'https://mail.google.com',
+      'https://www.googleapis.com/auth/userinfo.email',
+      'https://www.googleapis.com/auth/userinfo.profile',
+    ],
   });
 
   logger.info({ url: authorizeUrl }, 'Successful generated google oauth2 URL for client');

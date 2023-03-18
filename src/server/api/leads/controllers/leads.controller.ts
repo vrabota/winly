@@ -2,14 +2,12 @@ import { TRPCError } from '@trpc/server';
 
 import { getLeads, createLead, batchCreateLeads } from '../data/repositories';
 
-import type { withOrgId } from '@server/types/withUserOrgIds';
 import type { GetLeadsInput, CreateLeadsInput } from '../data/dtos';
 import type { Context } from '@server/api/trpc';
 
-export const getLeadsHandler = async ({ ctx, input }: { ctx: Context; input: GetLeadsInput }) => {
+export const getLeadsHandler = async ({ input }: { input: GetLeadsInput }) => {
   try {
     return getLeads({
-      organizationId: ctx.organizationId,
       campaignId: input.campaignId,
     });
   } catch (error) {
@@ -21,12 +19,9 @@ export const getLeadsHandler = async ({ ctx, input }: { ctx: Context; input: Get
   }
 };
 
-export const createLeadHandler = async ({ ctx, input }: { ctx: Context; input: CreateLeadsInput }) => {
+export const createLeadHandler = async ({ input }: { input: CreateLeadsInput }) => {
   try {
-    return createLead({
-      organizationId: ctx.organizationId,
-      ...input,
-    });
+    return createLead(input);
   } catch (error) {
     throw new TRPCError({
       code: 'BAD_REQUEST',
@@ -36,13 +31,9 @@ export const createLeadHandler = async ({ ctx, input }: { ctx: Context; input: C
   }
 };
 
-export const batchCreateLeadsHandler = async ({ ctx, input }: { ctx: Context; input: CreateLeadsInput[] }) => {
+export const batchCreateLeadsHandler = async ({ input }: { ctx: Context; input: CreateLeadsInput[] }) => {
   try {
-    const payload: withOrgId<CreateLeadsInput>[] = input.map(item => ({
-      ...item,
-      organizationId: ctx.organizationId,
-    }));
-    return batchCreateLeads(payload);
+    return batchCreateLeads(input);
   } catch (error) {
     throw new TRPCError({
       code: 'BAD_REQUEST',
