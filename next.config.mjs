@@ -7,11 +7,18 @@
 
 /** @type {import("next").NextConfig} */
 const config = {
+  webpack(config, { dev }) {
+    if (dev) {
+      config.cache = true;
+      config.bail = true;
+    }
+    return config;
+  },
   reactStrictMode: false,
   swcMinify: true,
   i18n: {
     locales: ["en"],
     defaultLocale: "en",
-  },
+  }
 };
 export default config;

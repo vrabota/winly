@@ -1,6 +1,7 @@
 import React from 'react';
-import { Box, Stack, Group, Text, Title, ActionIcon, Divider, TextInput } from '@mantine/core';
-import { IconMail, IconTrash } from '@tabler/icons';
+import { Stack, Group, Text, ActionIcon, Divider, TextInput, Paper } from '@mantine/core';
+
+import { Trash, Envelope } from '@assets/icons';
 
 const SequenceTab = ({
   updateSequence,
@@ -22,48 +23,58 @@ const SequenceTab = ({
   deleteStep: () => void;
 }) => {
   return (
-    <Box
-      bg="gray.1"
+    <Paper
+      bg="white"
       p={20}
+      shadow="xs"
       onClick={setActive}
-      sx={theme => ({ borderRadius: theme.radius.md, border: isActive ? `2px solid ${theme.colors.blue[8]}` : '' })}
+      sx={theme => ({
+        borderRadius: theme.radius.md,
+        border: isActive ? `1px solid #9537E1` : '1px solid transparent',
+      })}
     >
       <Stack spacing={20}>
         <Group position="apart" align="center">
           <Group align="center">
-            <IconMail />
-            <Title order={6}>{`Step ${index + 1}`}</Title>
+            <Envelope size={18} />
+            <Text size={14} weight={500}>{`Step ${index + 1}`}</Text>
           </Group>
           <ActionIcon
+            radius="xl"
             onClick={e => {
               e.stopPropagation();
               deleteStep();
             }}
           >
-            <IconTrash />
+            <Trash size={18} />
           </ActionIcon>
         </Group>
         {!isFirst && (
           <>
-            <Divider mx="-20px" />
+            <Divider mx="-20px" color="gray.1" />
             <Group>
-              <Text weight="bolder">Wait for </Text>
+              <Text weight={500} size={14}>
+                Wait for{' '}
+              </Text>
               <TextInput
                 value={delay}
                 onChange={e => updateSequence({ delay: e.target.value })}
                 sx={{ input: { textAlign: 'center' } }}
-                w={50}
+                w={70}
+                size="xs"
               />
-              <Text weight="bolder">days, then</Text>
+              <Text weight={500} size={14}>
+                days, then
+              </Text>
             </Group>
           </>
         )}
-        <Divider mx="-20px" />
+        <Divider mx="-20px" color="gray.1" />
         <Stack>
-          <Text>{subject || '<Empty subject>'}</Text>
+          <Text size={14}>{subject || '<Empty subject>'}</Text>
         </Stack>
       </Stack>
-    </Box>
+    </Paper>
   );
 };
 

@@ -1,8 +1,11 @@
 import React, { useEffect } from 'react';
 import { RichTextEditor, Link } from '@mantine/tiptap';
-import { Group, Text, TextInput, Divider, Button } from '@mantine/core';
+import { Group, Text, TextInput, Divider, Button, Paper } from '@mantine/core';
 import { useEditor } from '@tiptap/react';
 import { StarterKit } from '@tiptap/starter-kit';
+import { Highlight } from '@tiptap/extension-highlight';
+import { Underline } from '@tiptap/extension-underline';
+import { TextAlign } from '@tiptap/extension-text-align';
 import { showNotification } from '@mantine/notifications';
 import { IconCheck } from '@tabler/icons';
 import { useRouter } from 'next/router';
@@ -29,7 +32,7 @@ export const SequenceEditor = ({
   const { query } = useRouter();
   const editor = useEditor(
     {
-      extensions: [StarterKit, Link],
+      extensions: [StarterKit, Link, Highlight, Underline, TextAlign.configure({ types: ['heading', 'paragraph'] })],
       onBlur({ editor }) {
         console.log(editor?.getHTML());
         updateSequence({ body: editor?.getHTML() });
@@ -66,81 +69,84 @@ export const SequenceEditor = ({
 
   return (
     <>
-      <Group
-        position="left"
-        align="center"
-        p={15}
-        sx={theme => ({
-          borderTopLeftRadius: 4,
-          borderTopRightRadius: 4,
-          border: `1px solid ${theme.colors.gray[4]}`,
-          borderBottom: 'none',
-        })}
-      >
-        <Group sx={{ flexGrow: 1 }}>
-          <Text weight="bolder">Subject</Text>
-          <TextInput
-            value={subject}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => updateSequence({ subject: e.target.value })}
-            placeholder="Add your subject here"
-            variant="unstyled"
-            wrapperProps={{ sx: { flexGrow: 1 } }}
+      <Paper bg="white" radius="md" shadow="xs">
+        <Group
+          position="apart"
+          align="center"
+          px={25}
+          py={10}
+          sx={theme => ({ flexGrow: 1, borderBottom: `1px solid ${theme.colors.gray[1]}` })}
+        >
+          <Group sx={{ flexGrow: 1 }} align="center">
+            <Text component="label" htmlFor="subject" size={14} weight={500}>
+              Subject:
+            </Text>
+            <TextInput
+              id="subject"
+              sx={{ fontSize: 14, fontWeight: 500 }}
+              value={subject}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => updateSequence({ subject: e.target.value })}
+              placeholder="Add your subject here"
+              variant="unstyled"
+              mt={-5}
+              wrapperProps={{ sx: { flexGrow: 1 } }}
+            />
+          </Group>
+          <Group align="center">
+            <Divider color="gray.3" h={25} mt={5} mr={10} orientation="vertical" />
+            <Button radius="md" onClick={createSequence}>
+              Save
+            </Button>
+          </Group>
+        </Group>
+        <RichTextEditor sx={{ border: 0, fontSize: 14 }} editor={editor}>
+          <RichTextEditor.Content
+            sx={{
+              height: 368,
+              '.ProseMirror': { height: 336, overflowY: 'auto', fontSize: 14 },
+            }}
           />
-        </Group>
-        <Group>
-          <Divider orientation="vertical" />
-          <Button onClick={createSequence}>Save</Button>
-        </Group>
-      </Group>
-      <RichTextEditor sx={{ borderTopLeftRadius: 0, borderTopRightRadius: 0 }} editor={editor}>
-        <RichTextEditor.Content
-          sx={{
-            borderTopLeftRadius: 0,
-            borderTopRightRadius: 0,
-            height: 368,
-            '.ProseMirror': { height: 336, overflowY: 'auto' },
-          }}
-        />
-        <RichTextEditor.Toolbar>
-          <RichTextEditor.ControlsGroup>
-            <RichTextEditor.Bold />
-            <RichTextEditor.Italic />
-            <RichTextEditor.Underline />
-            <RichTextEditor.Strikethrough />
-            <RichTextEditor.ClearFormatting />
-            <RichTextEditor.Highlight />
-            <RichTextEditor.Code />
-          </RichTextEditor.ControlsGroup>
+          <RichTextEditor.Toolbar
+            sx={theme => ({
+              borderBottom: 0,
+              borderRadius: 0,
+              padding: '20px 25px',
+              borderBottomLeftRadius: theme.radius.md,
+              borderBottomRightRadius: theme.radius.md,
+              borderTop: `1px solid ${theme.colors.gray[1]}`,
+            })}
+          >
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.Bold />
+              <RichTextEditor.Italic />
+              <RichTextEditor.Underline />
+              <RichTextEditor.Strikethrough />
+              <RichTextEditor.ClearFormatting />
+              <RichTextEditor.Highlight />
+              <RichTextEditor.Code />
+            </RichTextEditor.ControlsGroup>
 
-          <RichTextEditor.ControlsGroup>
-            <RichTextEditor.H1 />
-            <RichTextEditor.H2 />
-            <RichTextEditor.H3 />
-            <RichTextEditor.H4 />
-          </RichTextEditor.ControlsGroup>
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.H1 />
+              <RichTextEditor.H2 />
+              <RichTextEditor.H3 />
+              <RichTextEditor.H4 />
+            </RichTextEditor.ControlsGroup>
 
-          <RichTextEditor.ControlsGroup>
-            <RichTextEditor.Blockquote />
-            <RichTextEditor.Hr />
-            <RichTextEditor.BulletList />
-            <RichTextEditor.OrderedList />
-            <RichTextEditor.Subscript />
-            <RichTextEditor.Superscript />
-          </RichTextEditor.ControlsGroup>
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.Link />
+              <RichTextEditor.Unlink />
+            </RichTextEditor.ControlsGroup>
 
-          <RichTextEditor.ControlsGroup>
-            <RichTextEditor.Link />
-            <RichTextEditor.Unlink />
-          </RichTextEditor.ControlsGroup>
-
-          <RichTextEditor.ControlsGroup>
-            <RichTextEditor.AlignLeft />
-            <RichTextEditor.AlignCenter />
-            <RichTextEditor.AlignJustify />
-            <RichTextEditor.AlignRight />
-          </RichTextEditor.ControlsGroup>
-        </RichTextEditor.Toolbar>
-      </RichTextEditor>
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.AlignLeft />
+              <RichTextEditor.AlignCenter />
+              <RichTextEditor.AlignJustify />
+              <RichTextEditor.AlignRight />
+            </RichTextEditor.ControlsGroup>
+          </RichTextEditor.Toolbar>
+        </RichTextEditor>
+      </Paper>
     </>
   );
 };

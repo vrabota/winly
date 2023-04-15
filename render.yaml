@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: emailengine
+    env: node
+    repo: https://github.com/postalsys/emailengine.git
+    region: ohio
+    buildCommand: ./update-info.sh && npm install --omit=dev
+    startCommand: npm start
+    envVars:
+      - key: EENGINE_REDIS
+        fromService:
+          type: redis
+          name: ee-redis
+          property: connectionString
+      - key: EENGINE_SECRET
+        generateValue: true
+      - key: EENGINE_WORKERS
+        value: 2
+      - key: EENGINE_TIMEOUT
+        value: 30s
+      - key: EENGINE_HOST
+        value: 0.0.0.0
+      - key: EENGINE_API_PROXY
+        value: 1
+      - key: EENGINE_MAX_SIZE
+        value: 25M
+      - key: EENGINE_SETTINGS
+        value: {
+          "authServer": "https://app.winly.ai/api/account-auth",
+          "webhooksEnabled": true,
+          "webhookEvents": ["*"],
+          "webhooks": "https://app.winly.ai/api/webhooks/email-engine"
+        }
+    autoDeploy: false
+
+  - type: redis
+    name: ee-redis
+    region: ohio
+    ipAllowList: []
+    maxmemoryPolicy: noeviction # optional (defaults to allkeys-lru)

@@ -1,8 +1,6 @@
 import React from 'react';
 import { MantineReactTable } from 'mantine-react-table';
-import { Stack, Text, Box } from '@mantine/core';
-
-import TableRowSkeleton from '@components/data/TableRowSkeleton';
+import { Stack, Box, Text } from '@mantine/core';
 
 import type { ReactNode } from 'react';
 
@@ -10,29 +8,33 @@ const Table = ({
   columns,
   data,
   isLoading,
+  isFetching,
   isEmpty,
   noData,
   filters,
   total,
   renderRowActionMenuItems,
+  renderRowActions,
+  ...rest
 }: {
   columns: any;
   data: any;
+  mantineTableContainerProps?: any;
+  renderRowActionMenuItems?: (props: any) => ReactNode;
+  renderRowActions?: (props: any) => ReactNode;
+  mantineTableBodyRowProps?: any;
   isLoading?: boolean;
+  isFetching?: boolean;
+  enableRowSelection?: boolean;
+  enableRowActions?: boolean;
   isEmpty?: boolean;
   noData?: ReactNode;
   filters?: ReactNode;
-  total?: string;
-  renderRowActionMenuItems: () => ReactNode;
+  total?: ReactNode | string;
+  positionToolbarAlertBanner?: any;
+  getRowId?: (row: any) => string;
+  renderTopToolbarCustomActions?: (data: any) => ReactNode;
 }) => {
-  if (isLoading) {
-    return (
-      <>
-        {filters}
-        <TableRowSkeleton columnsCount={5} rowsCount={3} />
-      </>
-    );
-  }
   if (isEmpty && noData) return <>{noData}</>;
   return (
     <>
@@ -45,9 +47,7 @@ const Table = ({
           mb={2}
           sx={theme => ({ borderTopLeftRadius: theme.radius.md, borderTopRightRadius: theme.radius.md })}
         >
-          <Text size="sm" color="gray.8">
-            {total}
-          </Text>
+          <Text size={15}>{total}</Text>
         </Stack>
       )}
 
@@ -58,9 +58,21 @@ const Table = ({
           enablePagination={false}
           enableSorting={false}
           enableBottomToolbar={false}
-          enableTopToolbar={false}
+          enableTopToolbar={true}
+          enableToolbarInternalActions={false}
+          mantineTopToolbarProps={{
+            mih: 0,
+            sx: theme => ({
+              '> div': { padding: 0 },
+              borderTopLeftRadius: theme.radius.md,
+              borderTopRightRadius: theme.radius.md,
+            }),
+          }}
           enableRowActions={true}
           positionActionsColumn="last"
+          mantineProgressProps={{ color: 'purple.2', size: 'xs' }}
+          renderRowActionMenuItems={renderRowActionMenuItems}
+          renderRowActions={renderRowActions}
           displayColumnDefOptions={{
             'mrt-row-actions': {
               size: 100,
@@ -72,13 +84,14 @@ const Table = ({
               },
             },
           }}
-          renderRowActionMenuItems={renderRowActionMenuItems}
-          columns={columns}
           mantinePaperProps={{
             withBorder: false,
             shadow: undefined,
           }}
+          columns={columns}
           data={data || []}
+          state={{ showProgressBars: isFetching, isLoading: isLoading }}
+          {...rest}
         />
       </Box>
     </>

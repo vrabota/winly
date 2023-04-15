@@ -12,6 +12,7 @@
     "prisma:format": "prisma format",
     "prisma:db:push": "prisma db push",
     "prisma:studio": "prisma studio",
+    "prisma:seed": "ts-node --compiler-options {\\\"module\\\":\\\"CommonJS\\\"} prisma/seed.ts",
     "generate:types": "openapi-typescript ./src/schema/open-api.json --output ./src/schema/api.ts"
   },
   "dependencies": {
@@ -32,7 +33,10 @@
     "@prisma/client": "^4.8.0",
     "@tabler/icons": "^1.119.0",
     "@tanstack/react-query": "^4.20.0",
+    "@tiptap/extension-highlight": "^2.0.2",
     "@tiptap/extension-link": "^2.0.0-beta.209",
+    "@tiptap/extension-text-align": "^2.0.2",
+    "@tiptap/extension-underline": "^2.0.2",
     "@tiptap/react": "^2.0.0-beta.209",
     "@tiptap/starter-kit": "^2.0.0-beta.209",
     "@trpc/client": "^10.8.1",
@@ -51,11 +55,13 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.42.1",
+    "recharts": "^2.5.0",
     "superjson": "1.9.1",
     "timezones-list": "^3.0.1",
     "zod": "^3.20.2"
   },
   "devDependencies": {
+    "@faker-js/faker": "^7.6.0",
     "@types/lodash": "^4.14.191",
     "@types/node": "^18.11.18",
     "@types/papaparse": "^5.3.7",
@@ -72,6 +78,7 @@
     "openapi-typescript": "^6.1.0",
     "prettier": "^2.8.3",
     "prisma": "^4.8.0",
+    "ts-node": "^10.9.1",
     "typescript": "^4.9.4"
   },
   "ct3aMetadata": {

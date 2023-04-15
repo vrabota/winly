@@ -15,8 +15,14 @@ export const accountsSchema = z.object({
   organizationId: z.string(),
 });
 
+export const accountIdSchema = z.object({
+  accountId: z.string(),
+});
+
 export type Oauth2AccountInput = TypeOf<typeof oauth2AccountSchema>;
 export type AccountsInput = TypeOf<typeof accountsSchema>;
 export type AppPasswordAccountInput = TypeOf<typeof appPasswordAccountSchema>;
+export type AccountIdInput = TypeOf<typeof accountIdSchema>;
 
-export type AccountsListOutput = components['schemas']['AccountsFilterResponse'];
+export type AccountReconnectOutput = components['schemas']['RequestReconnectResponse'];
+export type AccountDeleteOutput = components['schemas']['DeleteAppRequestResponse'];

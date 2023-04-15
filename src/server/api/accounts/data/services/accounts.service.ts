@@ -6,6 +6,7 @@ import { emailApi } from '@utils/emailApi';
 import { oAuth2Client } from '@utils/authClient';
 import { encrypt } from '@utils/crypto';
 
+import type { AccountDeleteOutput, AccountReconnectOutput } from '../dtos/accounts.dto';
 import type { Account } from '@prisma/client';
 
 interface GoogleOauth {
@@ -78,4 +79,24 @@ export const connectAccountService = async (account: Account, type: AccountType)
       cause: error,
     });
   }
+};
+
+export const reconnectAccountsService = async (accountId: string): Promise<AccountReconnectOutput> => {
+  try {
+    const { data } = await emailApi.put(`/account/${accountId}/reconnect`, { reconnect: true });
+    return data;
+  } catch (error) {
+    logger.info({ error }, `Can not reconnect account from Email Engine service.`);
+
+    throw new TRPCError({
+      code: 'BAD_REQUEST',
+      message: `Unfortunately can not return reconnect account from service.`,
+      cause: error,
+    });
+  }
+};
+
+export const deleteAccountService = async (accountId: string): Promise<AccountDeleteOutput> => {
+  const { data } = await emailApi.delete(`/account/${accountId}`);
+  return data;
 };

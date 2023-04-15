@@ -1,5 +1,5 @@
 import React from 'react';
-import { Group, Paper, Stack, ThemeIcon, Title, Text } from '@mantine/core';
+import { Group, Paper, Stack, ThemeIcon, Text } from '@mantine/core';
 import { IconMaximize } from '@tabler/icons';
 
 import { NumberInput } from '@components/form';
@@ -7,14 +7,14 @@ import { NumberInput } from '@components/form';
 const DailyLimit = () => {
   return (
     <Stack align="center" spacing={20}>
-      <Paper shadow="sm" p="xl" radius="md" w={800} withBorder>
+      <Paper shadow="md" p="xl" radius="md" w={800}>
         <Stack spacing={30}>
           <Stack spacing={20}>
             <Group>
               <ThemeIcon radius="xl" size="xl">
                 <IconMaximize />
               </ThemeIcon>
-              <Title order={4}>Daily sending limit</Title>
+              <Text weight={500}>Daily sending limit</Text>
             </Group>
             <Text>Max number of emails to send per day for this campaign</Text>
           </Stack>

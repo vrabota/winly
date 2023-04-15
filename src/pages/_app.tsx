@@ -15,7 +15,6 @@ import type { MantineTheme, ButtonStylesParams } from '@mantine/core';
 const inter = Inter({ subsets: ['latin'] });
 
 const MyApp: AppType = ({ Component, pageProps }) => {
-  console.log(inter);
   return (
     <>
       <Head>
@@ -94,6 +93,10 @@ const MyApp: AppType = ({ Component, pageProps }) => {
           colorScheme: 'light',
           fontFamily: inter.style.fontFamily,
           cursorType: 'pointer',
+          globalStyles: () => ({
+            '.mantine-RichTextEditor-linkEditorSave': { marginTop: 5, height: 42 },
+            '.mantine-TransferList-transferList .mantine-Input-wrapper': { margin: 0 },
+          }),
           components: {
             Menu: {
               defaultProps: {
@@ -111,16 +114,16 @@ const MyApp: AppType = ({ Component, pageProps }) => {
                   '&[data-hover] tbody tr:hover': {
                     background: '#fcfcfc',
                   },
-                  'tbody tr, thead tr': {
+                  '&[data-hover] tbody tr:hover td': {
+                    background: '#fcfcfc',
+                  },
+                  'tbody tr, thead tr td': {
                     background: theme.white,
                     transition: 'all 0.2s',
                   },
                   'tbody tr td, thead tr th': {
                     borderColor: theme.colors.gray[0],
                     borderWidth: 2,
-                  },
-                  'tbody tr td': {
-                    padding: '10px 24px',
                   },
                   'thead tr th': {
                     color: theme.colors.gray[4],
@@ -171,6 +174,9 @@ const MyApp: AppType = ({ Component, pageProps }) => {
                 size: 'md',
                 radius: 'md',
                 styles: (theme: MantineTheme) => ({
+                  wrapper: {
+                    marginTop: 5,
+                  },
                   input: {
                     fontSize: 14,
                     borderColor: theme.colors.gray[2],
@@ -180,6 +186,13 @@ const MyApp: AppType = ({ Component, pageProps }) => {
                     ':focus': {
                       borderColor: theme.colors.purple?.[5],
                     },
+                  },
+                  label: {
+                    fontSize: 14,
+                    color: theme.colors.gray[7],
+                  },
+                  description: {
+                    fontSize: 12,
                   },
                 }),
               },
@@ -221,11 +234,11 @@ const MyApp: AppType = ({ Component, pageProps }) => {
         <ModalsProvider
           modalProps={{
             centered: true,
-            overlayColor: '#fff',
+            overlayColor: '#F7F7F8',
             overlayOpacity: 0.8,
-            shadow: 'lg',
+            overlayBlur: 0.5,
             withCloseButton: false,
-            padding: 40,
+            padding: 'xl',
           }}
         >
           <NotificationsProvider position="top-center" style={{ marginTop: 15 }}>

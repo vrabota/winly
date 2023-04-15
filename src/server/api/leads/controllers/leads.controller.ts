@@ -1,8 +1,22 @@
 import { TRPCError } from '@trpc/server';
 
-import { getLeads, createLead, batchCreateLeads } from '../data/repositories';
+import {
+  getLeads,
+  createLead,
+  batchCreateLeads,
+  getLeadById,
+  updateLeadRepository,
+  deleteLeadRepository,
+  deleteBatchLeadsRepository,
+} from '../data/repositories';
 
-import type { GetLeadsInput, CreateLeadsInput } from '../data/dtos';
+import type {
+  GetLeadsInput,
+  CreateLeadsInput,
+  GetLeadIdInput,
+  UpdateLeadInput,
+  BatchDeleteLeadInput,
+} from '../data/dtos';
 import type { Context } from '@server/api/trpc';
 
 export const getLeadsHandler = async ({ input }: { input: GetLeadsInput }) => {
@@ -41,4 +55,27 @@ export const batchCreateLeadsHandler = async ({ input }: { ctx: Context; input: 
       cause: error,
     });
   }
+};
+
+export const getLeadByIdHandler = async ({ input }: { ctx: Context; input: GetLeadIdInput }) => {
+  const lead = await getLeadById(input);
+  if (!lead) {
+    throw new TRPCError({
+      code: 'NOT_FOUND',
+      message: `Unfortunately can not find lead with id ${input.leadId}.`,
+    });
+  }
+  return lead;
+};
+
+export const updateLeadHandler = async ({ input }: { ctx: Context; input: UpdateLeadInput }) => {
+  return updateLeadRepository(input);
+};
+
+export const deleteLeadHandler = async ({ input }: { ctx: Context; input: GetLeadIdInput }) => {
+  return deleteLeadRepository(input);
+};
+
+export const deleteBatchLeadsHandler = async ({ input }: { ctx: Context; input: BatchDeleteLeadInput }) => {
+  return deleteBatchLeadsRepository(input);
 };

@@ -3,10 +3,10 @@ import { AccountType } from '@prisma/client';
 
 import { logger } from '@utils/logger';
 
-import { createOrUpdateAccount, getAccounts } from '../data/repositories';
-import { oauth2AccountService, connectAccountService } from '../data/services';
+import { createOrUpdateAccount, getAccounts, deleteAccount } from '../data/repositories';
+import { oauth2AccountService, connectAccountService, reconnectAccountsService } from '../data/services';
 
-import type { AppPasswordAccountInput } from '@server/api/accounts/data/dtos/accounts.dto';
+import type { AccountIdInput, AppPasswordAccountInput } from '@server/api/accounts/data/dtos/accounts.dto';
 import type { Context } from '@server/api/trpc';
 import type { Oauth2AccountInput } from '../data/dtos';
 
@@ -81,4 +81,20 @@ export const getAccountsHandler = async ({ ctx }: { ctx: Context }) => {
   logger.info({ accounts }, `Successfully received list of accounts`);
 
   return accounts;
+};
+
+export const reconnectAccountHandler = async ({ input }: { input: AccountIdInput }) => {
+  const account = await reconnectAccountsService(input.accountId);
+
+  logger.info({ account }, `Successfully reconnected account ${input.accountId}`);
+
+  return account;
+};
+
+export const deleteAccountHandler = async ({ input }: { input: AccountIdInput }) => {
+  const deletedAccount = await deleteAccount(input.accountId);
+
+  logger.info({ deletedAccount }, `Successfully reconnected account ${input.accountId}`);
+
+  return deletedAccount;
 };

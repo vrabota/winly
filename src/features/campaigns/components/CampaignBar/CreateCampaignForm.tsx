@@ -22,7 +22,7 @@ const CreateCampaignForm = () => {
     resolver: zodResolver(validationSchema),
   });
   const utils = api.useContext();
-  const { mutate } = api.campaign.createCampaign.useMutation({
+  const { mutate, isLoading } = api.campaign.createCampaign.useMutation({
     onSuccess: async data => {
       await utils.campaign.getAllCampaigns.invalidate();
       closeAllModals();
@@ -43,11 +43,13 @@ const CreateCampaignForm = () => {
       <Stack>
         <TextInput label="Name" name="name" />
       </Stack>
-      <Group position="right" mt={40}>
+      <Group position="right" mt={10}>
         <Button onClick={() => closeAllModals()} variant="light">
           Cancel
         </Button>
-        <Button onClick={methods.handleSubmit(onSubmit)}>Create</Button>
+        <Button loading={isLoading} onClick={methods.handleSubmit(onSubmit)}>
+          Create
+        </Button>
       </Group>
     </FormProvider>
   );

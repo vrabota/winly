@@ -1,5 +1,4 @@
-import Link from 'next/link';
-import { Navbar, Text, Stack } from '@mantine/core';
+import { Navbar, Text, Stack, Indicator } from '@mantine/core';
 
 import { MailInbox, ContentChart, MailSend, MailSign, SettingCog } from '@assets/icons';
 import NavLink from '@components/layouts/NavLink';
@@ -9,16 +8,29 @@ import { useStyles } from './styles';
 const data = [
   { link: '/', label: 'Accounts', icon: MailSign },
   { link: '/campaigns', label: 'Campaigns', icon: MailSend },
-  { link: '/analytics', label: 'Analytics', icon: ContentChart },
-  { link: '/inbox', label: 'Inbox', icon: MailInbox },
+  { link: '/analytics', label: 'Analytics', icon: ContentChart, disabled: true },
+  { link: '/inbox', label: 'Inbox', icon: MailInbox, disabled: true },
 ];
 
 const NavBarBox = () => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
   const links = data.map(item => (
-    <NavLink activeClassName={classes.linkActive} className={classes.link} href={item.link} key={item.label}>
+    <NavLink
+      activeClassName={classes.linkActive}
+      className={cx(classes.link, { [classes.linkDisabled]: item.disabled })}
+      href={item.link}
+      key={item.label}
+    >
       <Stack align="center" justify="center">
-        <item.icon className={classes.linkIcon} size={20} />
+        <Indicator
+          inline
+          disabled={!item.disabled}
+          label="SOON"
+          size={16}
+          sx={{ '.mantine-Indicator-indicator': { top: -5, right: -20, fontSize: 10, fontWeight: 700 } }}
+        >
+          <item.icon className={classes.linkIcon} size={20} />
+        </Indicator>
         <Text>{item.label}</Text>
       </Stack>
     </NavLink>
@@ -31,12 +43,12 @@ const NavBarBox = () => {
       </Navbar.Section>
 
       <Navbar.Section className={classes.footer}>
-        <Link href="/api/auth/logout" className={classes.link}>
+        <NavLink activeClassName={classes.linkActive} href="/settings" className={classes.link} key="Settings">
           <Stack align="center" justify="center">
             <SettingCog className={classes.linkIcon} size={20} />
             <Text>Settings</Text>
           </Stack>
-        </Link>
+        </NavLink>
       </Navbar.Section>
     </Navbar>
   );

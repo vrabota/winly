@@ -14,6 +14,7 @@ export const enableGoogleImapModal = () =>
   openConfirmModal({
     modalId: MODAL_IDS.ENABLE_GOOGLE_IMAP_MODAL,
     size: 500,
+    padding: 36,
     closeOnConfirm: false,
     confirmProps: {
       hidden: true,

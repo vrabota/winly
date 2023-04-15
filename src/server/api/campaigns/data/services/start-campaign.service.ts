@@ -108,7 +108,7 @@ export const startCampaignService = async ({
       const messagesData = response.data.mailMerge.map((item: ActivityMailMergeOutput) => ({
         ...item,
         accountId: account.id,
-        step: sequenceIndex,
+        step: sequenceIndex + 1,
       }));
       messages.push(...messagesData);
     }

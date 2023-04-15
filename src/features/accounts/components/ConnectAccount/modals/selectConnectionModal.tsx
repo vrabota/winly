@@ -15,6 +15,7 @@ export const selectConnectionModal = () =>
   openConfirmModal({
     modalId: MODAL_IDS.GOOGLE_SELECT_CONNECTION_MODAL,
     size: 700,
+    padding: 36,
     closeOnConfirm: false,
     confirmProps: {
       hidden: true,

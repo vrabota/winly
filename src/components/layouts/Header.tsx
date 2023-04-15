@@ -3,7 +3,6 @@ import Link from 'next/link';
 import {
   Header as HeaderMantine,
   Group,
-  Button,
   Box,
   Avatar,
   UnstyledButton,
@@ -12,10 +11,11 @@ import {
   Divider,
   ActionIcon,
 } from '@mantine/core';
-import { MantineLogo } from '@mantine/ds';
+import Image from 'next/image';
 import { IconSettings, IconChevronDown, IconCirclePlus, IconLogout } from '@tabler/icons';
 import { useUser } from '@auth0/nextjs-auth0/client';
 
+import WinlyLogo from '@assets/svg/logo.svg';
 import { OrganizationContext } from '@context/OrganizationContext';
 import { HelpIcon, AlertBell } from '@assets/icons';
 
@@ -29,10 +29,10 @@ const Header = () => {
   const { organizations = [], setSelectedOrganizationId, selectedOrganization } = useContext(OrganizationContext);
   return (
     <Box>
-      <HeaderMantine height={60} px={50} withBorder={false} className={classes.header}>
+      <HeaderMantine height={60} pr={50} pl={20} withBorder={false} className={classes.header}>
         <Group position="apart" sx={{ height: '100%' }}>
           <Link href="/">
-            <MantineLogo size={30} />
+            <Image width={100} src={WinlyLogo} alt="Winly logo" />
           </Link>
           <Group h="100%" spacing={0}>
             <Group mr="sm" spacing="sm">

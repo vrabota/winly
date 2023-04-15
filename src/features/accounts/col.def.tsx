@@ -1,23 +1,24 @@
-import { ActionIcon, Avatar, Badge, Box, Group, Menu, Text, useMantineTheme } from '@mantine/core';
+import { Avatar, Badge, Box, Group, Text, Tooltip } from '@mantine/core';
 import React, { useMemo } from 'react';
 import dayjs from 'dayjs';
 
 import { getInitials } from '@utils/getInitials';
 import { StatsIcon } from '@components/data';
-import { DownloadWebsite, FireExit, MailSend, MenuVertical, Pencil, ShieldPerson, Trash, VoiceId } from '@assets/icons';
+import { DownloadWebsite, FireExit, MailSend, ShieldPerson, VoiceId } from '@assets/icons';
+import { ACCOUNT_STATUS_MAPPING } from '@features/accounts/utils';
 
+import type { AccountState } from '@prisma/client';
 import type { MRT_ColumnDef } from 'mantine-react-table';
 import type { Account } from '@features/accounts/types';
 
 export const useAccountsColDef = () => {
-  const theme = useMantineTheme();
   const columns = useMemo<MRT_ColumnDef<Account>[]>(
     () => [
       {
         accessorFn: row => `${row.firstName} ${row.lastName}`,
         id: 'name',
         header: 'Name',
-        Cell: ({ renderedCellValue }) => {
+        Cell: ({ renderedCellValue, row }) => {
           return (
             <Box
               sx={{
@@ -26,7 +27,7 @@ export const useAccountsColDef = () => {
                 gap: '16px',
               }}
             >
-              <Avatar color="purple" radius="xl">
+              <Avatar src={row?.original?.picture} color="purple" radius="xl">
                 <Text sx={{ textTransform: 'uppercase' }}>{getInitials(renderedCellValue as string)}</Text>
               </Avatar>
               <span>{renderedCellValue}</span>
@@ -42,20 +43,33 @@ export const useAccountsColDef = () => {
         accessorKey: 'state',
         header: 'Status',
         maxSize: 100,
-        Cell: () => <Badge color="green">Connected</Badge>,
+        Cell: ({ row }) => {
+          const { text, color } = ACCOUNT_STATUS_MAPPING[row.original.state as AccountState] || {};
+          return <Badge color={color}>{text}</Badge>;
+        },
       },
       {
         id: 'stats',
         header: 'Stats',
-        size: 280,
+        size: 300,
         Cell: () => {
           return (
             <Group align="center" spacing={10}>
-              <StatsIcon icon={<MailSend size={15} />} count={0} />
-              <StatsIcon icon={<FireExit size={15} />} count={0} />
-              <StatsIcon icon={<DownloadWebsite size={15} />} count={0} />
-              <StatsIcon icon={<ShieldPerson size={15} />} count={0} />
-              <StatsIcon icon={<VoiceId size={15} />} count={0} />
+              <Tooltip label="Campaign emails sent today" openDelay={200} withArrow>
+                <StatsIcon icon={<MailSend size={15} />} count={0} />
+              </Tooltip>
+              <Tooltip label="Warmup emails sent past week" openDelay={200} withArrow>
+                <StatsIcon icon={<FireExit size={15} />} count={0} />
+              </Tooltip>
+              <Tooltip label="Warmup emails landed in inbox past week" openDelay={200} withArrow>
+                <StatsIcon icon={<DownloadWebsite size={15} />} count={0} />
+              </Tooltip>
+              <Tooltip label="Warmup emails saved from spam folder past week" openDelay={200} withArrow>
+                <StatsIcon icon={<ShieldPerson size={15} />} count={0} />
+              </Tooltip>
+              <Tooltip label="Warmup health score" openDelay={200} withArrow>
+                <StatsIcon icon={<VoiceId size={15} />} count={0} />
+              </Tooltip>
             </Group>
           );
         },
@@ -68,7 +82,7 @@ export const useAccountsColDef = () => {
         },
       },
     ],
-    [theme.colors.gray, theme.primaryColor],
+    [],
   );
   return { columns };
 };

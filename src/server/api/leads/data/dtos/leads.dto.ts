@@ -21,5 +21,20 @@ export const getLeadsSchema = z.object({
   campaignId: z.string(),
 });
 
+export const getLeadIdSchema = z.object({
+  leadId: z.string(),
+});
+
+export const batchDeleteLeadsSchema = z.object({
+  leadIds: z.array(z.string()),
+});
+
+export const updateLeadSchema = createLeadsSchema.extend({
+  leadId: z.string(),
+});
+
 export type CreateLeadsInput = TypeOf<typeof createLeadsSchema>;
 export type GetLeadsInput = TypeOf<typeof getLeadsSchema>;
+export type GetLeadIdInput = TypeOf<typeof getLeadIdSchema>;
+export type UpdateLeadInput = TypeOf<typeof updateLeadSchema>;
+export type BatchDeleteLeadInput = TypeOf<typeof batchDeleteLeadsSchema>;

@@ -50,6 +50,9 @@ export const useStyles = createStyles((theme, _params, getRef) => {
         },
       },
     },
+    linkDisabled: {
+      pointerEvents: 'none',
+    },
     linkIcon: {
       ref: icon,
       color: theme.colorScheme === 'dark' ? theme.colors.dark[2] : theme.colors.gray[6],

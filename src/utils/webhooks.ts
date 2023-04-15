@@ -1,5 +1,15 @@
 export const WEBHOOKS = {
   ACCOUNT_DELETED: 'accountDeleted',
+  ACCOUNT_INITIALIZED: 'accountInitialized',
+  ACCOUNT_ADDED: 'accountAdded',
+  ACCOUNT_AUTH_SUCCESS: 'authenticationSuccess',
+  ACCOUNT_CONNECT_ERROR: 'connectError',
+  ACCOUNT_AUTH_ERROR: 'authenticationError',
   TRACK_OPEN: 'trackOpen',
   MESSAGE_NEW: 'messageNew',
+  MESSAGE_BOUNCE: 'messageBounce',
+  MESSAGE_FAILED: 'messageFailed',
+  MESSAGE_DELIVERY_ERROR: 'messageDeliveryError',
+  MESSAGE_MISSING: 'messageMissing',
+  MESSAGE_SENT: 'messageSent',
 };

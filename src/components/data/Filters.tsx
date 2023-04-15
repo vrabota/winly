@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   Badge,
-  Chip,
   Group,
   Input,
   Divider,
@@ -19,11 +18,11 @@ import {
   ThemeIcon,
 } from '@mantine/core';
 import { IconSearch, IconChevronDown } from '@tabler/icons';
+import { randomId, useListState } from '@mantine/hooks';
 
 import { Delete } from '@assets/icons';
 
 import type { ReactNode } from 'react';
-import { randomId, useListState } from '@mantine/hooks';
 
 type FiltersProps = {
   actionBox?: ReactNode;
@@ -114,8 +113,8 @@ export const Filters = (props: FiltersProps) => {
                     rightSection={
                       <Group ml={5} align="center" spacing={5}>
                         {filterApplied && (
-                          <ThemeIcon size="xs" radius="xl">
-                            2
+                          <ThemeIcon px={5} size="xs" radius="xl" sx={{ width: 'auto', fontSize: 10 }}>
+                            Connected
                           </ThemeIcon>
                         )}
 

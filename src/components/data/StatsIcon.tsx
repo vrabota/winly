@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Stack, Text } from '@mantine/core';
 
 import type { ReactNode } from 'react';
 
-const StatsIcon = ({ icon, count }: { icon: ReactNode; count: number }) => {
+// eslint-disable-next-line react/display-name
+const StatsIcon = forwardRef<HTMLDivElement, { icon: ReactNode; count: number }>(({ icon, count }, ref) => {
   return (
     <Stack
+      ref={ref}
       sx={theme => ({ borderRadius: theme.radius.md })}
       bg="gray.0"
       px={15}
@@ -20,6 +22,6 @@ const StatsIcon = ({ icon, count }: { icon: ReactNode; count: number }) => {
       </Text>
     </Stack>
   );
-};
+});
 
 export default StatsIcon;

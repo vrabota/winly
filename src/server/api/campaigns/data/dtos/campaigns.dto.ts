@@ -9,8 +9,8 @@ export const renameCampaignSchema = createCampaignSchema.extend({ campaignId: z.
 export const updateCampaignSchema = z.object({
   accountIds: z.array(z.string()).min(1),
   scheduleDays: z.array(z.string()).optional(),
-  startDate: z.date(),
-  endDate: z.date(),
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
   time: z.object({ from: z.string().default('9:00 AM'), to: z.string().default('6:00 PM') }).optional(),
   timezone: z.string().optional(),
   dailyLimit: z.number().optional(),

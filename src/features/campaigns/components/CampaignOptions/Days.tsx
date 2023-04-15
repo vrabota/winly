@@ -1,5 +1,5 @@
 import React from 'react';
-import { Group, Paper, Stack, ThemeIcon, Title, Checkbox } from '@mantine/core';
+import { Group, Paper, Stack, ThemeIcon, Text, Checkbox } from '@mantine/core';
 import { IconSun } from '@tabler/icons';
 
 import { Skeleton } from '@components/data';
@@ -9,15 +9,16 @@ import { CheckboxGroup } from '@components/form';
 const Days = ({ isLoading }: { isLoading: boolean }) => {
   return (
     <Stack align="center" spacing={20}>
-      <Paper shadow="sm" p="xl" radius="md" w={800} withBorder>
+      <Paper shadow="md" p="xl" radius="md" w={800}>
         <Stack spacing={30}>
           <Stack spacing={20}>
             <Group>
               <ThemeIcon radius="xl" size="xl">
                 <IconSun />
               </ThemeIcon>
-              <Title order={4}>Days</Title>
+              <Text weight={500}>Days</Text>
             </Group>
+            <Text size={14}>Add days when you want to send emails to your leads?</Text>
           </Stack>
           <Skeleton isLoading={isLoading}>
             <CheckboxGroup name="days">

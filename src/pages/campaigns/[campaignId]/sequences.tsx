@@ -39,7 +39,6 @@ const Sequences: NextPage = () => {
       });
     });
   };
-  console.log(sequences);
   const addNewStep = () => {
     setSequences(sequences => [...sequences, { subject: '', body: '' }]);
     setActiveIndex(sequences.length);
@@ -72,7 +71,7 @@ const Sequences: NextPage = () => {
                 delay={sequences[activeIndex]?.delay || ''}
               />
             ))}
-            <Button variant="outline" onClick={addNewStep}>
+            <Button variant="outline" radius="md" onClick={addNewStep}>
               Add Step
             </Button>
           </Stack>

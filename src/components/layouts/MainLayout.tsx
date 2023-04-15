@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppShell } from '@mantine/core';
+import { AppShell, Container } from '@mantine/core';
 
 import Header from './Header';
 import NavBar from './NavBar';
@@ -10,8 +10,8 @@ import type { ReactNode } from 'react';
 const MainLayout = ({ children }: { children: ReactNode }) => {
   const { classes } = useStyles();
   return (
-    <AppShell header={<Header />} navbar={<NavBar />} py={30} px={50} className={classes.main}>
-      {children}
+    <AppShell header={<Header />} footer={<div>ss</div>} navbar={<NavBar />} py={30} className={classes.main}>
+      <Container size={1600}>{children}</Container>
     </AppShell>
   );
 };

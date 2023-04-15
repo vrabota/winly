@@ -67,7 +67,7 @@ model Account {
   addedById      String       @map("added_by_id") @db.VarChar(100)
   modifiedById   String       @map("modified_by_id") @db.VarChar(100)
   type           AccountType
-  state          AccountState @default(UNSET)
+  state          AccountState @default(CONNECTING)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -92,13 +92,9 @@ enum AccountType {
 }
 
 enum AccountState {
-  INIT
-  SYNCING
   CONNECTING
   CONNECTED
-  AUTHENTICATION_ERROR
-  CONNECT_ERROR
-  UNSET
+  ERROR
   DISCONNECTED
 
   @@map("account_state_enum")
@@ -210,7 +206,7 @@ model Activity {
 enum ActivityStatus {
   REPLIED
   OPENED
-  UNSUBSCRIBED
+  ERROR
   BOUNCED
   CONTACTED
   CLICKED

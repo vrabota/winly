@@ -14,6 +14,7 @@ export const appPasswordInfoModal = () =>
   openConfirmModal({
     modalId: MODAL_IDS.GOOGLE_APP_PASSWORD_INFO_MODAL,
     size: 500,
+    padding: 36,
     closeOnConfirm: false,
     confirmProps: {
       hidden: true,

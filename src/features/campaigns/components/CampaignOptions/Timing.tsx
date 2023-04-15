@@ -1,5 +1,5 @@
 import React from 'react';
-import { Group, Paper, Stack, ThemeIcon, Title } from '@mantine/core';
+import { Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconCalendarTime } from '@tabler/icons';
 import { useWatch } from 'react-hook-form';
 import timeZones from 'timezones-list';
@@ -14,15 +14,16 @@ const Timing = ({ isLoading }: { isLoading: boolean }) => {
   const timezoneList = timeZones.map(item => ({ label: item.name, value: item.tzCode }));
   return (
     <Stack align="center" spacing={20}>
-      <Paper shadow="sm" p="xl" radius="md" w={800} withBorder>
+      <Paper shadow="md" p="xl" radius="md" w={800}>
         <Stack spacing={30}>
           <Stack spacing={20}>
             <Group>
               <ThemeIcon radius="xl" size="xl">
                 <IconCalendarTime />
               </ThemeIcon>
-              <Title order={4}>Timing</Title>
+              <Text weight={500}>Timing</Text>
             </Group>
+            <Text size={14}>Add time interval and timezone when you want to send emails to your leads.</Text>
           </Stack>
           <Skeleton isLoading={isLoading}>
             <Stack>

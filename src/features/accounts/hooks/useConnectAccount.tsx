@@ -3,9 +3,8 @@ import { showNotification, updateNotification } from '@mantine/notifications';
 import { useEffect } from 'react';
 import { IconCheck } from '@tabler/icons';
 
+import { NOTIFICATION } from '@utils/notificationIds';
 import { api } from '@utils/api';
-
-const CONNECT_ACCOUNT = 'CONNECT_ACCOUNT';
 
 export const useConnectAccount = () => {
   const { query, replace } = useRouter();
@@ -23,7 +22,7 @@ export const useConnectAccount = () => {
   useEffect(() => {
     if (query?.code) {
       showNotification({
-        id: CONNECT_ACCOUNT,
+        id: NOTIFICATION.CONNECT_ACCOUNT,
         loading: true,
         title: 'Connecting account...',
         message: 'We are connecting you account to our system',
@@ -33,7 +32,7 @@ export const useConnectAccount = () => {
     }
     if (isSuccess) {
       updateNotification({
-        id: CONNECT_ACCOUNT,
+        id: NOTIFICATION.CONNECT_ACCOUNT,
         color: 'teal',
         title: 'Account connected',
         message: 'Your account is connected to our system',

@@ -1,7 +1,8 @@
 import { TRPCError } from '@trpc/server';
 
-import { getUserOrganizations } from '../data/repositories';
+import { getUserOrganizations, updateOrganization } from '../data/repositories';
 
+import type { UpdateOrganizationInput } from '../data/dtos';
 import type { Context } from '@server/api/trpc';
 
 export const getOrganizationsHandler = async ({ ctx }: { ctx: Context }) => {
@@ -14,4 +15,8 @@ export const getOrganizationsHandler = async ({ ctx }: { ctx: Context }) => {
       cause: error,
     });
   }
+};
+
+export const updateOrganizationHandler = async ({ ctx, input }: { ctx: Context; input: UpdateOrganizationInput }) => {
+  return updateOrganization({ organizationId: ctx.organizationId, name: input.name });
 };

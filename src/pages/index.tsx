@@ -1,47 +1,63 @@
 import { type NextPage } from 'next';
 import React from 'react';
-import { Menu, Stack, Text, Title } from '@mantine/core';
+import { ActionIcon, Menu, Stack, Text, Title, Tooltip } from '@mantine/core';
 import { withPageAuthRequired } from '@auth0/nextjs-auth0/client';
+import Image from 'next/image';
+import { IconDots } from '@tabler/icons';
 
 import { api } from '@utils/api';
-import { useConnectAccount } from '@features/accounts/hooks';
+import { useConnectAccount, useDeleteAccount, useReconnectAccount } from '@features/accounts/hooks';
 import { Table, Filters } from '@components/data';
 import ConnectAccount from '@features/accounts/components/ConnectAccount';
 import { useAccountsColDef } from '@features/accounts/col.def';
-
-import Image from 'next/image';
-
 import noDataImage from '@assets/images/no-data.png';
-import { Pencil, Trash } from '@assets/icons';
+import { Trash, Sync } from '@assets/icons';
 
 const Home: NextPage = () => {
-  const { data, isLoading } = api.account.getAccounts.useQuery(undefined);
-  useConnectAccount();
-
+  const { data, isLoading, isFetching } = api.account.getAccounts.useQuery(undefined);
+  const { mutateReconnect } = useReconnectAccount();
+  const { mutateDeleteAccount } = useDeleteAccount();
   const { columns } = useAccountsColDef();
+  useConnectAccount();
 
   return (
     <>
-      <Title mb={40} order={3}>
+      <Title mb={20} order={2}>
         Email Accounts
       </Title>
       <Table
-        total={`Total of ${data?.length} accounts`}
+        total={`Total of ${data?.length || 0} accounts`}
         columns={columns}
         data={data}
+        isFetching={isFetching}
         isLoading={isLoading}
-        isEmpty={data?.length === 0}
+        isEmpty={Array.isArray(data) && data?.length === 0 && !isFetching}
         filters={<Filters actionBox={<ConnectAccount />} />}
-        renderRowActionMenuItems={() => (
-          <>
-            <Menu.Item onClick={() => console.log(123)} icon={<Pencil size={14} />}>
-              Reconnect account
-            </Menu.Item>
-            <Menu.Item onClick={() => null} color="red" icon={<Trash size={14} />}>
-              Delete account
-            </Menu.Item>
-          </>
-        )}
+        renderRowActions={({ row }) => {
+          return (
+            <Menu position="bottom-end" width={200} arrowOffset={30} withArrow>
+              <Menu.Target>
+                <Tooltip label="Row actions" openDelay={200} withArrow>
+                  <ActionIcon radius="md" size="lg">
+                    <IconDots size={26} />
+                  </ActionIcon>
+                </Tooltip>
+              </Menu.Target>
+              <Menu.Dropdown py={10}>
+                <Menu.Item onClick={() => mutateReconnect({ accountId: row.original?.id })} icon={<Sync size={14} />}>
+                  Reconnect account
+                </Menu.Item>
+                <Menu.Item
+                  onClick={() => mutateDeleteAccount({ accountId: row.original?.id })}
+                  color="red"
+                  icon={<Trash size={14} />}
+                >
+                  Delete account
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          );
+        }}
         noData={
           <Stack align="center" justify="center" my={100}>
             <Image width={337.5} height={300} src={noDataImage} alt="No data iamge" />

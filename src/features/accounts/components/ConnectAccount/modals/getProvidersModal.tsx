@@ -15,6 +15,7 @@ export const getProvidersModal = () =>
   openConfirmModal({
     modalId: MODAL_IDS.SELECT_PROVIDER_MODAL,
     size: 400,
+    padding: 36,
     closeOnConfirm: false,
     confirmProps: {
       hidden: true,
