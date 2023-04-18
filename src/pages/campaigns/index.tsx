@@ -20,8 +20,8 @@ import type { MouseEvent } from 'react';
 
 const Campaigns: NextPage = () => {
   const { push } = useRouter();
-  const { data, isFetching, isLoading } = api.campaign.getAllCampaigns.useQuery(undefined);
-  const { columns } = useCampaignColDef();
+  const { data, isFetching, isLoading } = api.campaign.getAllCampaigns.useQuery({ withStats: true });
+  const { columns } = useCampaignColDef({ nameWidth: 250 });
   const [renameValue, setRenameValue] = useState('');
   const [campaignId, setCampaignId] = useState('');
   const utils = api.useContext();

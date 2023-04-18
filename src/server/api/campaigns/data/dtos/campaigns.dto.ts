@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import type { Campaign } from '@prisma/client';
 import type { TypeOf } from 'zod';
 
 export const sequencesSchema = z.object({ subject: z.string(), body: z.string(), delay: z.string().optional() });
@@ -19,6 +20,7 @@ export const updateCampaignSchema = z.object({
   openTracking: z.boolean().default(true),
 });
 export const getCampaignByIdSchema = z.object({ campaignId: z.string() });
+export const getAllCampaignsSchema = z.object({ withStats: z.boolean().optional() });
 
 export const updateCampaignSequenceSchema = z.object({
   sequences: z.array(sequencesSchema),
@@ -30,5 +32,10 @@ export type RenameCampaignInput = TypeOf<typeof renameCampaignSchema>;
 export type UpdateCampaignInput = TypeOf<typeof updateCampaignSchema>;
 export type GetCampaignByIdInput = TypeOf<typeof getCampaignByIdSchema>;
 export type UpdateCampaignSequenceInput = TypeOf<typeof updateCampaignSequenceSchema>;
+export type GetAllCampaignsInput = TypeOf<typeof getAllCampaignsSchema>;
 
 export type SequencesType = TypeOf<typeof sequencesSchema>;
+
+export interface CampaignWithStats extends Campaign {
+  stats?: any;
+}

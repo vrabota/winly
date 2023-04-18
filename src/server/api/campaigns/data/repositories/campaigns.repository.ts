@@ -4,14 +4,16 @@ import omit from 'lodash/omit';
 import { prisma } from '@server/db';
 import { logger } from '@utils/logger';
 
-import type { withUserId, withUserOrgIds } from '@server/types/withUserOrgIds';
 import type {
+  CampaignWithStats,
   CreateCampaignInput,
+  GetAllCampaignsInput,
   GetCampaignByIdInput,
   RenameCampaignInput,
   UpdateCampaignInput,
   UpdateCampaignSequenceInput,
 } from '@server/api/campaigns/data/dtos';
+import type { withUserId, withUserOrgIds } from '@server/types/withUserOrgIds';
 import type { Campaign } from '@prisma/client';
 
 export const createCampaign = async (payload: withUserOrgIds<CreateCampaignInput>): Promise<Campaign> => {
@@ -32,16 +34,34 @@ export const createCampaign = async (payload: withUserOrgIds<CreateCampaignInput
   return campaign;
 };
 
-export const getCampaigns = async (payload: withUserOrgIds<{}>): Promise<Campaign[]> => {
+export const getCampaigns = async (payload: withUserOrgIds<GetAllCampaignsInput>): Promise<CampaignWithStats[]> => {
   logger.info(
     { payload },
     `Getting all campaigns for user ${payload.userId} and organization ${payload.organizationId}`,
   );
 
-  const campaigns = await prisma.campaign.findMany({
-    where: {
-      organizationId: payload.organizationId,
-    },
+  const campaigns = await prisma.$transaction(async prisma => {
+    const activitiesByCampaign = await prisma.activity.groupBy({
+      by: ['status', 'campaignId'],
+      _count: true,
+    });
+
+    const allCampaigns = await prisma.campaign.findMany({
+      where: {
+        organizationId: payload.organizationId,
+      },
+    });
+
+    const campaignsWithStats = allCampaigns.map(campaign => ({
+      ...campaign,
+      stats: Object.fromEntries(
+        activitiesByCampaign
+          .filter(item => item.campaignId === campaign.id)
+          .map(activity => [activity.status, { ...activity }]),
+      ),
+    }));
+
+    return payload.withStats ? campaignsWithStats : allCampaigns;
   });
 
   logger.info({ campaigns }, `Successfully returned list of all campaigns for organization ${payload.organizationId}`);

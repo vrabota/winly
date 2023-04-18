@@ -1,6 +1,7 @@
 import { withPageAuthRequired } from '@auth0/nextjs-auth0/client';
 import React from 'react';
 import { Grid } from '@mantine/core';
+import { useRouter } from 'next/router';
 
 import { CampaignTabs } from '@features/campaigns';
 import {
@@ -10,10 +11,15 @@ import {
   StepAnalytics,
   ActivityHistory,
 } from '@features/campaigns/components/analytics';
+import { api } from '@utils/api';
 
 import type { NextPage } from 'next';
 
 const CampaignDetailsAnalytics: NextPage = () => {
+  const { query } = useRouter();
+  const { data } = api.activity.getActivitiesStats.useQuery({
+    campaignId: query.campaignId as string,
+  });
   return (
     <>
       <CampaignTabs />
@@ -25,7 +31,7 @@ const CampaignDetailsAnalytics: NextPage = () => {
           <CampaignStatsData />
         </Grid.Col>
         <Grid.Col span={12}>
-          <CampaignChart />
+          <CampaignChart data={data} />
         </Grid.Col>
         <Grid.Col span={4}>
           <StepAnalytics />

@@ -8,7 +8,7 @@ import { useStyles } from './styles';
 const data = [
   { link: '/', label: 'Accounts', icon: MailSign },
   { link: '/campaigns', label: 'Campaigns', icon: MailSend },
-  { link: '/analytics', label: 'Analytics', icon: ContentChart, disabled: true },
+  { link: '/analytics', label: 'Analytics', icon: ContentChart },
   { link: '/inbox', label: 'Inbox', icon: MailInbox, disabled: true },
 ];
 

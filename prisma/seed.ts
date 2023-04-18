@@ -29,26 +29,33 @@ async function main() {
       organizationId: organization.id,
     },
   });
-  const campaign = await prisma.campaign.create({
-    data: {
-      name: faker.company.bs(),
-      organizationId: organization.id,
-      addedById: account.id,
-      modifiedById: account.id,
-      status: faker.helpers.arrayElement(Object.values(CampaignStatus)),
-      accountIds: [account.id],
-      leads: {
-        createMany: {
-          data: Array.from({ length: faker.datatype.number({ min: 25, max: 50 }) }, () => ({
-            firstName: faker.name.firstName(),
-            lastName: faker.name.lastName(),
-            email: faker.internet.email(),
-            companyName: faker.company.name(),
-            status: faker.helpers.arrayElement(Object.values(LeadStatus)),
-          })),
+
+  for (let i = 0; Array.from({ length: 3 }).length; i++) {
+    await prisma.campaign.create({
+      data: {
+        name: faker.company.bs(),
+        organizationId: organization.id,
+        addedById: account.id,
+        modifiedById: account.id,
+        status: faker.helpers.arrayElement(Object.values(CampaignStatus)),
+        accountIds: [account.id],
+        leads: {
+          createMany: {
+            data: Array.from({ length: faker.datatype.number({ min: 25, max: 50 }) }, () => ({
+              firstName: faker.name.firstName(),
+              lastName: faker.name.lastName(),
+              email: faker.internet.email(),
+              companyName: faker.company.name(),
+              status: faker.helpers.arrayElement(Object.values(LeadStatus)),
+            })),
+          },
         },
       },
-    },
+    });
+  }
+
+  const campaigns = await prisma.campaign.findMany({
+    where: { organizationId: organization.id },
     include: {
       leads: {
         select: {
@@ -58,17 +65,20 @@ async function main() {
       },
     },
   });
-  await prisma.activity.createMany({
-    data: Array.from({ length: faker.datatype.number({ min: 150, max: 200 }) }, (v, k) => ({
-      leadEmail: faker.helpers.arrayElement(campaign.leads.map(lead => lead.email)),
-      step: faker.datatype.number({ min: 1, max: 5 }),
-      status: faker.helpers.arrayElement(k % 10 == 0 ? [ActivityStatus.CONTACTED] : Object.values(ActivityStatus)),
-      messageId: faker.datatype.uuid(),
-      accountId: account.id,
-      campaignId: campaign.id,
-      createdAt: faker.date.between(dayjs().subtract(6, 'd').toISOString(), dayjs().toISOString()),
-    })),
-  });
+
+  for (const campaign of campaigns) {
+    await prisma.activity.createMany({
+      data: Array.from({ length: faker.datatype.number({ min: 150, max: 200 }) }, (v, k) => ({
+        leadEmail: faker.helpers.arrayElement(campaign.leads.map(lead => lead.email)),
+        step: faker.datatype.number({ min: 1, max: 5 }),
+        status: faker.helpers.arrayElement(k % 10 == 0 ? [ActivityStatus.CONTACTED] : Object.values(ActivityStatus)),
+        messageId: faker.datatype.uuid(),
+        accountId: account.id,
+        campaignId: campaign.id,
+        createdAt: faker.date.between(dayjs().subtract(6, 'd').toISOString(), dayjs().toISOString()),
+      })),
+    });
+  }
 }
 
 main()

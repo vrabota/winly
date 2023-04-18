@@ -17,6 +17,7 @@ import type {
   SequencesType,
   UpdateCampaignSequenceInput,
   RenameCampaignInput,
+  GetAllCampaignsInput,
 } from '../data/dtos';
 import type { Context } from '@server/api/trpc';
 
@@ -32,9 +33,9 @@ export const createCampaignHandler = async ({ ctx, input }: { ctx: Context; inpu
   }
 };
 
-export const getCampaignsHandler = async ({ ctx }: { ctx: Context }) => {
+export const getCampaignsHandler = async ({ ctx, input }: { ctx: Context; input: GetAllCampaignsInput }) => {
   try {
-    return getCampaigns({ userId: ctx.user.id, organizationId: ctx.organizationId });
+    return getCampaigns({ userId: ctx.user.id, organizationId: ctx.organizationId, withStats: input.withStats });
   } catch (error) {
     throw new TRPCError({
       code: 'BAD_REQUEST',

@@ -87,7 +87,7 @@ const StepData = ({ step }: { step: any }) => {
           </Text>
           <Divider orientation="vertical" />
           <Text w="45px" weight={500} size="sm">
-            {calcRate(opened, contacted)}
+            {calcRate(replied, contacted)}
           </Text>
         </Group>
       </Group>

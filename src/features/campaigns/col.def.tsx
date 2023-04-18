@@ -2,21 +2,24 @@ import { Avatar, Badge, Box, Group, Text, Tooltip, Anchor } from '@mantine/core'
 import React, { useMemo } from 'react';
 import dayjs from 'dayjs';
 import Link from 'next/link';
+import { ActivityStatus } from '@prisma/client';
 
 import { getInitials } from '@utils/getInitials';
 import { StatsIcon } from '@components/data';
 import { MailSend, MailReply, BookOpen } from '@assets/icons';
 import { CAMPAIGN_STATUS_MAPPING } from '@features/campaigns/utils';
 
-import type { Campaign, CampaignStatus } from '@prisma/client';
+import type { CampaignStatus } from '@prisma/client';
 import type { MRT_ColumnDef } from 'mantine-react-table';
+import type { CampaignWithStats } from '@server/api/campaigns/data/dtos';
 
-export const useCampaignColDef = () => {
-  const columns = useMemo<MRT_ColumnDef<Campaign>[]>(
+export const useCampaignColDef = ({ nameWidth = 250 }) => {
+  const columns = useMemo<MRT_ColumnDef<CampaignWithStats>[]>(
     () => [
       {
         accessorKey: 'name',
         header: 'Name',
+        size: nameWidth,
         Cell: ({ renderedCellValue, row }) => {
           return (
             <Box
@@ -39,6 +42,7 @@ export const useCampaignColDef = () => {
       {
         accessorKey: 'status',
         header: 'Status',
+        size: 100,
         Cell: ({ row }) => {
           const { text, color } = CAMPAIGN_STATUS_MAPPING[row.original.status as CampaignStatus] || {};
           return <Badge color={color}>{text}</Badge>;
@@ -47,18 +51,26 @@ export const useCampaignColDef = () => {
       {
         id: 'stats',
         header: 'Stats',
-        size: 200,
-        Cell: () => {
+        Cell: ({ row }) => {
           return (
             <Group align="center" spacing={10}>
-              <Tooltip label="Sent today" openDelay={200} withArrow>
-                <StatsIcon icon={<MailSend size={15} />} count={0} />
+              <Tooltip label="Sent past week" openDelay={200} withArrow>
+                <StatsIcon
+                  icon={<MailSend size={15} />}
+                  count={row?.original?.stats?.[ActivityStatus.CONTACTED]?._count || 0}
+                />
               </Tooltip>
-              <Tooltip label="Opened today" openDelay={200} withArrow>
-                <StatsIcon icon={<BookOpen size={15} />} count={0} />
+              <Tooltip label="Opened past week" openDelay={200} withArrow>
+                <StatsIcon
+                  icon={<BookOpen size={15} />}
+                  count={row?.original?.stats?.[ActivityStatus.OPENED]?._count || 0}
+                />
               </Tooltip>
-              <Tooltip label="Replied today" openDelay={200} withArrow>
-                <StatsIcon icon={<MailReply size={15} />} count={0} />
+              <Tooltip label="Replied past week" openDelay={200} withArrow>
+                <StatsIcon
+                  icon={<MailReply size={15} />}
+                  count={row?.original?.stats?.[ActivityStatus.REPLIED]?._count || 0}
+                />
               </Tooltip>
             </Group>
           );
@@ -72,7 +84,7 @@ export const useCampaignColDef = () => {
         },
       },
     ],
-    [],
+    [nameWidth],
   );
   return { columns };
 };

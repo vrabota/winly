@@ -1,16 +1,9 @@
 import React from 'react';
 import { Paper, Global } from '@mantine/core';
 import { ResponsiveContainer, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, Area, Legend } from 'recharts';
-import { useRouter } from 'next/router';
 import dayjs from 'dayjs';
 
-import { api } from '@utils/api';
-
-const CampaignChart = () => {
-  const { query } = useRouter();
-  const { data } = api.activity.getActivitiesStats.useQuery({
-    campaignId: query.campaignId as string,
-  });
+const CampaignChart = ({ data }: { data: any }) => {
   return (
     <Paper shadow="sm" radius="md" p="xl">
       <Global
@@ -27,7 +20,7 @@ const CampaignChart = () => {
             tickMargin={15}
             tickFormatter={value => dayjs(value).format('MMM D')}
           />
-          <YAxis axisLine={false} tickLine={false} tickMargin={10} />
+          <YAxis type="number" axisLine={false} tickLine={false} tickMargin={10} />
           <CartesianGrid vertical={false} strokeDasharray="3 3" />
           <Tooltip />
           <Area

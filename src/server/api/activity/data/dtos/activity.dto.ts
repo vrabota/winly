@@ -15,7 +15,7 @@ export const createActivitySchema = z.object({
 });
 
 export const getActivitiesSchema = z.object({
-  campaignId: z.string(),
+  campaignId: z.string().optional(),
   leadEmail: z.string().optional(),
 });
 

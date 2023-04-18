@@ -23,6 +23,7 @@ import {
   getCampaignByIdSchema,
   updateCampaignSchema,
   updateCampaignSequenceSchema,
+  getAllCampaignsSchema,
 } from './data/dtos';
 
 export const campaignRoutes = createTRPCRouter({
@@ -56,6 +57,6 @@ export const campaignRoutes = createTRPCRouter({
     await createActivitiesRepository(messages);
   }),
   updateSequences: protectedProcedure.input(updateCampaignSequenceSchema).mutation(updateCampaignSequenceHandler),
-  getAllCampaigns: protectedProcedure.query(getCampaignsHandler),
+  getAllCampaigns: protectedProcedure.input(getAllCampaignsSchema).query(getCampaignsHandler),
   getCampaignById: protectedProcedure.input(getCampaignByIdSchema).query(getCampaignByIdHandler),
 });

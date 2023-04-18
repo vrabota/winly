@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import groupBy from 'lodash/groupBy';
-import { ActivityStatus } from '@prisma/client';
+import { ActivityStatus, Prisma } from '@prisma/client';
 
 import { prisma } from '@server/db';
 import { logger } from '@utils/logger';
@@ -11,7 +11,7 @@ import type {
   ActivityGroupedByDateStatus,
   ActivityStats,
 } from '@server/api/activity/data/dtos';
-import type { Activity, Prisma } from '@prisma/client';
+import type { Activity } from '@prisma/client';
 
 export const createActivitiesRepository = async (payload: CreateActivityInput[]): Promise<Prisma.BatchPayload> => {
   return prisma.activity.createMany({ data: payload });
@@ -35,21 +35,26 @@ export class ActivityRepository {
     const groupByDateStatus = await prisma.$queryRaw<ActivityGroupedByDateStatus[]>`
 SELECT DATE_FORMAT(created_at, '%Y-%m-%d') as date, status, COUNT(*) as count , COUNT(DISTINCT CASE WHEN status = 'OPENED' THEN message_id ELSE NULL END) as unique_opened
 FROM activities AS a 
-WHERE campaign_id = ${payload.campaignId} 
-  AND created_at BETWEEN DATE_FORMAT(NOW() - INTERVAL 7 DAY, '%Y-%m-%d %H:%i:%s') AND DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s')
+WHERE ${
+      payload.campaignId ? Prisma.sql`campaign_id = ${payload.campaignId} AND` : Prisma.empty
+    } created_at BETWEEN DATE_FORMAT(NOW() - INTERVAL 7 DAY, '%Y-%m-%d %H:%i:%s') AND DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s')
 GROUP BY 1, 2;`;
 
-    const result = groupByDateStatus.reduce((acc: any, item) => {
+    const result = groupByDateStatus.reduce((acc: any, item: any) => {
       const dateString = dayjs(item.date).format('YYYY-MM-DD');
       if (!acc[dateString]) {
         acc[dateString] = { date: item.date };
       }
-      acc[dateString][item.status] = item.count.toString();
+      acc[dateString][item.status] = typeof item.count === 'bigint' ? parseInt(item.count) : item.count;
       if (item.status === 'OPENED') {
-        acc[dateString]['UNIQUE_OPENED'] = item.unique_opened?.toString();
+        acc[dateString]['UNIQUE_OPENED'] =
+          typeof item.unique_opened === 'bigint' ? parseInt(item.unique_opened) : item.unique_opened;
       }
       return acc;
     }, {});
+
+    console.log('wtf', result);
+    console.log('wtf2', groupByDateStatus);
 
     logger.info({ groupByDateStatus }, `Successfully returning activities grouped by status`);
 
