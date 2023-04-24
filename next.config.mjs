@@ -19,6 +19,7 @@ const config = {
   i18n: {
     locales: ["en"],
     defaultLocale: "en",
-  }
+  },
+  transpilePackages: ['reflect-metadata']
 };
 export default config;

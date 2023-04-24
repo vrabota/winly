@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withPageAuthRequired } from '@auth0/nextjs-auth0/client';
 import { IconDots, IconPlus } from '@tabler/icons';
 import { ActionIcon, Button, Group, Menu, Stack, Text } from '@mantine/core';
@@ -18,13 +18,22 @@ import { editLeadModal } from '@features/leads/components/modals/editLead.modal'
 import { deleteBatchLeadsModal } from '@features/leads/components/modals/deleteBatchLeads.modal';
 import { deleteLeadModal } from '@features/leads/components/modals/deleteLead.modal';
 import { viewActivityModal } from '@features/leads/components/modals/viewActivity.modal';
+import { OrganizationContext } from '@context/OrganizationContext';
 
 import type { NextPage } from 'next';
 
 const Leads: NextPage = () => {
   const { query } = useRouter();
+  const { selectedOrganization } = useContext(OrganizationContext);
   const [leadsOpened, { open: leadsOpen, close: leadsClose }] = useDisclosure(false);
-  const { data = [], isLoading, isFetching } = api.leads.getLeads.useQuery({ campaignId: query.campaignId as string });
+  const {
+    data = [],
+    isLoading,
+    isFetching,
+  } = api.leads.getLeads.useQuery({
+    campaignId: query.campaignId as string,
+    organizationId: selectedOrganization?.id as string,
+  });
   const { columns } = useLeadsColDef();
 
   return (
@@ -107,6 +116,7 @@ const Leads: NextPage = () => {
                       viewActivityModal({
                         leadId: row.original.id,
                         email: row.original.email,
+                        organizationId: selectedOrganization?.id as string,
                       })
                     }
                     icon={<ViewDetails size={14} />}

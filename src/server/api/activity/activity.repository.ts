@@ -1,42 +1,44 @@
 import dayjs from 'dayjs';
 import groupBy from 'lodash/groupBy';
 import { ActivityStatus, Prisma } from '@prisma/client';
+import { Service } from 'typedi';
 
 import { prisma } from '@server/db';
-import { logger } from '@utils/logger';
 
 import type {
   CreateActivityInput,
   GetActivitiesInput,
   ActivityGroupedByDateStatus,
   ActivityStats,
-} from '@server/api/activity/data/dtos';
+} from './activity.dto';
 import type { Activity } from '@prisma/client';
 
-export const createActivitiesRepository = async (payload: CreateActivityInput[]): Promise<Prisma.BatchPayload> => {
-  return prisma.activity.createMany({ data: payload });
-};
-
-export const getActivitiesRepository = async (payload: GetActivitiesInput): Promise<Activity[]> => {
-  return prisma.activity.findMany({
-    where: {
-      campaignId: payload.campaignId,
-      leadEmail: payload?.leadEmail,
-      status: { not: ActivityStatus.QUEUED },
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
-};
-
+@Service()
 export class ActivityRepository {
-  static async getActivitiesStats(payload: GetActivitiesInput): Promise<ActivityStats[]> {
+  async createActivitiesRepository(payload: CreateActivityInput[]): Promise<Prisma.BatchPayload> {
+    return prisma.activity.createMany({ data: payload });
+  }
+
+  async getAll(payload: GetActivitiesInput): Promise<Activity[]> {
+    return prisma.activity.findMany({
+      where: {
+        organizationId: payload.organizationId,
+        campaignId: payload.campaignId,
+        leadEmail: payload?.leadEmail,
+        status: { not: ActivityStatus.QUEUED },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  async getActivitiesByDateAndStatus(payload: GetActivitiesInput): Promise<ActivityStats[]> {
     const groupByDateStatus = await prisma.$queryRaw<ActivityGroupedByDateStatus[]>`
 SELECT DATE_FORMAT(created_at, '%Y-%m-%d') as date, status, COUNT(*) as count , COUNT(DISTINCT CASE WHEN status = 'OPENED' THEN message_id ELSE NULL END) as unique_opened
 FROM activities AS a 
-WHERE ${
-      payload.campaignId ? Prisma.sql`campaign_id = ${payload.campaignId} AND` : Prisma.empty
+WHERE ${payload.campaignId ? Prisma.sql`campaign_id = ${payload.campaignId} AND` : Prisma.empty} ${
+      payload.organizationId ? Prisma.sql`organization_id = ${payload.organizationId} AND` : Prisma.empty
     } created_at BETWEEN DATE_FORMAT(NOW() - INTERVAL 7 DAY, '%Y-%m-%d %H:%i:%s') AND DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s')
 GROUP BY 1, 2;`;
 
@@ -53,18 +55,15 @@ GROUP BY 1, 2;`;
       return acc;
     }, {});
 
-    console.log('wtf', result);
-    console.log('wtf2', groupByDateStatus);
-
-    logger.info({ groupByDateStatus }, `Successfully returning activities grouped by status`);
-
     return Object.values(result);
   }
-  static async getActivitiesByStep(payload: GetActivitiesInput): Promise<any> {
+
+  async getActivitiesByStep(payload: GetActivitiesInput): Promise<any> {
     const activities = await prisma.activity.groupBy({
       by: ['step', 'status'],
       where: {
         campaignId: payload.campaignId,
+        organizationId: payload.organizationId,
         createdAt: {
           lte: dayjs().toISOString(),
           gte: dayjs().subtract(7, 'd').toISOString(),

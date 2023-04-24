@@ -1,5 +1,5 @@
 import { type NextPage } from 'next';
-import React from 'react';
+import React, { useContext } from 'react';
 import { ActionIcon, Menu, Stack, Text, Title, Tooltip } from '@mantine/core';
 import { withPageAuthRequired } from '@auth0/nextjs-auth0/client';
 import Image from 'next/image';
@@ -12,9 +12,13 @@ import ConnectAccount from '@features/accounts/components/ConnectAccount';
 import { useAccountsColDef } from '@features/accounts/col.def';
 import noDataImage from '@assets/images/no-data.png';
 import { Trash, Sync } from '@assets/icons';
+import { OrganizationContext } from '@context/OrganizationContext';
 
 const Home: NextPage = () => {
-  const { data, isLoading, isFetching } = api.account.getAccounts.useQuery(undefined);
+  const { selectedOrganization } = useContext(OrganizationContext);
+  const { data, isLoading, isFetching } = api.account.getAccounts.useQuery({
+    organizationId: selectedOrganization?.id as string,
+  });
   const { mutateReconnect } = useReconnectAccount();
   const { mutateDeleteAccount } = useDeleteAccount();
   const { columns } = useAccountsColDef();

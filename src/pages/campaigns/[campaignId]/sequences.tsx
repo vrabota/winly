@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { withPageAuthRequired } from '@auth0/nextjs-auth0/client';
 import { Grid, Stack, Button } from '@mantine/core';
 import { useRouter } from 'next/router';
@@ -6,16 +6,18 @@ import { useRouter } from 'next/router';
 import { CampaignTabs } from '@features/campaigns';
 import { SequenceTab, SequenceEditor } from '@features/sequences';
 import { api } from '@utils/api';
+import { OrganizationContext } from '@context/OrganizationContext';
 
-import type { SequencesType } from '@server/api/campaigns/data/dtos';
+import type { SequencesType } from '@server/api/campaigns/campaigns.dto';
 import type { NextPage } from 'next';
 
 const Sequences: NextPage = () => {
   const { query } = useRouter();
+  const { selectedOrganization } = useContext(OrganizationContext);
   const [activeIndex, setActiveIndex] = useState(0);
   const [sequences, setSequences] = useState<SequencesType[]>([]);
   api.campaign.getCampaignById.useQuery(
-    { campaignId: query.campaignId as string },
+    { campaignId: query.campaignId as string, organizationId: selectedOrganization?.id as string },
     {
       onSuccess: data => {
         if (!data?.sequences?.length || data?.sequences?.length === 0) {

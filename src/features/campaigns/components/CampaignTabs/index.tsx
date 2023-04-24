@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useRouter } from 'next/router';
 import { Tabs, Stack, Group, ActionIcon, Title, Badge, Button } from '@mantine/core';
 import Link from 'next/link';
@@ -7,10 +7,15 @@ import { CampaignStatus } from '@prisma/client';
 import { ArrowLeft, Play, Pause } from '@assets/icons';
 import { api } from '@utils/api';
 import { CAMPAIGN_STATUS_MAPPING } from '@features/campaigns/utils';
+import { OrganizationContext } from '@context/OrganizationContext';
 
 const CampaignTabs = () => {
   const router = useRouter();
-  const { data } = api.campaign.getCampaignById.useQuery({ campaignId: router.query.campaignId as string });
+  const { selectedOrganization } = useContext(OrganizationContext);
+  const { data } = api.campaign.getCampaignById.useQuery({
+    campaignId: router.query.campaignId as string,
+    organizationId: selectedOrganization?.id as string,
+  });
   const path = router.pathname.split('/');
   const activeTab = path[path.length - 1];
   const { text, color } = CAMPAIGN_STATUS_MAPPING[data?.status as CampaignStatus] || {};

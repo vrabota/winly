@@ -6,6 +6,7 @@ import type { TypeOf } from 'zod';
 
 export const createActivitySchema = z.object({
   campaignId: z.string(),
+  organizationId: z.string(),
   leadEmail: z.string(),
   messageId: z.string(),
   accountId: z.string(),
@@ -15,6 +16,7 @@ export const createActivitySchema = z.object({
 });
 
 export const getActivitiesSchema = z.object({
+  organizationId: z.string(),
   campaignId: z.string().optional(),
   leadEmail: z.string().optional(),
 });

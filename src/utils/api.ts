@@ -6,12 +6,15 @@
  * We also create a few inference helpers for input and output types
  */
 import { httpBatchLink, loggerLink } from '@trpc/client';
+import Router from 'next/router';
 import { createTRPCNext } from '@trpc/next';
 import { type inferRouterInputs, type inferRouterOutputs } from '@trpc/server';
 import superjson from 'superjson';
 
 import { type AppRouter } from '@server/api/root';
 import { LOCAL_STORAGE_KEYS } from '@utils/localStorageKeys';
+
+import type { TRPC_ERROR_CODE_KEY } from '@trpc/server/dist/rpc/codes';
 
 export const getBaseUrl = (): string => {
   if (typeof window !== 'undefined') return ''; // browser should use relative url
@@ -57,6 +60,13 @@ export const api = createTRPCNext<AppRouter>({
         defaultOptions: {
           queries: {
             refetchOnWindowFocus: false,
+            retry: false,
+            onError: (err: any) => {
+              const errorCode: TRPC_ERROR_CODE_KEY = err?.data?.code;
+              if (errorCode === 'NOT_FOUND') {
+                Router.push('/not-found');
+              }
+            },
           },
         },
       },

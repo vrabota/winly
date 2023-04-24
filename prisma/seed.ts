@@ -30,7 +30,7 @@ async function main() {
     },
   });
 
-  for (let i = 0; Array.from({ length: 3 }).length; i++) {
+  for (let i = 0; i <= Array.from({ length: 3 }).length; i++) {
     await prisma.campaign.create({
       data: {
         name: faker.company.bs(),
@@ -43,6 +43,7 @@ async function main() {
           createMany: {
             data: Array.from({ length: faker.datatype.number({ min: 25, max: 50 }) }, () => ({
               firstName: faker.name.firstName(),
+              organizationId: organization.id,
               lastName: faker.name.lastName(),
               email: faker.internet.email(),
               companyName: faker.company.name(),
@@ -75,6 +76,7 @@ async function main() {
         messageId: faker.datatype.uuid(),
         accountId: account.id,
         campaignId: campaign.id,
+        organizationId: organization.id,
         createdAt: faker.date.between(dayjs().subtract(6, 'd').toISOString(), dayjs().toISOString()),
       })),
     });
@@ -88,5 +90,5 @@ main()
   .catch(async e => {
     console.error(e);
     await prisma.$disconnect();
-    process.exit(1);
+    // process.exit(1);
   });

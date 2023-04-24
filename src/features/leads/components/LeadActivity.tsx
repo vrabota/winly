@@ -11,11 +11,12 @@ import { ACTIVITY_STATUS_MAPPING } from '@features/leads/utils';
 
 extend(relativeTime);
 
-const LeadActivity = ({ email }: { leadId: string; email: string }) => {
+const LeadActivity = ({ email, organizationId }: { leadId: string; email: string; organizationId: string }) => {
   const { query } = useRouter();
   const { data, isLoading } = api.activity.getActivities.useQuery({
     campaignId: query.campaignId as string,
     leadEmail: email,
+    organizationId,
   });
 
   if (isLoading) {

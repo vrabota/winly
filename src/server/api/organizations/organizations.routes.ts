@@ -1,8 +1,15 @@
+import { Container } from 'typedi';
+
 import { createTRPCRouter, protectedProcedure } from '@server/api/trpc';
-import { getOrganizationsHandler, updateOrganizationHandler } from '@server/api/organizations/controllers';
-import { updateOrganizationSchema } from '@server/api/organizations/data/dtos';
+
+import { updateOrganizationSchema } from './organization.dto';
+import { OrganizationsController } from './organizations.controller';
+
+const organizationsController = Container.get(OrganizationsController);
 
 export const organizationRoutes = createTRPCRouter({
-  getOrganizations: protectedProcedure.query(getOrganizationsHandler),
-  updateOrganization: protectedProcedure.input(updateOrganizationSchema).mutation(updateOrganizationHandler),
+  getOrganizations: protectedProcedure.query(organizationsController.getOrganizationsHandler),
+  updateOrganization: protectedProcedure
+    .input(updateOrganizationSchema)
+    .mutation(organizationsController.updateOrganizationHandler),
 });

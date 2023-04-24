@@ -11,7 +11,7 @@ import { CAMPAIGN_STATUS_MAPPING } from '@features/campaigns/utils';
 
 import type { CampaignStatus } from '@prisma/client';
 import type { MRT_ColumnDef } from 'mantine-react-table';
-import type { CampaignWithStats } from '@server/api/campaigns/data/dtos';
+import type { CampaignWithStats } from '@server/api/campaigns/campaigns.dto';
 
 export const useCampaignColDef = ({ nameWidth = 250 }) => {
   const columns = useMemo<MRT_ColumnDef<CampaignWithStats>[]>(

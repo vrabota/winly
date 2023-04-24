@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { showNotification } from '@mantine/notifications';
 import { IconCheck } from '@tabler/icons';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 
 import { api } from '@utils/api';
 import { OrganizationContext } from '@context/OrganizationContext';
@@ -22,6 +22,12 @@ export const useUpdateWorkspaceForm = () => {
     },
     resolver: zodResolver(validationSchema),
   });
+
+  useEffect(() => {
+    methods.setValue('workspaceName', selectedOrganization?.name || '');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedOrganization?.name]);
+
   const onSubmit = (data: ValidationSchema) => {
     mutate(
       { name: data.workspaceName },

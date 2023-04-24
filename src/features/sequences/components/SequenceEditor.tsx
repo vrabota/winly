@@ -12,7 +12,7 @@ import { useRouter } from 'next/router';
 
 import { api } from '@utils/api';
 
-import type { SequencesType } from '@server/api/campaigns/data/dtos';
+import type { SequencesType } from '@server/api/campaigns/campaigns.dto';
 import type { ChangeEvent } from 'react';
 
 export const SequenceEditor = ({

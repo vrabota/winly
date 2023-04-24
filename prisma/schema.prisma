@@ -51,6 +51,8 @@ model Organization {
   users     User[]
   accounts  Account[]
   campaigns Campaign[]
+  Activity  Activity[]
+  Lead      Lead[]
 
   @@map("organizations")
 }
@@ -146,6 +148,7 @@ enum CampaignStatus {
 model Lead {
   id              String     @id @default(uuid()) @db.VarChar(36)
   campaignId      String     @map("campaign_id") @db.VarChar(36)
+  organizationId  String     @map("organization_id") @db.VarChar(36)
   email           String     @db.VarChar(100)
   firstName       String?    @map("first_name") @db.VarChar(100)
   lastName        String?    @map("last_name") @db.VarChar(100)
@@ -158,10 +161,12 @@ model Lead {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaign     Campaign     @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([campaignId, email])
   @@index([campaignId])
+  @@index([organizationId])
   @@map("leads")
 }
 
@@ -179,20 +184,22 @@ enum LeadStatus {
 }
 
 model Activity {
-  id         String          @id @default(uuid()) @db.VarChar(36)
-  campaignId String          @map("campaign_id") @db.VarChar(36)
-  leadEmail  String          @map("lead_email") @db.VarChar(100)
-  messageId  String          @map("message_id") @db.VarChar(100)
-  queueId    String?         @map("queue_id") @db.VarChar(36)
-  accountId  String          @map("account_id") @db.VarChar(36)
-  step       Int?            @db.SmallInt
-  status     ActivityStatus? @default(QUEUED)
+  id             String          @id @default(uuid()) @db.VarChar(36)
+  campaignId     String          @map("campaign_id") @db.VarChar(36)
+  organizationId String          @map("organization_id") @db.VarChar(36)
+  leadEmail      String          @map("lead_email") @db.VarChar(100)
+  messageId      String          @map("message_id") @db.VarChar(100)
+  queueId        String?         @map("queue_id") @db.VarChar(36)
+  accountId      String          @map("account_id") @db.VarChar(36)
+  step           Int?            @db.SmallInt
+  status         ActivityStatus? @default(QUEUED)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  account  Account  @relation(fields: [accountId], references: [id])
+  campaign     Campaign     @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  account      Account      @relation(fields: [accountId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([queueId])
   @@index([accountId])
@@ -200,6 +207,7 @@ model Activity {
   @@index([leadEmail])
   @@index([messageId])
   @@index([campaignId])
+  @@index([organizationId])
   @@map("activities")
 }
 

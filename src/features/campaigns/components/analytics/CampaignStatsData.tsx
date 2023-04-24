@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Divider, Group, Paper, Skeleton, Stack, Text } from '@mantine/core';
 import { ActivityStatus } from '@prisma/client';
 import { useRouter } from 'next/router';
@@ -7,11 +7,14 @@ import { BookOpen, Contacted, MailReply, PartyIcon } from '@assets/icons';
 import { api } from '@utils/api';
 import { calcRate } from '@utils/calcRate';
 import { statusCount } from '@utils/statusCount';
+import { OrganizationContext } from '@context/OrganizationContext';
 
 const CampaignStatsData = () => {
   const { query } = useRouter();
+  const { selectedOrganization } = useContext(OrganizationContext);
   const { data: activityStats, isLoading: isLoadingStats } = api.activity.getActivitiesStats.useQuery({
     campaignId: query.campaignId as string,
+    organizationId: selectedOrganization?.id as string,
   });
   const contacted = statusCount(activityStats)?.[ActivityStatus.CONTACTED] || 0;
   const opened = statusCount(activityStats)?.[ActivityStatus.OPENED] || 0;

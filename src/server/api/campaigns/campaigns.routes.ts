@@ -1,21 +1,6 @@
-import { TRPCError } from '@trpc/server';
-import { CampaignStatus } from '.prisma/client';
+import { Container } from 'typedi';
 
 import { createTRPCRouter, protectedProcedure } from '@server/api/trpc';
-import {
-  createCampaignHandler,
-  getCampaignByIdHandler,
-  getCampaignsHandler,
-  updateCampaignHandler,
-  updateCampaignSequenceHandler,
-  renameCampaignHandler,
-  deleteCampaignHandler,
-} from '@server/api/campaigns/controllers';
-import { startCampaignService } from '@server/api/campaigns/data/services';
-import { getCampaignById } from '@server/api/campaigns/data/repositories';
-import { getLeads } from '@server/api/leads/data/repositories';
-import { getAccountsByIds } from '@server/api/accounts/data/repositories';
-import { createActivitiesRepository } from '@server/api/activity/data/repositories';
 
 import {
   renameCampaignSchema,
@@ -24,39 +9,20 @@ import {
   updateCampaignSchema,
   updateCampaignSequenceSchema,
   getAllCampaignsSchema,
-} from './data/dtos';
+} from './campaigns.dto';
+import { CampaignsController } from './campaigns.controller';
+
+const campaignsController = Container.get(CampaignsController);
 
 export const campaignRoutes = createTRPCRouter({
-  createCampaign: protectedProcedure.input(createCampaignSchema).mutation(createCampaignHandler),
-  renameCampaign: protectedProcedure.input(renameCampaignSchema).mutation(renameCampaignHandler),
-  updateCampaign: protectedProcedure.input(updateCampaignSchema).mutation(updateCampaignHandler),
-  deleteCampaign: protectedProcedure.input(getCampaignByIdSchema).mutation(deleteCampaignHandler),
-  startCampaign: protectedProcedure.input(getCampaignByIdSchema).mutation(async ({ input, ctx }) => {
-    const campaign = await getCampaignById({ userId: ctx.user.id, organizationId: ctx.organizationId, ...input });
-    const leads = await getLeads({ campaignId: input.campaignId });
-    const accounts = await getAccountsByIds(campaign?.accountIds as string[]);
-
-    await ctx.prisma.campaign.update({ where: { id: campaign?.id }, data: { status: CampaignStatus.ACTIVE } });
-
-    if (!campaign) {
-      throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: `Unfortunately can not find campaign with id ${input.campaignId}.`,
-      });
-    }
-
-    const accountMessages = await startCampaignService({ campaign, leads, accounts });
-    const messages = accountMessages.map(message => ({
-      campaignId: campaign.id,
-      messageId: message.messageId as string,
-      leadEmail: message.to?.address as string,
-      queueId: message.queueId,
-      accountId: message.accountId,
-      step: message.step,
-    }));
-    await createActivitiesRepository(messages);
-  }),
-  updateSequences: protectedProcedure.input(updateCampaignSequenceSchema).mutation(updateCampaignSequenceHandler),
-  getAllCampaigns: protectedProcedure.input(getAllCampaignsSchema).query(getCampaignsHandler),
-  getCampaignById: protectedProcedure.input(getCampaignByIdSchema).query(getCampaignByIdHandler),
+  createCampaign: protectedProcedure.input(createCampaignSchema).mutation(campaignsController.createCampaignHandler),
+  renameCampaign: protectedProcedure.input(renameCampaignSchema).mutation(campaignsController.renameCampaignHandler),
+  updateCampaign: protectedProcedure.input(updateCampaignSchema).mutation(campaignsController.updateCampaignHandler),
+  deleteCampaign: protectedProcedure.input(getCampaignByIdSchema).mutation(campaignsController.deleteCampaignHandler),
+  startCampaign: protectedProcedure.input(getCampaignByIdSchema).mutation(campaignsController.startCampaignHandler),
+  updateSequences: protectedProcedure
+    .input(updateCampaignSequenceSchema)
+    .mutation(campaignsController.updateCampaignSequenceHandler),
+  getAllCampaigns: protectedProcedure.input(getAllCampaignsSchema).query(campaignsController.getCampaignsHandler),
+  getCampaignById: protectedProcedure.input(getCampaignByIdSchema).query(campaignsController.getCampaignByIdHandler),
 });

@@ -1,20 +1,20 @@
+import { Container } from 'typedi';
+
 import { createTRPCRouter, protectedProcedure } from '@server/api/trpc';
-import { oauth2AccountSchema } from '@server/api/accounts/data/dtos';
-import {
-  connectGoogleAppPasswordHandler,
-  connectGoogleOauthHandler,
-  deleteAccountHandler,
-  getAccountsHandler,
-  reconnectAccountHandler,
-} from '@server/api/accounts/controllers';
-import { appPasswordAccountSchema, accountIdSchema } from '@server/api/accounts/data/dtos/accounts.dto';
+
+import { appPasswordAccountSchema, accountIdSchema, accountsSchema, oauth2AccountSchema } from './accounts.dto';
+import { AccountsController } from './accounts.controller';
+
+const accountsController = Container.get(AccountsController);
 
 export const accountsRoutes = createTRPCRouter({
-  connectGoogleOauthAccount: protectedProcedure.input(oauth2AccountSchema).query(connectGoogleOauthHandler),
+  connectGoogleOauthAccount: protectedProcedure
+    .input(oauth2AccountSchema)
+    .query(accountsController.connectGoogleOauthHandler),
   connectAppPasswordAccount: protectedProcedure
     .input(appPasswordAccountSchema)
-    .mutation(connectGoogleAppPasswordHandler),
-  getAccounts: protectedProcedure.query(getAccountsHandler),
-  reconnectAccount: protectedProcedure.input(accountIdSchema).mutation(reconnectAccountHandler),
-  deleteAccount: protectedProcedure.input(accountIdSchema).mutation(deleteAccountHandler),
+    .mutation(accountsController.connectGoogleAppPasswordHandler),
+  getAccounts: protectedProcedure.input(accountsSchema).query(accountsController.getAll),
+  reconnectAccount: protectedProcedure.input(accountIdSchema).mutation(accountsController.reconnectAccountHandler),
+  deleteAccount: protectedProcedure.input(accountIdSchema).mutation(accountsController.deleteAccountHandler),
 });

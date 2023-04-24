@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Text, Paper, Accordion, createStyles, Stack, Group, Divider } from '@mantine/core';
 import { useRouter } from 'next/router';
 import { ActivityStatus } from '@prisma/client';
@@ -6,6 +6,7 @@ import { ActivityStatus } from '@prisma/client';
 import { Contacted, BookOpen, MailReply } from '@assets/icons';
 import { api } from '@utils/api';
 import { calcRate } from '@utils/calcRate';
+import { OrganizationContext } from '@context/OrganizationContext';
 
 const useStyles = createStyles(theme => ({
   root: {
@@ -98,8 +99,10 @@ const StepData = ({ step }: { step: any }) => {
 const StepAnalytics = () => {
   const { classes } = useStyles();
   const { query } = useRouter();
+  const { selectedOrganization } = useContext(OrganizationContext);
   const { data } = api.activity.getActivitiesByStep.useQuery({
     campaignId: query.campaignId as string,
+    organizationId: selectedOrganization?.id as string,
   });
   return (
     <Paper shadow="sm" radius="md" p="xl">

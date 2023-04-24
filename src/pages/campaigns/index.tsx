@@ -1,6 +1,6 @@
 import { withPageAuthRequired } from '@auth0/nextjs-auth0/client';
 import { ActionIcon, Button, Menu, Stack, Text, Title, Group, TextInput } from '@mantine/core';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { IconCheck, IconDots, IconPlus } from '@tabler/icons';
@@ -14,13 +14,18 @@ import noDataImage from '@assets/images/no-data.png';
 import { useCampaignColDef } from '@features/campaigns/col.def';
 import { createCampaign } from '@features/campaigns/components/CampaignBar/createCampaign';
 import { Modal } from '@components/overlays';
+import { OrganizationContext } from '@context/OrganizationContext';
 
 import type { NextPage } from 'next';
 import type { MouseEvent } from 'react';
 
 const Campaigns: NextPage = () => {
   const { push } = useRouter();
-  const { data, isFetching, isLoading } = api.campaign.getAllCampaigns.useQuery({ withStats: true });
+  const { selectedOrganization } = useContext(OrganizationContext);
+  const { data, isFetching, isLoading } = api.campaign.getAllCampaigns.useQuery({
+    withStats: true,
+    organizationId: selectedOrganization?.id as string,
+  });
   const { columns } = useCampaignColDef({ nameWidth: 250 });
   const [renameValue, setRenameValue] = useState('');
   const [campaignId, setCampaignId] = useState('');

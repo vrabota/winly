@@ -19,8 +19,8 @@ export const updateCampaignSchema = z.object({
   sendOnReply: z.boolean().default(true),
   openTracking: z.boolean().default(true),
 });
-export const getCampaignByIdSchema = z.object({ campaignId: z.string() });
-export const getAllCampaignsSchema = z.object({ withStats: z.boolean().optional() });
+export const getCampaignByIdSchema = z.object({ campaignId: z.string(), organizationId: z.string().optional() });
+export const getAllCampaignsSchema = z.object({ withStats: z.boolean().optional(), organizationId: z.string() });
 
 export const updateCampaignSequenceSchema = z.object({
   sequences: z.array(sequencesSchema),

@@ -19,6 +19,7 @@ export const batchCreateLeads = z.array(createLeadsSchema);
 
 export const getLeadsSchema = z.object({
   campaignId: z.string(),
+  organizationId: z.string(),
 });
 
 export const getLeadIdSchema = z.object({

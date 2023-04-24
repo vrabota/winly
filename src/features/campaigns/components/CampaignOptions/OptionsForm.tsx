@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { z } from 'zod';
 import omit from 'lodash/omit';
 import { useForm, FormProvider } from 'react-hook-form';
@@ -11,6 +11,7 @@ import { useRouter } from 'next/router';
 import { Play } from '@assets/icons';
 import { api } from '@utils/api';
 import { NOTIFICATION } from '@utils/notificationIds';
+import { OrganizationContext } from '@context/OrganizationContext';
 
 import Accounts from './Accounts';
 import Days from './Days';
@@ -50,9 +51,12 @@ const OptionsForm = () => {
     resolver: zodResolver(validationSchema),
   });
 
-  const { data: accountsData } = api.account.getAccounts.useQuery(undefined);
+  const { selectedOrganization } = useContext(OrganizationContext);
+  const { data: accountsData } = api.account.getAccounts.useQuery({
+    organizationId: selectedOrganization?.id as string,
+  });
   const { isLoading, data: campaignData } = api.campaign.getCampaignById.useQuery(
-    { campaignId: query.campaignId as string },
+    { campaignId: query.campaignId as string, organizationId: selectedOrganization?.id as string },
     {
       onSuccess: data => {
         if (data) {
@@ -131,7 +135,10 @@ const OptionsForm = () => {
       },
     });
     if (isStartEnabled) {
-      await startCampaign({ campaignId: query.campaignId as string });
+      await startCampaign({
+        campaignId: query.campaignId as string,
+        organizationId: selectedOrganization?.id as string,
+      });
     }
   };
 
