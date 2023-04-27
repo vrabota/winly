@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 import groupBy from 'lodash/groupBy';
 import { ActivityStatus, Prisma } from '@prisma/client';
-import { Service } from 'typedi';
 
 import { prisma } from '@server/db';
 
@@ -13,13 +12,12 @@ import type {
 } from './activity.dto';
 import type { Activity } from '@prisma/client';
 
-@Service()
 export class ActivityRepository {
-  async createActivitiesRepository(payload: CreateActivityInput[]): Promise<Prisma.BatchPayload> {
+  static async createActivitiesRepository(payload: CreateActivityInput[]): Promise<Prisma.BatchPayload> {
     return prisma.activity.createMany({ data: payload });
   }
 
-  async getAll(payload: GetActivitiesInput): Promise<Activity[]> {
+  static async getAll(payload: GetActivitiesInput): Promise<Activity[]> {
     return prisma.activity.findMany({
       where: {
         organizationId: payload.organizationId,
@@ -33,7 +31,7 @@ export class ActivityRepository {
     });
   }
 
-  async getActivitiesByDateAndStatus(payload: GetActivitiesInput): Promise<ActivityStats[]> {
+  static async getActivitiesByDateAndStatus(payload: GetActivitiesInput): Promise<ActivityStats[]> {
     const groupByDateStatus = await prisma.$queryRaw<ActivityGroupedByDateStatus[]>`
 SELECT DATE_FORMAT(created_at, '%Y-%m-%d') as date, status, COUNT(*) as count , COUNT(DISTINCT CASE WHEN status = 'OPENED' THEN message_id ELSE NULL END) as unique_opened
 FROM activities AS a 
@@ -58,7 +56,7 @@ GROUP BY 1, 2;`;
     return Object.values(result);
   }
 
-  async getActivitiesByStep(payload: GetActivitiesInput): Promise<any> {
+  static async getActivitiesByStep(payload: GetActivitiesInput): Promise<any> {
     const activities = await prisma.activity.groupBy({
       by: ['step', 'status'],
       where: {

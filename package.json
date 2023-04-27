@@ -56,10 +56,8 @@
     "react-dom": "18.2.0",
     "react-hook-form": "^7.42.1",
     "recharts": "^2.5.0",
-    "reflect-metadata": "^0.1.13",
     "superjson": "1.9.1",
     "timezones-list": "^3.0.1",
-    "typedi": "^0.10.0",
     "zod": "^3.20.2"
   },
   "devDependencies": {

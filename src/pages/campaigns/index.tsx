@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { IconCheck, IconDots, IconPlus } from '@tabler/icons';
 import { useDisclosure } from '@mantine/hooks';
 import { showNotification } from '@mantine/notifications';
+import { CampaignStatus } from '@prisma/client';
 
 import { api } from '@utils/api';
 import { Cell, Filters, Table } from '@components/data';
@@ -21,10 +22,14 @@ import type { MouseEvent } from 'react';
 
 const Campaigns: NextPage = () => {
   const { push } = useRouter();
+  const [filters, applyFilters] = useState<{ search?: string; campaignStatus?: CampaignStatus[] }>();
   const { selectedOrganization } = useContext(OrganizationContext);
   const { data, isFetching, isLoading } = api.campaign.getAllCampaigns.useQuery({
     withStats: true,
     organizationId: selectedOrganization?.id as string,
+    search: filters?.search && filters?.search?.length > 0 ? filters?.search : undefined,
+    campaignStatus:
+      filters?.campaignStatus && filters?.campaignStatus?.length > 0 ? filters?.campaignStatus : undefined,
   });
   const { columns } = useCampaignColDef({ nameWidth: 250 });
   const [renameValue, setRenameValue] = useState('');
@@ -108,6 +113,19 @@ const Campaigns: NextPage = () => {
         isEmpty={Array.isArray(data) && data?.length === 0 && !isFetching}
         filters={
           <Filters
+            applyFilters={applyFilters}
+            items={[
+              {
+                key: 'campaignStatus',
+                label: 'Campaign status',
+                title: 'Campaign status filters',
+                options: [
+                  { value: CampaignStatus.ACTIVE, label: 'Active' },
+                  { value: CampaignStatus.PAUSE, label: 'Paused' },
+                  { value: CampaignStatus.DRAFT, label: 'Draft' },
+                ],
+              },
+            ]}
             actionBox={
               <Button radius="md" h={48} onClick={createCampaign} leftIcon={<IconPlus size={18} />}>
                 New Campaign
@@ -150,20 +168,22 @@ const Campaigns: NextPage = () => {
             </Group>
           );
         }}
-        noData={
-          <Stack align="center" justify="center" my={100}>
-            <Image width={337.5} height={300} src={noDataImage} alt="No data iamge" />
-            <Text mt={20} size="lg" weight="500">
-              There is no data for your request.
-            </Text>
-            <Text size="lg" weight="500" mb={30}>
-              Add an account to get started.
-            </Text>
-            <Button radius="md" h={48} onClick={createCampaign} leftIcon={<IconPlus size={18} />}>
-              New Campaign
-            </Button>
-          </Stack>
-        }
+        localization={{
+          noRecordsToDisplay: (
+            <Stack align="center" justify="center">
+              <Image height={200} src={noDataImage} alt="No data iamge" />
+              <Text mt={20} size="lg" weight="500" sx={{ fontStyle: 'normal' }}>
+                There is no data for your request.
+              </Text>
+              <Text size="lg" weight="500" mb={30} sx={{ fontStyle: 'normal' }}>
+                Add a campaign to get started.
+              </Text>
+              <Button radius="md" h={48} onClick={createCampaign} leftIcon={<IconPlus size={18} />}>
+                New Campaign
+              </Button>
+            </Stack>
+          ),
+        }}
         mantineTableBodyRowProps={({ row }: any) => ({
           onClick: () => push(`/campaigns/${row.original.id}/analytics`),
           sx: { cursor: 'pointer' },

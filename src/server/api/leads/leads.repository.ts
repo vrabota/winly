@@ -1,5 +1,4 @@
 import omit from 'lodash/omit';
-import { Service } from 'typedi';
 
 import { prisma } from '@server/db';
 
@@ -13,30 +12,42 @@ import type {
 } from './leads.dto';
 import type { Prisma, Lead } from '@prisma/client';
 
-@Service()
 export class LeadsRepository {
-  async createLead(payload: CreateLeadsInput, organizationId: string): Promise<Lead> {
+  static async createLead(payload: CreateLeadsInput, organizationId: string): Promise<Lead> {
     return prisma.lead.create({
       data: { ...payload, organizationId },
     });
   }
 
-  async batchCreateLeads(payload: CreateLeadsInput[], organizationId: string): Promise<Prisma.BatchPayload> {
+  static async batchCreateLeads(payload: CreateLeadsInput[], organizationId: string): Promise<Prisma.BatchPayload> {
     return prisma.lead.createMany({
       data: payload.map(lead => ({ ...lead, organizationId })),
     });
   }
 
-  async getLeads(payload: withOrgId<GetLeadsInput>): Promise<Lead[]> {
+  static async getLeads(payload: withOrgId<GetLeadsInput>): Promise<Lead[]> {
     return prisma.lead.findMany({
       where: {
         campaignId: payload.campaignId,
         organizationId: payload.organizationId,
+        status: { in: payload.leadStatus },
+        AND: [
+          {
+            OR: payload.search
+              ? [
+                  { firstName: { contains: payload.search } },
+                  { lastName: { contains: payload.search } },
+                  { email: { contains: payload.search } },
+                  { companyName: { contains: payload.search } },
+                ]
+              : undefined,
+          },
+        ],
       },
     });
   }
 
-  async getLeadById(payload: GetLeadIdInput): Promise<Lead | null> {
+  static async getLeadById(payload: GetLeadIdInput): Promise<Lead | null> {
     return prisma.lead.findUnique({
       where: {
         id: payload.leadId,
@@ -44,7 +55,7 @@ export class LeadsRepository {
     });
   }
 
-  async updateLeadRepository(payload: UpdateLeadInput): Promise<Lead> {
+  static async updateLeadRepository(payload: UpdateLeadInput): Promise<Lead> {
     return prisma.lead.update({
       where: {
         id: payload.leadId,
@@ -53,7 +64,7 @@ export class LeadsRepository {
     });
   }
 
-  async deleteLeadRepository(payload: GetLeadIdInput): Promise<Lead> {
+  static async deleteLeadRepository(payload: GetLeadIdInput): Promise<Lead> {
     return prisma.lead.delete({
       where: {
         id: payload.leadId,
@@ -61,7 +72,7 @@ export class LeadsRepository {
     });
   }
 
-  async deleteBatchLeadsRepository(payload: BatchDeleteLeadInput): Promise<Prisma.BatchPayload> {
+  static async deleteBatchLeadsRepository(payload: BatchDeleteLeadInput): Promise<Prisma.BatchPayload> {
     return prisma.lead.deleteMany({
       where: {
         id: {

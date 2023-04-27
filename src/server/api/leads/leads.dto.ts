@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { LeadStatus } from '@prisma/client';
 
+import { numericString } from '@server/zod-schemas/numericString';
+
 import type { TypeOf } from 'zod';
 
 export const createLeadsSchema = z.object({
@@ -20,6 +22,10 @@ export const batchCreateLeads = z.array(createLeadsSchema);
 export const getLeadsSchema = z.object({
   campaignId: z.string(),
   organizationId: z.string(),
+  search: z.string().trim().min(1).optional(),
+  leadStatus: z.nativeEnum(LeadStatus).array().optional(),
+  take: numericString.default(30).optional(),
+  page: numericString.default(0).optional(),
 });
 
 export const getLeadIdSchema = z.object({

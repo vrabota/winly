@@ -1,10 +1,11 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { withPageAuthRequired } from '@auth0/nextjs-auth0/client';
 import { IconDots, IconPlus } from '@tabler/icons';
 import { ActionIcon, Button, Group, Menu, Stack, Text } from '@mantine/core';
 import { useRouter } from 'next/router';
 import { useDisclosure } from '@mantine/hooks';
 import Image from 'next/image';
+import { LeadStatus } from '@prisma/client';
 
 import { CampaignTabs } from '@features/campaigns';
 import { Filters, Table } from '@components/data';
@@ -24,6 +25,7 @@ import type { NextPage } from 'next';
 
 const Leads: NextPage = () => {
   const { query } = useRouter();
+  const [filters, applyFilters] = useState<{ search?: string; leadStatus?: LeadStatus[] }>();
   const { selectedOrganization } = useContext(OrganizationContext);
   const [leadsOpened, { open: leadsOpen, close: leadsClose }] = useDisclosure(false);
   const {
@@ -33,6 +35,8 @@ const Leads: NextPage = () => {
   } = api.leads.getLeads.useQuery({
     campaignId: query.campaignId as string,
     organizationId: selectedOrganization?.id as string,
+    search: filters?.search && filters?.search?.length > 0 ? filters?.search : undefined,
+    leadStatus: filters?.leadStatus && filters?.leadStatus?.length > 0 ? filters?.leadStatus : undefined,
   });
   const { columns } = useLeadsColDef();
 
@@ -83,6 +87,24 @@ const Leads: NextPage = () => {
         isEmpty={Array.isArray(data) && data?.length === 0 && !isFetching}
         filters={
           <Filters
+            applyFilters={applyFilters}
+            items={[
+              {
+                key: 'leadStatus',
+                label: 'Lead status',
+                title: 'Lead status filters',
+                options: [
+                  { value: LeadStatus.LEAD, label: 'Lead' },
+                  { value: LeadStatus.CLOSED, label: 'Closed' },
+                  { value: LeadStatus.INTERESTED, label: 'Interested' },
+                  { value: LeadStatus.NOT_INTERESTED, label: 'Not Interested' },
+                  { value: LeadStatus.MEETING_BOOKED, label: 'Meeting Booked' },
+                  { value: LeadStatus.MEETING_COMPLETED, label: 'Meeting Completed' },
+                  { value: LeadStatus.OUT_OF_OFFICE, label: 'Out of Office' },
+                  { value: LeadStatus.WRONG_PERSON, label: 'Wrong Person' },
+                ],
+              },
+            ]}
             actionBox={
               <Button radius="md" h={48} onClick={leadsOpen} leftIcon={<IconPlus size={18} />}>
                 Import leads
@@ -140,20 +162,22 @@ const Leads: NextPage = () => {
             </Group>
           );
         }}
-        noData={
-          <Stack align="center" justify="center" my={100}>
-            <Image width={337.5} height={300} src={noDataImage} alt="No data iamge" />
-            <Text mt={20} size="lg" weight="500">
-              There is no data for your request.
-            </Text>
-            <Text size="lg" weight="500" mb={30}>
-              Import a few leads to create a campaign
-            </Text>
-            <Button radius="md" h={48} onClick={leadsOpen} leftIcon={<IconPlus size={18} />}>
-              Import leads
-            </Button>
-          </Stack>
-        }
+        localization={{
+          noRecordsToDisplay: (
+            <Stack align="center" justify="center">
+              <Image height={200} src={noDataImage} alt="No data iamge" />
+              <Text mt={20} size="lg" weight="500" sx={{ fontStyle: 'normal' }}>
+                There is no data for your request.
+              </Text>
+              <Text size="lg" weight="500" mb={30} sx={{ fontStyle: 'normal' }}>
+                Import a few leads to create a campaign.
+              </Text>
+              <Button radius="md" h={48} onClick={leadsOpen} leftIcon={<IconPlus size={18} />}>
+                Import leads
+              </Button>
+            </Stack>
+          ),
+        }}
         mantineTableBodyRowProps={() => ({
           onClick: () => console.log(123),
           sx: { cursor: 'pointer' },

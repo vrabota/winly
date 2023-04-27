@@ -1,4 +1,7 @@
 import { z } from 'zod';
+import { CampaignStatus } from '@prisma/client';
+
+import { numericString } from '@server/zod-schemas/numericString';
 
 import type { Campaign } from '@prisma/client';
 import type { TypeOf } from 'zod';
@@ -20,7 +23,14 @@ export const updateCampaignSchema = z.object({
   openTracking: z.boolean().default(true),
 });
 export const getCampaignByIdSchema = z.object({ campaignId: z.string(), organizationId: z.string().optional() });
-export const getAllCampaignsSchema = z.object({ withStats: z.boolean().optional(), organizationId: z.string() });
+export const getAllCampaignsSchema = z.object({
+  withStats: z.boolean().optional(),
+  organizationId: z.string(),
+  campaignStatus: z.nativeEnum(CampaignStatus).array().optional(),
+  search: z.string().trim().min(1).optional(),
+  take: numericString.default(30).optional(),
+  page: numericString.default(0).optional(),
+});
 
 export const updateCampaignSequenceSchema = z.object({
   sequences: z.array(sequencesSchema),

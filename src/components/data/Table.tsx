@@ -19,6 +19,7 @@ const Table = ({
 }: {
   columns: any;
   data: any;
+  localization?: any;
   mantineTableContainerProps?: any;
   renderRowActionMenuItems?: (props: any) => ReactNode;
   renderRowActions?: (props: any) => ReactNode;

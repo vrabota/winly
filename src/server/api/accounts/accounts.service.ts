@@ -1,6 +1,5 @@
 import { TRPCError } from '@trpc/server';
 import { AccountType } from '@prisma/client';
-import { Service } from 'typedi';
 
 import { logger } from '@utils/logger';
 import { emailApi } from '@utils/emailApi';
@@ -18,9 +17,8 @@ interface GoogleOauth {
   picture?: string;
 }
 
-@Service()
 export class AccountsService {
-  async oauth2AccountService(code: string): Promise<GoogleOauth> {
+  static async oauth2AccountService(code: string): Promise<GoogleOauth> {
     logger.info(`Connecting Google Account based with ${code} code`);
 
     const { tokens } = await oAuth2Client.getToken(code);
@@ -42,7 +40,7 @@ export class AccountsService {
     return { email, refreshToken, given_name, family_name, picture };
   }
 
-  async connectAccountService(account: Account, type: AccountType) {
+  static async connectAccountService(account: Account, type: AccountType) {
     try {
       const appPasswordAuth = {
         user: account.email,
@@ -84,7 +82,7 @@ export class AccountsService {
     }
   }
 
-  async reconnectAccountsService(accountId: string): Promise<AccountReconnectOutput> {
+  static async reconnectAccountsService(accountId: string): Promise<AccountReconnectOutput> {
     try {
       const { data } = await emailApi.put(`/account/${accountId}/reconnect`, { reconnect: true });
       return data;
@@ -99,7 +97,7 @@ export class AccountsService {
     }
   }
 
-  async deleteAccountService(accountId: string): Promise<AccountDeleteOutput> {
+  static async deleteAccountService(accountId: string): Promise<AccountDeleteOutput> {
     const { data } = await emailApi.delete(`/account/${accountId}`);
     return data;
   }

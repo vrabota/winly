@@ -5,7 +5,6 @@ import timezone from 'dayjs/plugin/timezone';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import isToday from 'dayjs/plugin/isToday';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-import { Service } from 'typedi';
 
 import { emailApi } from '@utils/emailApi';
 import { logger } from '@utils/logger';
@@ -20,9 +19,8 @@ extend(isoWeek);
 extend(isToday);
 extend(customParseFormat);
 
-@Service()
 export class CampaignsService {
-  async startCampaign({
+  static async startCampaign({
     campaign,
     leads,
     accounts,

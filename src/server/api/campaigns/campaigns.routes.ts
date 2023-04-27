@@ -1,5 +1,3 @@
-import { Container } from 'typedi';
-
 import { createTRPCRouter, protectedProcedure } from '@server/api/trpc';
 
 import {
@@ -12,17 +10,15 @@ import {
 } from './campaigns.dto';
 import { CampaignsController } from './campaigns.controller';
 
-const campaignsController = Container.get(CampaignsController);
-
 export const campaignRoutes = createTRPCRouter({
-  createCampaign: protectedProcedure.input(createCampaignSchema).mutation(campaignsController.createCampaignHandler),
-  renameCampaign: protectedProcedure.input(renameCampaignSchema).mutation(campaignsController.renameCampaignHandler),
-  updateCampaign: protectedProcedure.input(updateCampaignSchema).mutation(campaignsController.updateCampaignHandler),
-  deleteCampaign: protectedProcedure.input(getCampaignByIdSchema).mutation(campaignsController.deleteCampaignHandler),
-  startCampaign: protectedProcedure.input(getCampaignByIdSchema).mutation(campaignsController.startCampaignHandler),
+  createCampaign: protectedProcedure.input(createCampaignSchema).mutation(CampaignsController.createCampaignHandler),
+  renameCampaign: protectedProcedure.input(renameCampaignSchema).mutation(CampaignsController.renameCampaignHandler),
+  updateCampaign: protectedProcedure.input(updateCampaignSchema).mutation(CampaignsController.updateCampaignHandler),
+  deleteCampaign: protectedProcedure.input(getCampaignByIdSchema).mutation(CampaignsController.deleteCampaignHandler),
+  startCampaign: protectedProcedure.input(getCampaignByIdSchema).mutation(CampaignsController.startCampaignHandler),
   updateSequences: protectedProcedure
     .input(updateCampaignSequenceSchema)
-    .mutation(campaignsController.updateCampaignSequenceHandler),
-  getAllCampaigns: protectedProcedure.input(getAllCampaignsSchema).query(campaignsController.getCampaignsHandler),
-  getCampaignById: protectedProcedure.input(getCampaignByIdSchema).query(campaignsController.getCampaignByIdHandler),
+    .mutation(CampaignsController.updateCampaignSequenceHandler),
+  getAllCampaigns: protectedProcedure.input(getAllCampaignsSchema).query(CampaignsController.getCampaignsHandler),
+  getCampaignById: protectedProcedure.input(getCampaignByIdSchema).query(CampaignsController.getCampaignByIdHandler),
 });

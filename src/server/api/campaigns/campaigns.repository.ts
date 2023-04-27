@@ -1,6 +1,5 @@
 import { CampaignStatus } from '@prisma/client';
 import omit from 'lodash/omit';
-import { Service } from 'typedi';
 
 import { prisma } from '@server/db';
 
@@ -16,9 +15,8 @@ import type {
 import type { withUserId, withUserOrgIds } from '@server/types/withUserOrgIds';
 import type { Campaign } from '@prisma/client';
 
-@Service()
 export class CampaignsRepository {
-  async createCampaign(payload: withUserOrgIds<CreateCampaignInput>): Promise<Campaign> {
+  static async createCampaign(payload: withUserOrgIds<CreateCampaignInput>): Promise<Campaign> {
     return prisma.campaign.create({
       data: {
         organizationId: payload.organizationId,
@@ -30,7 +28,7 @@ export class CampaignsRepository {
     });
   }
 
-  async getCampaigns(payload: withUserOrgIds<GetAllCampaignsInput>): Promise<CampaignWithStats[]> {
+  static async getCampaigns(payload: withUserOrgIds<GetAllCampaignsInput>): Promise<CampaignWithStats[]> {
     return prisma.$transaction(async prisma => {
       const activitiesByCampaign = await prisma.activity.groupBy({
         by: ['status', 'campaignId'],
@@ -40,6 +38,12 @@ export class CampaignsRepository {
       const allCampaigns = await prisma.campaign.findMany({
         where: {
           organizationId: payload.organizationId,
+          status: { in: payload.campaignStatus },
+          AND: [
+            {
+              OR: payload.search ? [{ name: { contains: payload.search } }] : undefined,
+            },
+          ],
         },
       });
 
@@ -56,7 +60,7 @@ export class CampaignsRepository {
     });
   }
 
-  async getCampaignById(payload: withUserOrgIds<GetCampaignByIdInput>): Promise<Campaign | null> {
+  static async getCampaignById(payload: withUserOrgIds<GetCampaignByIdInput>): Promise<Campaign | null> {
     return prisma.campaign.findFirst({
       where: {
         id: payload.campaignId,
@@ -65,7 +69,7 @@ export class CampaignsRepository {
     });
   }
 
-  async updateCampaign(payload: withUserId<UpdateCampaignInput>): Promise<Campaign> {
+  static async updateCampaign(payload: withUserId<UpdateCampaignInput>): Promise<Campaign> {
     return prisma.campaign.update({
       where: {
         id: payload.campaignId,
@@ -77,7 +81,7 @@ export class CampaignsRepository {
     });
   }
 
-  async updateCampaignSequences(payload: withUserId<UpdateCampaignSequenceInput>): Promise<Campaign> {
+  static async updateCampaignSequences(payload: withUserId<UpdateCampaignSequenceInput>): Promise<Campaign> {
     return prisma.campaign.update({
       where: {
         id: payload.campaignId,
@@ -89,14 +93,14 @@ export class CampaignsRepository {
     });
   }
 
-  async renameCampaign(payload: RenameCampaignInput): Promise<Campaign> {
+  static async renameCampaign(payload: RenameCampaignInput): Promise<Campaign> {
     return prisma.campaign.update({
       where: { id: payload.campaignId },
       data: { name: payload.name },
     });
   }
 
-  async deleteCampaign(payload: GetCampaignByIdInput): Promise<Campaign> {
+  static async deleteCampaign(payload: GetCampaignByIdInput): Promise<Campaign> {
     return prisma.campaign.delete({
       where: { id: payload.campaignId },
     });

@@ -1,5 +1,4 @@
 import { TRPCError } from '@trpc/server';
-import { Container, Service } from 'typedi';
 
 import { OrganizationsRepository } from '@server/api/organizations/organizations.repository';
 import { emailApi } from '@utils/emailApi';
@@ -8,12 +7,9 @@ import { logger } from '@utils/logger';
 
 import type { Context } from '@server/api/trpc';
 
-@Service()
 export class InfoController {
-  async getInitHandler({ ctx }: { ctx: Context }) {
+  static async getInitHandler({ ctx }: { ctx: Context }) {
     logger.info(`Trying to init the app for user ${ctx.user?.id}.`);
-
-    const organizationsRepository = Container.get(OrganizationsRepository);
 
     try {
       await emailApi.get('/license');
@@ -53,7 +49,7 @@ export class InfoController {
       );
     }
 
-    const organizations = organizationsRepository.getUserOrganizations(ctx.user?.id);
+    const organizations = OrganizationsRepository.getUserOrganizations(ctx.user?.id);
 
     logger.info({ organizations }, `Successfully returned init list of organizations`);
 

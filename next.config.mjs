@@ -20,6 +20,5 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
-  transpilePackages: ['reflect-metadata']
 };
 export default config;
