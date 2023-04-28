@@ -52,7 +52,7 @@ const Table = ({
         </Stack>
       )}
 
-      <Box sx={{ '.mantine-Paper-root > div': { overflow: 'visible' } }}>
+      <Box sx={{ '.mantine-Paper-root > div': { overflow: 'auto' } }}>
         <MantineReactTable
           enableColumnActions={false}
           enableColumnFilters={false}

@@ -132,7 +132,10 @@ export class CampaignsController {
       userId: ctx.user.id,
       organizationId: input?.organizationId || ctx.organizationId,
     });
-    const leads = await LeadsRepository.getLeads({ campaignId: input.campaignId, organizationId: ctx.organizationId });
+    const { items: leads } = await LeadsRepository.getLeads({
+      campaignId: input.campaignId,
+      organizationId: ctx.organizationId,
+    });
     const accounts = await AccountsRepository.getAccountsByIds(campaign?.accountIds as string[]);
 
     await ctx.prisma.campaign.update({ where: { id: campaign?.id }, data: { status: CampaignStatus.ACTIVE } });

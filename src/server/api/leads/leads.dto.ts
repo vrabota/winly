@@ -24,8 +24,8 @@ export const getLeadsSchema = z.object({
   organizationId: z.string(),
   search: z.string().trim().min(1).optional(),
   leadStatus: z.nativeEnum(LeadStatus).array().optional(),
-  take: numericString.default(30).optional(),
-  page: numericString.default(0).optional(),
+  limit: z.number().min(1).max(100).nullish(),
+  cursor: z.string().nullish(),
 });
 
 export const getLeadIdSchema = z.object({

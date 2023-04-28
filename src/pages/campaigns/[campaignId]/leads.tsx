@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useMemo, useRef, useCallback } from 'react';
 import { withPageAuthRequired } from '@auth0/nextjs-auth0/client';
 import { IconDots, IconPlus } from '@tabler/icons';
 import { ActionIcon, Button, Group, Menu, Stack, Text } from '@mantine/core';
@@ -21,31 +21,62 @@ import { deleteLeadModal } from '@features/leads/components/modals/deleteLead.mo
 import { viewActivityModal } from '@features/leads/components/modals/viewActivity.modal';
 import { OrganizationContext } from '@context/OrganizationContext';
 
+import type { UIEvent } from 'react';
 import type { NextPage } from 'next';
 
 const Leads: NextPage = () => {
+  const tableContainerRef = useRef<HTMLDivElement>(null);
   const { query } = useRouter();
   const [filters, applyFilters] = useState<{ search?: string; leadStatus?: LeadStatus[] }>();
   const { selectedOrganization } = useContext(OrganizationContext);
   const [leadsOpened, { open: leadsOpen, close: leadsClose }] = useDisclosure(false);
   const {
-    data = [],
+    data: leadsData,
     isLoading,
     isFetching,
-  } = api.leads.getLeads.useQuery({
-    campaignId: query.campaignId as string,
-    organizationId: selectedOrganization?.id as string,
-    search: filters?.search && filters?.search?.length > 0 ? filters?.search : undefined,
-    leadStatus: filters?.leadStatus && filters?.leadStatus?.length > 0 ? filters?.leadStatus : undefined,
-  });
+    fetchNextPage,
+  } = api.leads.getLeads.useInfiniteQuery(
+    {
+      limit: 10,
+      campaignId: query.campaignId as string,
+      organizationId: selectedOrganization?.id as string,
+      search: filters?.search && filters?.search?.length > 0 ? filters?.search : undefined,
+      leadStatus: filters?.leadStatus && filters?.leadStatus?.length > 0 ? filters?.leadStatus : undefined,
+    },
+    {
+      getNextPageParam: lastPage => lastPage.nextCursor,
+    },
+  );
+  console.log(leadsData);
+  const data = useMemo(() => leadsData?.pages.flatMap(page => page.items) ?? [], [leadsData]);
   const { columns } = useLeadsColDef();
+
+  const fetchMoreOnBottomReached = useCallback(
+    (containerRefElement?: HTMLDivElement | null) => {
+      if (containerRefElement) {
+        const { scrollHeight, scrollTop, clientHeight } = containerRefElement;
+        console.log(scrollHeight, scrollTop, clientHeight);
+        //once the user has scrolled within 400px of the bottom of the table, fetch more data if we can
+        if (scrollHeight - scrollTop - clientHeight < 400 && !isFetching) {
+          fetchNextPage();
+        }
+      }
+    },
+    [fetchNextPage, isFetching],
+  );
 
   return (
     <>
       <CampaignTabs />
+      <button onClick={() => fetchNextPage()}>Next Page</button>
       <Table
         getRowId={row => row.id}
         enableRowSelection={true}
+        mantineTableContainerProps={{
+          ref: tableContainerRef,
+          sx: { maxHeight: '600px' },
+          onScroll: (event: UIEvent<HTMLDivElement>) => fetchMoreOnBottomReached(event.target as HTMLDivElement),
+        }}
         renderTopToolbarCustomActions={({ table }) => {
           return (
             <Stack

@@ -25,8 +25,9 @@ export class LeadsRepository {
     });
   }
 
-  static async getLeads(payload: withOrgId<GetLeadsInput>): Promise<Lead[]> {
-    return prisma.lead.findMany({
+  static async getLeads(payload: withOrgId<GetLeadsInput>): Promise<{ items: Lead[]; nextCursor: string | undefined }> {
+    const limit = payload.limit ?? 10;
+    const items = await prisma.lead.findMany({
       where: {
         campaignId: payload.campaignId,
         organizationId: payload.organizationId,
@@ -44,7 +45,18 @@ export class LeadsRepository {
           },
         ],
       },
+      take: limit + 1,
+      cursor: payload.cursor ? { id: payload.cursor } : undefined,
     });
+    let nextCursor: typeof payload.cursor | undefined = undefined;
+    if (items.length > limit) {
+      const nextItem = items.pop(); // return the last item from the array
+      nextCursor = nextItem?.id;
+    }
+    return {
+      items,
+      nextCursor,
+    };
   }
 
   static async getLeadById(payload: GetLeadIdInput): Promise<Lead | null> {
