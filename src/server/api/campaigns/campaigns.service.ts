@@ -59,6 +59,10 @@ export class CampaignsService {
 
     const ratio = Math.round(leads.length / accounts.length);
     for (const [sequenceIndex, sequence] of sequences.entries()) {
+      const isFreePlan = true;
+      const emailBody = isFreePlan
+        ? `${sequence.body} <br> This email was sent by <a href="https://winly.ai">winly.ai</a>`
+        : sequence.body;
       if (sequence?.delay) {
         nextAvailableDateTime = dayjs()
           .add(Number(sequence.delay), 'd')
@@ -70,7 +74,7 @@ export class CampaignsService {
 
         const response = await emailApi.post(`/account/${account.id}/submit`, {
           subject: sequence.subject,
-          html: sequence.body,
+          html: emailBody,
           trackingEnabled: campaign.openTracking,
           mailMerge: leadsChunk?.[index]?.map(lead => {
             nextAvailableDateTime = nextAvailableDateTime.add(random(6, 9), 'm');

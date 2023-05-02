@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { RichTextEditor, Link } from '@mantine/tiptap';
-import { Group, Text, TextInput, Divider, Button, Paper } from '@mantine/core';
+import { Group, Text, TextInput, Divider, Button, Paper, Anchor, Box, Tooltip } from '@mantine/core';
 import { useEditor } from '@tiptap/react';
 import { StarterKit } from '@tiptap/starter-kit';
 import { Highlight } from '@tiptap/extension-highlight';
@@ -34,7 +34,6 @@ export const SequenceEditor = ({
     {
       extensions: [StarterKit, Link, Highlight, Underline, TextAlign.configure({ types: ['heading', 'paragraph'] })],
       onBlur({ editor }) {
-        console.log(editor?.getHTML());
         updateSequence({ body: editor?.getHTML() });
       },
       parseOptions: {
@@ -106,6 +105,21 @@ export const SequenceEditor = ({
               '.ProseMirror': { height: 336, overflowY: 'auto', fontSize: 14 },
             }}
           />
+          <Box sx={{ padding: '20px 25px' }}>
+            <Tooltip
+              label="A link back to Winly is required on our free Starter plan. Upgrade to remove the link"
+              openDelay={200}
+              withArrow
+            >
+              <Text sx={{ display: 'inline' }}>
+                This email was sent by{' '}
+                <Anchor href="https://winly.ai" target="_blank">
+                  winly.ai
+                </Anchor>
+              </Text>
+            </Tooltip>
+          </Box>
+
           <RichTextEditor.Toolbar
             sx={theme => ({
               borderBottom: 0,
@@ -144,6 +158,11 @@ export const SequenceEditor = ({
               <RichTextEditor.AlignJustify />
               <RichTextEditor.AlignRight />
             </RichTextEditor.ControlsGroup>
+            <Box sx={{ marginLeft: 'auto' }}>
+              <Button size="xs" variant="outline">
+                Upgrade
+              </Button>
+            </Box>
           </RichTextEditor.Toolbar>
         </RichTextEditor>
       </Paper>

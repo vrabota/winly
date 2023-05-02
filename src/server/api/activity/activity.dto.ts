@@ -19,6 +19,8 @@ export const getActivitiesSchema = z.object({
   organizationId: z.string(),
   campaignId: z.string().optional(),
   leadEmail: z.string().optional(),
+  limit: z.number().min(1).max(100).nullish(),
+  cursor: z.string().nullish(),
 });
 
 export const createActivityBatchSchema = z.array(createActivitySchema);

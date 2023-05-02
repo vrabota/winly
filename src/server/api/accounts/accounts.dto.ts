@@ -1,8 +1,6 @@
 import { z } from 'zod';
 import { AccountState } from '@prisma/client';
 
-import { numericString } from '@server/zod-schemas/numericString';
-
 import type { components } from '@schema/api';
 import type { TypeOf } from 'zod';
 
@@ -18,8 +16,8 @@ export const accountsSchema = z.object({
   organizationId: z.string(),
   search: z.string().trim().min(1).optional(),
   accountState: z.nativeEnum(AccountState).array().optional(),
-  take: numericString.default(30).optional(),
-  page: numericString.default(0).optional(),
+  limit: z.number().min(1).max(100).nullish(),
+  cursor: z.string().nullish(),
 });
 
 export const accountIdSchema = z.object({

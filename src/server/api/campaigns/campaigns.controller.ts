@@ -44,8 +44,8 @@ export class CampaignsController {
       withStats: input.withStats,
       search: input.search,
       campaignStatus: input.campaignStatus,
-      take: input.take,
-      page: input.page,
+      limit: input.limit,
+      cursor: input.cursor,
     });
 
     logger.info({ campaigns }, `Successfully returned list of all campaigns for organization ${input.organizationId}`);

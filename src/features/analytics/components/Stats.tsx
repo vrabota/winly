@@ -14,7 +14,6 @@ const Stats = () => {
     campaignId: undefined,
     organizationId: selectedOrganization?.id as string,
   });
-  console.log(data);
   const contacted = statusCount(data)?.[ActivityStatus.CONTACTED] || 0;
   const opened = statusCount(data)?.[ActivityStatus.OPENED] || 0;
   const replied = statusCount(data)?.[ActivityStatus.REPLIED] || 0;

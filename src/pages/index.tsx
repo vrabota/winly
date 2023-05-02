@@ -1,5 +1,5 @@
 import { type NextPage } from 'next';
-import React, { useContext, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { ActionIcon, Menu, Stack, Text, Title, Tooltip } from '@mantine/core';
 import { withPageAuthRequired } from '@auth0/nextjs-auth0/client';
 import Image from 'next/image';
@@ -15,19 +15,44 @@ import noDataImage from '@assets/images/no-data.png';
 import { Trash, Sync } from '@assets/icons';
 import { OrganizationContext } from '@context/OrganizationContext';
 
+import type { UIEvent } from 'react';
+
 const Home: NextPage = () => {
+  const tableContainerRef = useRef<HTMLDivElement>(null);
   const { selectedOrganization } = useContext(OrganizationContext);
   const [filters, applyFilters] = useState<{ accountState?: AccountState[]; search?: string }>();
-  const { data, isLoading, isFetching } = api.account.getAccounts.useQuery({
-    organizationId: selectedOrganization?.id as string,
-    accountState: filters?.accountState && filters?.accountState?.length > 0 ? filters?.accountState : undefined,
-    search: filters?.search && filters?.search?.length > 0 ? filters?.search : undefined,
-  });
-  console.log(filters);
+  const {
+    data: accountsData,
+    isLoading,
+    isFetching,
+    fetchNextPage,
+  } = api.account.getAccounts.useInfiniteQuery(
+    {
+      limit: 20,
+      organizationId: selectedOrganization?.id as string,
+      accountState: filters?.accountState && filters?.accountState?.length > 0 ? filters?.accountState : undefined,
+      search: filters?.search && filters?.search?.length > 0 ? filters?.search : undefined,
+    },
+    {
+      getNextPageParam: lastPage => lastPage.nextCursor,
+    },
+  );
+  const data = useMemo(() => accountsData?.pages.flatMap(page => page.items) ?? [], [accountsData]);
   const { mutateReconnect } = useReconnectAccount();
   const { mutateDeleteAccount } = useDeleteAccount();
   const { columns } = useAccountsColDef();
   useConnectAccount();
+  const fetchMoreOnBottomReached = useCallback(
+    (containerRefElement?: HTMLDivElement | null) => {
+      if (containerRefElement) {
+        const { scrollHeight, scrollTop, clientHeight } = containerRefElement;
+        if (scrollHeight - scrollTop - clientHeight < 300 && !isFetching) {
+          fetchNextPage();
+        }
+      }
+    },
+    [fetchNextPage, isFetching],
+  );
 
   return (
     <>
@@ -41,6 +66,13 @@ const Home: NextPage = () => {
         isFetching={isFetching}
         isLoading={isLoading}
         isEmpty={Array.isArray(data) && data?.length === 0 && !isFetching}
+        mantineTableContainerProps={{
+          ref: tableContainerRef,
+          onScroll: (event: UIEvent<HTMLDivElement>) => fetchMoreOnBottomReached(event.target as HTMLDivElement),
+          sx: {
+            maxHeight: '600px',
+          },
+        }}
         filters={
           <Filters
             applyFilters={applyFilters}

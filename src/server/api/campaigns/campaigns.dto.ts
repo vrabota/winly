@@ -1,8 +1,6 @@
 import { z } from 'zod';
 import { CampaignStatus } from '@prisma/client';
 
-import { numericString } from '@server/zod-schemas/numericString';
-
 import type { Campaign } from '@prisma/client';
 import type { TypeOf } from 'zod';
 
@@ -28,8 +26,8 @@ export const getAllCampaignsSchema = z.object({
   organizationId: z.string(),
   campaignStatus: z.nativeEnum(CampaignStatus).array().optional(),
   search: z.string().trim().min(1).optional(),
-  take: numericString.default(30).optional(),
-  page: numericString.default(0).optional(),
+  limit: z.number().min(1).max(100).nullish(),
+  cursor: z.string().nullish(),
 });
 
 export const updateCampaignSequenceSchema = z.object({

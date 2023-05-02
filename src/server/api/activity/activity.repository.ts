@@ -17,8 +17,8 @@ export class ActivityRepository {
     return prisma.activity.createMany({ data: payload });
   }
 
-  static async getAll(payload: GetActivitiesInput): Promise<Activity[]> {
-    return prisma.activity.findMany({
+  static async getAll(payload: GetActivitiesInput): Promise<{ items: Activity[]; nextCursor: string | undefined }> {
+    const items = await prisma.activity.findMany({
       where: {
         organizationId: payload.organizationId,
         campaignId: payload.campaignId,
@@ -28,7 +28,15 @@ export class ActivityRepository {
       orderBy: {
         createdAt: 'desc',
       },
+      take: payload.limit ? payload.limit + 1 : undefined,
+      cursor: payload.cursor ? { id: payload.cursor } : undefined,
     });
+    let nextCursor: typeof payload.cursor | undefined = undefined;
+    if (payload?.limit && items.length > payload?.limit) {
+      const nextItem = items.pop(); // return the last item from the array
+      nextCursor = nextItem?.id;
+    }
+    return { items, nextCursor };
   }
 
   static async getActivitiesByDateAndStatus(payload: GetActivitiesInput): Promise<ActivityStats[]> {

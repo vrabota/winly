@@ -30,7 +30,7 @@ const LeadActivity = ({ email, organizationId }: { leadId: string; email: string
   return (
     <Box maw={300} mx="auto" my={20} pl={100}>
       <Timeline active={0} bulletSize={32} lineWidth={2} align="left">
-        {data?.map(activity => (
+        {data?.items?.map(activity => (
           <Timeline.Item
             key={activity.id}
             sx={{ position: 'relative', '.mantine-Badge-root': { position: 'absolute', top: 5, left: -100 } }}

@@ -1,8 +1,6 @@
 import { z } from 'zod';
 import { LeadStatus } from '@prisma/client';
 
-import { numericString } from '@server/zod-schemas/numericString';
-
 import type { TypeOf } from 'zod';
 
 export const createLeadsSchema = z.object({

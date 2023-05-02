@@ -73,7 +73,7 @@ const OptionsForm = () => {
   );
   useEffect(() => {
     const selectedAccounts = campaignData?.accountIds || [];
-    const allAccounts = accountsData || [];
+    const allAccounts = accountsData?.items || [];
     const selectedAccountsFilter = allAccounts
       .filter(account => selectedAccounts.includes(account.id))
       .map(item => ({ value: item.id, label: item.email as string }));
@@ -109,7 +109,6 @@ const OptionsForm = () => {
     },
   });
   const onSubmit = async (data: ValidationSchema, isStartEnabled?: boolean) => {
-    console.log(123);
     const payload = {
       ...data,
       accountIds: data.accounts[1]?.map(item => item.value) || [],
@@ -141,8 +140,6 @@ const OptionsForm = () => {
       });
     }
   };
-
-  console.log(methods.getValues());
 
   return (
     <FormProvider {...methods}>

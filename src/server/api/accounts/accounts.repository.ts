@@ -7,11 +7,10 @@ import type { AccountDeleteOutput, AccountsInput } from '@server/api/accounts/ac
 import type { Prisma, Account } from '@prisma/client';
 
 export class AccountsRepository {
-  static async getAccounts(
-    payload: AccountsInput,
-  ): Promise<Omit<Account, 'appPassword' | 'refreshToken' | 'addedById' | 'organizationId' | 'modifiedById'>[]> {
-    logger.info({ payload }, `Getting all accounts`);
-
+  static async getAccounts(payload: AccountsInput): Promise<{
+    items: Omit<Account, 'appPassword' | 'refreshToken' | 'addedById' | 'organizationId' | 'modifiedById'>[];
+    nextCursor: string | undefined;
+  }> {
     const accounts = await prisma.account.findMany({
       where: {
         organizationId: payload.organizationId,
@@ -39,11 +38,17 @@ export class AccountsRepository {
         createdAt: true,
         type: true,
       },
+      take: payload.limit ? payload.limit + 1 : undefined,
+      cursor: payload.cursor ? { id: payload.cursor } : undefined,
     });
 
-    logger.info({ accounts }, `Successfully return list of accounts`);
+    let nextCursor: typeof payload.cursor | undefined = undefined;
+    if (payload?.limit && accounts.length > payload?.limit) {
+      const nextItem = accounts.pop(); // return the last item from the array
+      nextCursor = nextItem?.id;
+    }
 
-    return accounts;
+    return { items: accounts, nextCursor };
   }
 
   static async createOrUpdateAccount(payload: Prisma.AccountUncheckedCreateInput): Promise<Account> {

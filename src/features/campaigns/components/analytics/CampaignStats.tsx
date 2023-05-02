@@ -36,7 +36,7 @@ const CampaignStats = () => {
             </Text>
           </Group>
           <Text weight={500} size="sm" color="purple.5">
-            {isLoadingLeads ? <Skeleton h={10} w={40} /> : data?.length}
+            {isLoadingLeads ? <Skeleton h={10} w={40} /> : data?.items?.length}
           </Text>
         </Group>
         <Group position="apart">

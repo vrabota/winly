@@ -47,7 +47,6 @@ const Leads: NextPage = () => {
       getNextPageParam: lastPage => lastPage.nextCursor,
     },
   );
-  console.log(leadsData);
   const data = useMemo(() => leadsData?.pages.flatMap(page => page.items) ?? [], [leadsData]);
   const { columns } = useLeadsColDef();
 
@@ -55,7 +54,6 @@ const Leads: NextPage = () => {
     (containerRefElement?: HTMLDivElement | null) => {
       if (containerRefElement) {
         const { scrollHeight, scrollTop, clientHeight } = containerRefElement;
-        console.log(scrollHeight, scrollTop, clientHeight);
         //once the user has scrolled within 400px of the bottom of the table, fetch more data if we can
         if (scrollHeight - scrollTop - clientHeight < 400 && !isFetching) {
           fetchNextPage();
@@ -68,7 +66,6 @@ const Leads: NextPage = () => {
   return (
     <>
       <CampaignTabs />
-      <button onClick={() => fetchNextPage()}>Next Page</button>
       <Table
         getRowId={row => row.id}
         enableRowSelection={true}
@@ -209,8 +206,13 @@ const Leads: NextPage = () => {
             </Stack>
           ),
         }}
-        mantineTableBodyRowProps={() => ({
-          onClick: () => console.log(123),
+        mantineTableBodyRowProps={({ row }: any) => ({
+          onClick: () =>
+            viewActivityModal({
+              leadId: row.original.id,
+              email: row.original.email,
+              organizationId: selectedOrganization?.id as string,
+            }),
           sx: { cursor: 'pointer' },
         })}
       />

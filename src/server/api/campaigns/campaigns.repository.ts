@@ -33,6 +33,9 @@ export class CampaignsRepository {
       const activitiesByCampaign = await prisma.activity.groupBy({
         by: ['status', 'campaignId'],
         _count: true,
+        where: {
+          organizationId: payload.organizationId,
+        },
       });
 
       const allCampaigns = await prisma.campaign.findMany({
