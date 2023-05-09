@@ -1,7 +1,10 @@
-import { CampaignStatus } from '@prisma/client';
+import { ActivityStatus, CampaignStatus } from '@prisma/client';
 import omit from 'lodash/omit';
 
 import { prisma } from '@server/db';
+import { CampaignsService } from '@server/api/campaigns/campaigns.service';
+import { getPeriodDates } from '@utils/period';
+import { DateRanges } from '@features/campaigns/utils';
 
 import type {
   CampaignWithStats,
@@ -35,6 +38,10 @@ export class CampaignsRepository {
         _count: true,
         where: {
           organizationId: payload.organizationId,
+          createdAt: {
+            lte: getPeriodDates(DateRanges.Week)[1],
+            gte: getPeriodDates(DateRanges.Week)[0],
+          },
         },
       });
 
@@ -47,6 +54,9 @@ export class CampaignsRepository {
               OR: payload.search ? [{ name: { contains: payload.search } }] : undefined,
             },
           ],
+        },
+        orderBy: {
+          createdAt: 'desc',
         },
       });
 
@@ -106,6 +116,37 @@ export class CampaignsRepository {
   static async deleteCampaign(payload: GetCampaignByIdInput): Promise<Campaign> {
     return prisma.campaign.delete({
       where: { id: payload.campaignId },
+    });
+  }
+
+  static async stopCampaign(payload: GetCampaignByIdInput) {
+    return prisma.$transaction(async prisma => {
+      await prisma.campaign.update({ where: { id: payload.campaignId }, data: { status: CampaignStatus.PAUSE } });
+
+      const queueIds = await prisma.activity.findMany({
+        where: {
+          campaignId: payload.campaignId,
+          organizationId: payload.organizationId,
+          status: { equals: ActivityStatus.QUEUED },
+        },
+        select: { queueId: true },
+      });
+
+      for (const item of queueIds) {
+        if (typeof item.queueId === 'string') {
+          await CampaignsService.stopCampaign(item.queueId);
+        }
+      }
+
+      await prisma.activity.deleteMany({
+        where: {
+          campaignId: payload.campaignId,
+          organizationId: payload.organizationId,
+          status: { equals: ActivityStatus.QUEUED },
+        },
+      });
+
+      return { message: `Campaign ${payload.campaignId} successfully stopped.` };
     });
   }
 }

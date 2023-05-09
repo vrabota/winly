@@ -28,7 +28,7 @@ export const SequenceEditor = ({
   sequences: SequencesType[];
   activeIndex: number;
 }) => {
-  const { mutate } = api.campaign.updateSequences.useMutation();
+  const { mutate, isLoading } = api.campaign.updateSequences.useMutation();
   const { query } = useRouter();
   const editor = useEditor(
     {
@@ -93,7 +93,7 @@ export const SequenceEditor = ({
           </Group>
           <Group align="center">
             <Divider color="gray.3" h={25} mt={5} mr={10} orientation="vertical" />
-            <Button radius="md" onClick={createSequence}>
+            <Button loading={isLoading} radius="md" onClick={createSequence}>
               Save
             </Button>
           </Group>

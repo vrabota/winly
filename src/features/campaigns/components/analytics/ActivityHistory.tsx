@@ -49,6 +49,7 @@ const ActivityHistory = () => {
       </Text>
       <Box>
         <Table
+          enableStickyHeader={true}
           enableRowActions={false}
           columns={columns}
           data={data}

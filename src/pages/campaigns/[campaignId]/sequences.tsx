@@ -3,6 +3,7 @@ import { withPageAuthRequired } from '@auth0/nextjs-auth0/client';
 import { Grid, Stack, Button } from '@mantine/core';
 import { useRouter } from 'next/router';
 
+import { SkeletonData } from '@components/data';
 import { CampaignTabs } from '@features/campaigns';
 import { SequenceTab, SequenceEditor } from '@features/sequences';
 import { api } from '@utils/api';
@@ -16,7 +17,7 @@ const Sequences: NextPage = () => {
   const { selectedOrganization } = useContext(OrganizationContext);
   const [activeIndex, setActiveIndex] = useState(0);
   const [sequences, setSequences] = useState<SequencesType[]>([]);
-  api.campaign.getCampaignById.useQuery(
+  const { isLoading, isFetching } = api.campaign.getCampaignById.useQuery(
     { campaignId: query.campaignId as string, organizationId: selectedOrganization?.id as string },
     {
       onSuccess: data => {
@@ -59,33 +60,37 @@ const Sequences: NextPage = () => {
       <CampaignTabs />
       <Grid gutter={40} my={20}>
         <Grid.Col span={3}>
-          <Stack>
-            {sequences.map((sequence, index) => (
-              <SequenceTab
-                deleteStep={() => deleteStep(index)}
-                setActive={() => onStepClick(index)}
-                index={index}
-                isActive={index === activeIndex}
-                isFirst={index === 0}
-                updateSequence={updateSequence}
-                key={`${sequence.subject}-${index}`}
-                subject={sequence?.subject || ''}
-                delay={sequences[activeIndex]?.delay || ''}
-              />
-            ))}
-            <Button variant="outline" radius="md" onClick={addNewStep}>
-              Add Step
-            </Button>
-          </Stack>
+          <SkeletonData isLoading={isFetching || isLoading} skeletonProps={{ w: '100%', h: 50 }}>
+            <Stack>
+              {sequences.map((sequence, index) => (
+                <SequenceTab
+                  deleteStep={() => deleteStep(index)}
+                  setActive={() => onStepClick(index)}
+                  index={index}
+                  isActive={index === activeIndex}
+                  isFirst={index === 0}
+                  updateSequence={updateSequence}
+                  key={`${sequence.subject}-${index}`}
+                  subject={sequence?.subject || ''}
+                  delay={sequences[activeIndex]?.delay || ''}
+                />
+              ))}
+              <Button variant="outline" radius="md" onClick={addNewStep}>
+                Add Step
+              </Button>
+            </Stack>
+          </SkeletonData>
         </Grid.Col>
         <Grid.Col span="auto">
-          <SequenceEditor
-            activeIndex={activeIndex}
-            updateSequence={updateSequence}
-            subject={sequences[activeIndex]?.subject || ''}
-            body={sequences[activeIndex]?.body || ''}
-            sequences={sequences}
-          />
+          <SkeletonData isLoading={isLoading || isFetching} skeletonProps={{ w: '100%', h: 50 }}>
+            <SequenceEditor
+              activeIndex={activeIndex}
+              updateSequence={updateSequence}
+              subject={sequences[activeIndex]?.subject || ''}
+              body={sequences[activeIndex]?.body || ''}
+              sequences={sequences}
+            />
+          </SkeletonData>
         </Grid.Col>
       </Grid>
     </>

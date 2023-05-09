@@ -3,6 +3,7 @@ import groupBy from 'lodash/groupBy';
 import { ActivityStatus, Prisma } from '@prisma/client';
 
 import { prisma } from '@server/db';
+import { getPeriodDates } from '@utils/period';
 
 import type {
   CreateActivityInput,
@@ -43,9 +44,16 @@ export class ActivityRepository {
     const groupByDateStatus = await prisma.$queryRaw<ActivityGroupedByDateStatus[]>`
 SELECT DATE_FORMAT(created_at, '%Y-%m-%d') as date, status, COUNT(*) as count , COUNT(DISTINCT CASE WHEN status = 'OPENED' THEN message_id ELSE NULL END) as unique_opened
 FROM activities AS a 
-WHERE ${payload.campaignId ? Prisma.sql`campaign_id = ${payload.campaignId} AND` : Prisma.empty} ${
-      payload.organizationId ? Prisma.sql`organization_id = ${payload.organizationId} AND` : Prisma.empty
-    } created_at BETWEEN DATE_FORMAT(NOW() - INTERVAL 7 DAY, '%Y-%m-%d %H:%i:%s') AND DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s')
+WHERE 
+${payload.campaignId ? Prisma.sql`campaign_id = ${payload.campaignId} AND` : Prisma.empty}
+${payload.organizationId ? Prisma.sql`organization_id = ${payload.organizationId} AND` : Prisma.empty}
+${
+  payload.period
+    ? Prisma.sql`created_at BETWEEN ${getPeriodDates(payload.period, payload.customPeriod)[0]} AND ${
+        getPeriodDates(payload.period, payload.customPeriod)[1]
+      }`
+    : Prisma.empty
+}
 GROUP BY 1, 2;`;
 
     const result = groupByDateStatus.reduce((acc: any, item: any) => {
@@ -71,8 +79,8 @@ GROUP BY 1, 2;`;
         campaignId: payload.campaignId,
         organizationId: payload.organizationId,
         createdAt: {
-          lte: dayjs().toISOString(),
-          gte: dayjs().subtract(7, 'd').toISOString(),
+          lte: getPeriodDates(payload.period, payload.customPeriod)[1],
+          gte: getPeriodDates(payload.period, payload.customPeriod)[0],
         },
       },
       _count: true,

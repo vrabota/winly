@@ -1,6 +1,6 @@
 import { type NextPage } from 'next';
 import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
-import { ActionIcon, Menu, Stack, Text, Title, Tooltip } from '@mantine/core';
+import { ActionIcon, Menu, Stack, Text, Title, Tooltip, Group } from '@mantine/core';
 import { withPageAuthRequired } from '@auth0/nextjs-auth0/client';
 import Image from 'next/image';
 import { IconDots } from '@tabler/icons';
@@ -23,6 +23,7 @@ const Home: NextPage = () => {
   const [filters, applyFilters] = useState<{ accountState?: AccountState[]; search?: string }>();
   const {
     data: accountsData,
+    refetch,
     isLoading,
     isFetching,
     fetchNextPage,
@@ -60,12 +61,39 @@ const Home: NextPage = () => {
         Email Accounts
       </Title>
       <Table
-        total={`Total of ${data?.length || 0} accounts`}
         columns={columns}
         data={data}
         isFetching={isFetching}
         isLoading={isLoading}
         isEmpty={Array.isArray(data) && data?.length === 0 && !isFetching}
+        renderTopToolbarCustomActions={() => {
+          return (
+            <Stack
+              bg="#fcfcfc"
+              py="md"
+              px="xl"
+              mih={68}
+              justify="center"
+              mb={2}
+              w="100%"
+              sx={theme => ({
+                borderTopLeftRadius: theme.radius.md,
+                borderTopRightRadius: theme.radius.md,
+              })}
+            >
+              <Group position="apart" align="center">
+                <Text size={15} color="gray.8">
+                  {`Total of ${data?.length || 0} accounts`}
+                </Text>
+                <Tooltip label="Refetch accounts data" withArrow>
+                  <ActionIcon loading={isFetching} color="purple" variant="light" size="lg" onClick={() => refetch()}>
+                    <Sync size={16} />
+                  </ActionIcon>
+                </Tooltip>
+              </Group>
+            </Stack>
+          );
+        }}
         mantineTableContainerProps={{
           ref: tableContainerRef,
           onScroll: (event: UIEvent<HTMLDivElement>) => fetchMoreOnBottomReached(event.target as HTMLDivElement),

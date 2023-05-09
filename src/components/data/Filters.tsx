@@ -121,7 +121,11 @@ export const Filters = (props: FiltersProps) => {
     const filterItems = filters?.[item.key]?.values?.filter((item: any) => item.checked);
 
     if (filterItems.length === 0) return false;
-    return filterItems.length === 1 ? filterItems[0].value : filterItems.length;
+    return filterItems.length === 1
+      ? filterItems[0].value === 'PAUSE'
+        ? 'stopped'
+        : filterItems[0].value
+      : filterItems.length;
   };
 
   return (

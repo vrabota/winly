@@ -1,7 +1,7 @@
 import React, { useContext, useState, useMemo, useRef, useCallback } from 'react';
 import { withPageAuthRequired } from '@auth0/nextjs-auth0/client';
 import { IconDots, IconPlus } from '@tabler/icons';
-import { ActionIcon, Button, Group, Menu, Stack, Text } from '@mantine/core';
+import { ActionIcon, Button, Group, Menu, Stack, Text, Tooltip } from '@mantine/core';
 import { useRouter } from 'next/router';
 import { useDisclosure } from '@mantine/hooks';
 import Image from 'next/image';
@@ -12,7 +12,7 @@ import { Filters, Table } from '@components/data';
 import { api } from '@utils/api';
 import { Modal } from '@components/overlays';
 import AddLeadsForm from '@features/leads/components/AddLeadsForm';
-import { Pencil, Trash, ViewDetails } from '@assets/icons';
+import { Pencil, Trash, ViewDetails, Sync } from '@assets/icons';
 import noDataImage from '@assets/images/no-data.png';
 import { useLeadsColDef } from '@features/leads/col.def';
 import { editLeadModal } from '@features/leads/components/modals/editLead.modal';
@@ -35,6 +35,7 @@ const Leads: NextPage = () => {
     isLoading,
     isFetching,
     fetchNextPage,
+    refetch,
   } = api.leads.getLeads.useInfiniteQuery(
     {
       limit: 10,
@@ -90,19 +91,26 @@ const Leads: NextPage = () => {
                 <Text size={15} color="gray.8">
                   {`Total of ${data?.length || 0} leads`}
                 </Text>
-                {table.getSelectedRowModel().flatRows.length && (
-                  <Button
-                    color="red"
-                    onClick={() =>
-                      deleteBatchLeadsModal({
-                        leadIds: table.getSelectedRowModel().flatRows,
-                      })
-                    }
-                    leftIcon={<Trash size={18} />}
-                  >
-                    Delete selected
-                  </Button>
-                )}
+                <Group spacing={20}>
+                  {table.getSelectedRowModel().flatRows.length && (
+                    <Button
+                      color="red"
+                      onClick={() =>
+                        deleteBatchLeadsModal({
+                          leadIds: table.getSelectedRowModel().flatRows,
+                        })
+                      }
+                      leftIcon={<Trash size={18} />}
+                    >
+                      Delete selected
+                    </Button>
+                  )}
+                  <Tooltip label="Refetch leads data" withArrow>
+                    <ActionIcon loading={isFetching} color="purple" variant="light" size="lg" onClick={() => refetch()}>
+                      <Sync size={16} />
+                    </ActionIcon>
+                  </Tooltip>
+                </Group>
               </Group>
             </Stack>
           );

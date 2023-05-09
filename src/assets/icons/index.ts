@@ -29,3 +29,5 @@ export { default as PartyIcon } from './PartyIcon';
 export { default as Envelope } from './Envelope';
 export { default as Save } from './Save';
 export { default as Cursor } from './Cursor';
+export { default as StopIcon } from './StopIcon';
+export { default as CalendarIcon } from './CalendarIcon';

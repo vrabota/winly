@@ -1,5 +1,5 @@
 import { withPageAuthRequired } from '@auth0/nextjs-auth0/client';
-import { ActionIcon, Button, Menu, Stack, Text, Title, Group, TextInput } from '@mantine/core';
+import { ActionIcon, Button, Menu, Stack, Text, Title, Group, TextInput, Tooltip } from '@mantine/core';
 import React, { useContext, useState } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
@@ -10,12 +10,14 @@ import { CampaignStatus } from '@prisma/client';
 
 import { api } from '@utils/api';
 import { Cell, Filters, Table } from '@components/data';
-import { Pencil, Play, Trash } from '@assets/icons';
+import { Pencil, Play, Trash, StopIcon, Sync } from '@assets/icons';
 import noDataImage from '@assets/images/no-data.png';
 import { useCampaignColDef } from '@features/campaigns/col.def';
 import { createCampaign } from '@features/campaigns/components/CampaignBar/createCampaign';
 import { Modal } from '@components/overlays';
 import { OrganizationContext } from '@context/OrganizationContext';
+import { useStartCampaign } from '@features/campaigns/hooks/useStartCampaign';
+import { useStopCampaign } from '@features/campaigns/hooks/useStopCampaign';
 
 import type { NextPage } from 'next';
 import type { MouseEvent } from 'react';
@@ -24,7 +26,7 @@ const Campaigns: NextPage = () => {
   const { push } = useRouter();
   const [filters, applyFilters] = useState<{ search?: string; campaignStatus?: CampaignStatus[] }>();
   const { selectedOrganization } = useContext(OrganizationContext);
-  const { data, isFetching, isLoading } = api.campaign.getAllCampaigns.useQuery({
+  const { data, isFetching, isLoading, refetch } = api.campaign.getAllCampaigns.useQuery({
     withStats: true,
     organizationId: selectedOrganization?.id as string,
     search: filters?.search && filters?.search?.length > 0 ? filters?.search : undefined,
@@ -34,11 +36,14 @@ const Campaigns: NextPage = () => {
   const { columns } = useCampaignColDef({ nameWidth: 250 });
   const [renameValue, setRenameValue] = useState('');
   const [campaignId, setCampaignId] = useState('');
+  const [activeActionButton, setActiveActionButton] = useState('');
   const utils = api.useContext();
   const [renameOpened, { open: renameOpen, close: renameClose }] = useDisclosure(false);
   const [deleteOpened, { open: deleteOpen, close: deleteClose }] = useDisclosure(false);
   const { isLoading: isLoadingRename, mutate: mutateRename } = api.campaign.renameCampaign.useMutation();
   const { isLoading: isLoadingDelete, mutate: mutateDelete } = api.campaign.deleteCampaign.useMutation();
+  const { mutate: startCampaign, isLoading: isLoadingStartCampaign } = useStartCampaign();
+  const { mutate: stopCampaign, isLoading: isLoadingStopCampaign } = useStopCampaign();
   const handleRenameModal = ({
     event,
     campaignId,
@@ -105,12 +110,39 @@ const Campaigns: NextPage = () => {
         Campaigns
       </Title>
       <Table
-        total={`Total of ${data?.length || 0} campaigns`}
         columns={columns}
         data={data}
         isFetching={isFetching}
         isLoading={isLoading}
         isEmpty={Array.isArray(data) && data?.length === 0 && !isFetching}
+        renderTopToolbarCustomActions={() => {
+          return (
+            <Stack
+              bg="#fcfcfc"
+              py="md"
+              px="xl"
+              mih={68}
+              justify="center"
+              mb={2}
+              w="100%"
+              sx={theme => ({
+                borderTopLeftRadius: theme.radius.md,
+                borderTopRightRadius: theme.radius.md,
+              })}
+            >
+              <Group position="apart" align="center">
+                <Text size={15} color="gray.8">
+                  {`Total of ${data?.length || 0} campaigns`}
+                </Text>
+                <Tooltip label="Refetch campaigns data" withArrow>
+                  <ActionIcon loading={isFetching} color="purple" variant="light" size="lg" onClick={() => refetch()}>
+                    <Sync size={16} />
+                  </ActionIcon>
+                </Tooltip>
+              </Group>
+            </Stack>
+          );
+        }}
         filters={
           <Filters
             applyFilters={applyFilters}
@@ -121,7 +153,7 @@ const Campaigns: NextPage = () => {
                 title: 'Campaign status filters',
                 options: [
                   { value: CampaignStatus.ACTIVE, label: 'Active' },
-                  { value: CampaignStatus.PAUSE, label: 'Paused' },
+                  { value: CampaignStatus.PAUSE, label: 'Stopped' },
                   { value: CampaignStatus.DRAFT, label: 'Draft' },
                 ],
               },
@@ -136,9 +168,55 @@ const Campaigns: NextPage = () => {
         renderRowActions={({ row }) => {
           return (
             <Group position="right" spacing="xl" align="center">
-              <Button onClick={e => e.stopPropagation()} variant="light" radius="md" leftIcon={<Play size={14} />}>
-                Start Campaign
-              </Button>
+              {row?.original?.status === CampaignStatus.ACTIVE && (
+                <Button
+                  onClick={e => {
+                    e.stopPropagation();
+                    setActiveActionButton(row.original.id);
+                    stopCampaign({
+                      campaignId: row.original.id as string,
+                      organizationId: selectedOrganization?.id as string,
+                    });
+                  }}
+                  loading={isLoadingStopCampaign && activeActionButton === row.original.id}
+                  variant="light"
+                  radius="md"
+                  leftIcon={<StopIcon size={14} />}
+                >
+                  Stop Campaign
+                </Button>
+              )}
+              {row?.original?.status === CampaignStatus.PAUSE && (
+                <Button
+                  onClick={e => {
+                    e.stopPropagation();
+                    startCampaign({
+                      campaignId: row.original.id as string,
+                      organizationId: selectedOrganization?.id as string,
+                    });
+                  }}
+                  variant="light"
+                  radius="md"
+                  loading={isLoadingStartCampaign}
+                  leftIcon={<Play size={14} />}
+                >
+                  Start Campaign
+                </Button>
+              )}
+              {row?.original?.status === CampaignStatus.DRAFT && (
+                <Button
+                  onClick={e => {
+                    e.stopPropagation();
+                    push(`/campaigns/${row.original.id}/leads`);
+                  }}
+                  variant="light"
+                  radius="md"
+                  leftIcon={<Pencil size={14} />}
+                >
+                  Edit Campaign
+                </Button>
+              )}
+
               <Menu position="bottom-end" width={200} arrowOffset={30} withArrow>
                 <Menu.Target>
                   <ActionIcon onClick={e => e.stopPropagation()} radius="md" size="lg">

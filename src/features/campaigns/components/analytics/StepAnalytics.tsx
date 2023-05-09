@@ -1,12 +1,17 @@
 import React, { useContext } from 'react';
-import { Text, Paper, Accordion, createStyles, Stack, Group, Divider } from '@mantine/core';
+import { Text, Paper, Accordion, createStyles, Stack, Group, Divider, Alert } from '@mantine/core';
 import { useRouter } from 'next/router';
 import { ActivityStatus } from '@prisma/client';
+import { IconAlertCircle } from '@tabler/icons-react';
+import Link from 'next/link';
 
 import { Contacted, BookOpen, MailReply } from '@assets/icons';
 import { api } from '@utils/api';
 import { calcRate } from '@utils/calcRate';
 import { OrganizationContext } from '@context/OrganizationContext';
+import { DatePeriodContext } from '@context/DatePeriodContext';
+
+import type { DateRanges } from '@features/campaigns/utils';
 
 const useStyles = createStyles(theme => ({
   root: {
@@ -100,15 +105,25 @@ const StepAnalytics = () => {
   const { classes } = useStyles();
   const { query } = useRouter();
   const { selectedOrganization } = useContext(OrganizationContext);
+  const { datePeriod, customDateRange } = useContext(DatePeriodContext);
   const { data } = api.activity.getActivitiesByStep.useQuery({
     campaignId: query.campaignId as string,
     organizationId: selectedOrganization?.id as string,
+    period: datePeriod as DateRanges,
+    customPeriod: customDateRange,
   });
   return (
-    <Paper shadow="sm" radius="md" p="xl">
+    <Paper shadow="sm" radius="md" p="xl" sx={{ minHeight: 261 }}>
       <Text weight="500" mb={20}>
         Step Analytics
       </Text>
+      {!data && (
+        <Alert mt={30} icon={<IconAlertCircle size="1rem" />} title="No data found" color="gray">
+          There is no steps for this campaign. <br />
+          Please go to <Link href={`/campaigns/${query.campaignId}/sequences`}>Sequences</Link> and create your first
+          step.
+        </Alert>
+      )}
       <Accordion variant="filled" defaultValue="step-1" radius="md" classNames={classes} className={classes.root}>
         {data?.map((step: any, index: number) => (
           <Accordion.Item key={`step-${index + 1}`} value={`step-${index + 1}`}>

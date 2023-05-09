@@ -47,7 +47,7 @@ export const useActivityColsDef = () => {
         },
       },
       {
-        accessorKey: 'updatedAt',
+        accessorKey: 'createdAt',
         header: 'Date',
         Cell: ({ renderedCellValue }) => {
           return renderedCellValue ? dayjs(renderedCellValue?.toString()).format('MMM DD, YYYY, HH:mm') : null;

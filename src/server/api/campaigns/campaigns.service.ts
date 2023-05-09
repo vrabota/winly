@@ -126,4 +126,8 @@ export class CampaignsService {
     }
     return messages;
   }
+
+  static async stopCampaign(queueId: string) {
+    return emailApi.delete(`/outbox/${queueId}`);
+  }
 }

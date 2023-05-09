@@ -164,4 +164,11 @@ export class CampaignsController {
 
     return campaign;
   }
+  static async stopCampaignHandler({ input }: { ctx: Context; input: GetCampaignByIdInput }) {
+    logger.info({ input }, `Stopping campaign ${input.campaignId}`);
+
+    const response = await CampaignsRepository.stopCampaign(input);
+
+    logger.info({ input }, response?.message);
+  }
 }

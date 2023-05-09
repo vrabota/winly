@@ -9,6 +9,7 @@ import { ModalsProvider } from '@mantine/modals';
 import { api } from '@utils/api';
 import { MainLayout } from '@components/layouts';
 import { OrganizationProvider } from '@context/OrganizationContext';
+import { DatePeriodProvider } from '@context/DatePeriodContext';
 
 import type { MantineTheme, ButtonStylesParams } from '@mantine/core';
 
@@ -244,9 +245,11 @@ const MyApp: AppType = ({ Component, pageProps }) => {
           <NotificationsProvider position="top-center" style={{ marginTop: 15 }}>
             <UserProvider>
               <OrganizationProvider>
-                <MainLayout>
-                  <Component {...pageProps} />
-                </MainLayout>
+                <DatePeriodProvider>
+                  <MainLayout>
+                    <Component {...pageProps} />
+                  </MainLayout>
+                </DatePeriodProvider>
               </OrganizationProvider>
             </UserProvider>
           </NotificationsProvider>

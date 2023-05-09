@@ -7,10 +7,14 @@ import { CheckMark, Leads, LinkBroken, SadFace } from '@assets/icons';
 import { api } from '@utils/api';
 import { statusCount } from '@utils/statusCount';
 import { OrganizationContext } from '@context/OrganizationContext';
+import { DatePeriodContext } from '@context/DatePeriodContext';
+
+import type { DateRanges } from '@features/campaigns/utils';
 
 const CampaignStats = () => {
   const { query } = useRouter();
   const { selectedOrganization } = useContext(OrganizationContext);
+  const { datePeriod, customDateRange } = useContext(DatePeriodContext);
   const { data, isLoading: isLoadingLeads } = api.leads.getLeads.useQuery({
     campaignId: query.campaignId as string,
     organizationId: selectedOrganization?.id as string,
@@ -18,6 +22,8 @@ const CampaignStats = () => {
   const { data: activityStats, isLoading: isLoadingStats } = api.activity.getActivitiesStats.useQuery({
     campaignId: query.campaignId as string,
     organizationId: selectedOrganization?.id as string,
+    period: datePeriod as DateRanges,
+    customPeriod: customDateRange,
   });
   const completed = statusCount(activityStats)?.[ActivityStatus.COMPLETED];
   const bounced = statusCount(activityStats)?.[ActivityStatus.BOUNCED];

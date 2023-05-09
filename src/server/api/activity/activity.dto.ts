@@ -1,8 +1,10 @@
 import { z } from 'zod';
 import { ActivityStatus } from '@prisma/client';
 
-import type { components } from '@schema/api';
+import { DateRanges } from '@features/campaigns/utils';
+
 import type { TypeOf } from 'zod';
+import type { components } from '@schema/api';
 
 export const createActivitySchema = z.object({
   campaignId: z.string(),
@@ -21,6 +23,8 @@ export const getActivitiesSchema = z.object({
   leadEmail: z.string().optional(),
   limit: z.number().min(1).max(100).nullish(),
   cursor: z.string().nullish(),
+  period: z.nativeEnum(DateRanges).optional().default(DateRanges.Week),
+  customPeriod: z.array(z.date().nullable()).optional(),
 });
 
 export const createActivityBatchSchema = z.array(createActivitySchema);

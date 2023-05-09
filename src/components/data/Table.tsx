@@ -28,6 +28,7 @@ const Table = ({
   isFetching?: boolean;
   enableRowSelection?: boolean;
   enableRowActions?: boolean;
+  enableStickyHeader?: boolean;
   isEmpty?: boolean;
   noData?: ReactNode;
   filters?: ReactNode;
@@ -52,7 +53,7 @@ const Table = ({
         </Stack>
       )}
 
-      <Box sx={{ '.mantine-Paper-root > div': { overflow: 'auto' } }}>
+      <Box sx={{ '.mantine-Paper-root > div': { overflow: 'visible' } }}>
         <MantineReactTable
           enableColumnActions={false}
           enableColumnFilters={false}
@@ -60,6 +61,7 @@ const Table = ({
           enableSorting={false}
           enableBottomToolbar={false}
           enableTopToolbar={true}
+          enableStickyHeader={true}
           enableToolbarInternalActions={false}
           mantineTopToolbarProps={{
             mih: 0,

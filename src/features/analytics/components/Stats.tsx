@@ -7,12 +7,18 @@ import { api } from '@utils/api';
 import { statusCount } from '@utils/statusCount';
 import { calcRate } from '@utils/calcRate';
 import { OrganizationContext } from '@context/OrganizationContext';
+import { DatePeriodContext } from '@context/DatePeriodContext';
+
+import type { DateRanges } from '@features/campaigns/utils';
 
 const Stats = () => {
   const { selectedOrganization } = useContext(OrganizationContext);
+  const { datePeriod, customDateRange } = useContext(DatePeriodContext);
   const { data, isLoading } = api.activity.getActivitiesStats.useQuery({
     campaignId: undefined,
     organizationId: selectedOrganization?.id as string,
+    period: datePeriod as DateRanges,
+    customPeriod: customDateRange,
   });
   const contacted = statusCount(data)?.[ActivityStatus.CONTACTED] || 0;
   const opened = statusCount(data)?.[ActivityStatus.OPENED] || 0;

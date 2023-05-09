@@ -6,13 +6,19 @@ import { useRouter } from 'next/router';
 
 import { OrganizationContext } from '@context/OrganizationContext';
 import { api } from '@utils/api';
+import { DatePeriodContext } from '@context/DatePeriodContext';
+
+import type { DateRanges } from '@features/campaigns/utils';
 
 const CampaignChart = () => {
   const { query } = useRouter();
   const { selectedOrganization } = useContext(OrganizationContext);
+  const { datePeriod, customDateRange } = useContext(DatePeriodContext);
   const { data } = api.activity.getActivitiesStats.useQuery({
     campaignId: (query.campaignId as string) || undefined,
     organizationId: selectedOrganization?.id as string,
+    period: datePeriod as DateRanges,
+    customPeriod: customDateRange,
   });
   return (
     <Paper shadow="sm" radius="md" p="xl">

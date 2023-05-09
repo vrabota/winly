@@ -16,6 +16,7 @@ export const campaignRoutes = createTRPCRouter({
   updateCampaign: protectedProcedure.input(updateCampaignSchema).mutation(CampaignsController.updateCampaignHandler),
   deleteCampaign: protectedProcedure.input(getCampaignByIdSchema).mutation(CampaignsController.deleteCampaignHandler),
   startCampaign: protectedProcedure.input(getCampaignByIdSchema).mutation(CampaignsController.startCampaignHandler),
+  stopCampaign: protectedProcedure.input(getCampaignByIdSchema).mutation(CampaignsController.stopCampaignHandler),
   updateSequences: protectedProcedure
     .input(updateCampaignSequenceSchema)
     .mutation(CampaignsController.updateCampaignSequenceHandler),
