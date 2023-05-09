@@ -32,8 +32,10 @@ export class InfoController {
 
     const userById = await prisma.user.findUnique({ where: { auth0Id: userId } });
 
+    let createdUser;
+
     if (!userById) {
-      const createdUser = await prisma.user.create({
+      createdUser = await prisma.user.create({
         data: payload,
       });
       const createdOrganization = await prisma.organization.create({
@@ -49,7 +51,7 @@ export class InfoController {
       );
     }
 
-    const organizations = OrganizationsRepository.getUserOrganizations(ctx.user?.id);
+    const organizations = OrganizationsRepository.getUserOrganizations(userById?.id || createdUser?.id);
 
     logger.info({ organizations }, `Successfully returned init list of organizations`);
 
