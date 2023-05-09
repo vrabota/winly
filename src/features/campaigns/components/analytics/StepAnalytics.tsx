@@ -6,6 +6,7 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import Link from 'next/link';
 
 import { Contacted, BookOpen, MailReply } from '@assets/icons';
+import { SkeletonData } from '@components/data';
 import { api } from '@utils/api';
 import { calcRate } from '@utils/calcRate';
 import { OrganizationContext } from '@context/OrganizationContext';
@@ -106,7 +107,7 @@ const StepAnalytics = () => {
   const { query } = useRouter();
   const { selectedOrganization } = useContext(OrganizationContext);
   const { datePeriod, customDateRange } = useContext(DatePeriodContext);
-  const { data } = api.activity.getActivitiesByStep.useQuery({
+  const { data, isLoading } = api.activity.getActivitiesByStep.useQuery({
     campaignId: query.campaignId as string,
     organizationId: selectedOrganization?.id as string,
     period: datePeriod as DateRanges,
@@ -117,23 +118,27 @@ const StepAnalytics = () => {
       <Text weight="500" mb={20}>
         Step Analytics
       </Text>
-      {!data && (
-        <Alert mt={30} icon={<IconAlertCircle size="1rem" />} title="No data found" color="gray">
-          There is no steps for this campaign. <br />
-          Please go to <Link href={`/campaigns/${query.campaignId}/sequences`}>Sequences</Link> and create your first
-          step.
-        </Alert>
-      )}
-      <Accordion variant="filled" defaultValue="step-1" radius="md" classNames={classes} className={classes.root}>
-        {data?.map((step: any, index: number) => (
-          <Accordion.Item key={`step-${index + 1}`} value={`step-${index + 1}`}>
-            <Accordion.Control>{`Step ${index + 1}`}</Accordion.Control>
-            <Accordion.Panel>
-              <StepData step={step} />
-            </Accordion.Panel>
-          </Accordion.Item>
-        ))}
-      </Accordion>
+      <SkeletonData isLoading={isLoading} skeletonProps={{ w: '100%', h: 20 }} count={4}>
+        <>
+          {!data && (
+            <Alert mt={30} icon={<IconAlertCircle size="1rem" />} title="No data found" color="gray">
+              There is no steps for this campaign. <br />
+              Please go to <Link href={`/campaigns/${query.campaignId}/sequences`}>Sequences</Link> and create your
+              first step.
+            </Alert>
+          )}
+          <Accordion variant="filled" defaultValue="step-1" radius="md" classNames={classes} className={classes.root}>
+            {data?.map((step: any, index: number) => (
+              <Accordion.Item key={`step-${index + 1}`} value={`step-${index + 1}`}>
+                <Accordion.Control>{`Step ${index + 1}`}</Accordion.Control>
+                <Accordion.Panel>
+                  <StepData step={step} />
+                </Accordion.Panel>
+              </Accordion.Item>
+            ))}
+          </Accordion>
+        </>
+      </SkeletonData>
     </Paper>
   );
 };

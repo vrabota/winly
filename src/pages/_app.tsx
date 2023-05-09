@@ -13,6 +13,8 @@ import { DatePeriodProvider } from '@context/DatePeriodContext';
 
 import type { MantineTheme, ButtonStylesParams } from '@mantine/core';
 
+import './style.css';
+
 const inter = Inter({ subsets: ['latin'] });
 
 const MyApp: AppType = ({ Component, pageProps }) => {

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import { RichTextEditor, Link } from '@mantine/tiptap';
 import { Group, Text, TextInput, Divider, Button, Paper, Anchor, Box, Tooltip } from '@mantine/core';
 import { useEditor } from '@tiptap/react';
@@ -7,10 +7,14 @@ import { Highlight } from '@tiptap/extension-highlight';
 import { Underline } from '@tiptap/extension-underline';
 import { TextAlign } from '@tiptap/extension-text-align';
 import { showNotification } from '@mantine/notifications';
-import { IconCheck } from '@tabler/icons';
+import { IconCheck, IconStar } from '@tabler/icons';
 import { useRouter } from 'next/router';
+import omitBy from 'lodash/omitBy';
+import isNil from 'lodash/isNil';
 
+import { Commands, getSuggestionItems, renderItems } from '@components/tiptap';
 import { api } from '@utils/api';
+import { OrganizationContext } from '@context/OrganizationContext';
 
 import type { SequencesType } from '@server/api/campaigns/campaigns.dto';
 import type { ChangeEvent } from 'react';
@@ -28,11 +32,51 @@ export const SequenceEditor = ({
   sequences: SequencesType[];
   activeIndex: number;
 }) => {
-  const { mutate, isLoading } = api.campaign.updateSequences.useMutation();
+  const [leadVariables, setLeadVariables] = useState<string[]>([]);
   const { query } = useRouter();
+  const { selectedOrganization } = useContext(OrganizationContext);
+  const { mutate, isLoading } = api.campaign.updateSequences.useMutation();
+  api.leads.getLeads.useQuery(
+    {
+      campaignId: query.campaignId as string,
+      organizationId: selectedOrganization?.id as string,
+      limit: 1,
+    },
+    {
+      onSuccess(data) {
+        let variables: string[] = [];
+        const leadData = data?.items?.[0] || {};
+        const validVariables = omitBy(leadData, isNil);
+        const filteredVariables = Object.keys(validVariables).filter(item =>
+          ['firstName', 'lastName', 'companyName', 'phone', 'website'].includes(item),
+        );
+        if (validVariables?.customVariables) {
+          variables = filteredVariables.concat(
+            validVariables?.customVariables.flatMap((item: any) => Object.keys(item)),
+          );
+        }
+        setLeadVariables(variables);
+      },
+    },
+  );
+
   const editor = useEditor(
     {
-      extensions: [StarterKit, Link, Highlight, Underline, TextAlign.configure({ types: ['heading', 'paragraph'] })],
+      extensions: [
+        StarterKit,
+        Link,
+        Highlight,
+        Underline,
+        TextAlign.configure({ types: ['heading', 'paragraph'] }),
+        Commands.configure({
+          suggestion: {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //@ts-ignore
+            items: (props: any) => getSuggestionItems({ ...props, leadVariables }),
+            render: renderItems,
+          },
+        }),
+      ],
       onBlur({ editor }) {
         updateSequence({ body: editor?.getHTML() });
       },
@@ -41,7 +85,7 @@ export const SequenceEditor = ({
       },
       content: body,
     },
-    [activeIndex],
+    [activeIndex, leadVariables],
   );
   useEffect(() => {
     if (editor && !editor.isDestroyed) {
@@ -158,6 +202,15 @@ export const SequenceEditor = ({
               <RichTextEditor.AlignJustify />
               <RichTextEditor.AlignRight />
             </RichTextEditor.ControlsGroup>
+            <Tooltip label="Insert variables" withArrow>
+              <RichTextEditor.Control
+                onClick={() => {
+                  editor?.chain().insertContent(' {').run();
+                }}
+              >
+                <IconStar stroke={1.5} size="1rem" />
+              </RichTextEditor.Control>
+            </Tooltip>
             <Box sx={{ marginLeft: 'auto' }}>
               <Button size="xs" variant="outline">
                 Upgrade
