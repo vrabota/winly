@@ -1,6 +1,6 @@
 import React, { useEffect, useContext, useState } from 'react';
 import { RichTextEditor, Link } from '@mantine/tiptap';
-import { Group, Text, TextInput, Divider, Button, Paper, Anchor, Box, Tooltip } from '@mantine/core';
+import { Group, Text, TextInput, Divider, Button, Paper, Anchor, Box, Tooltip, ActionIcon, Menu } from '@mantine/core';
 import { useEditor } from '@tiptap/react';
 import { StarterKit } from '@tiptap/starter-kit';
 import { Highlight } from '@tiptap/extension-highlight';
@@ -137,6 +137,22 @@ export const SequenceEditor = ({
           </Group>
           <Group align="center">
             <Divider color="gray.3" h={25} mt={5} mr={10} orientation="vertical" />
+            <Tooltip label="Insert variables" withArrow>
+              <Menu width={250}>
+                <Menu.Target>
+                  <ActionIcon size="lg" variant="light">
+                    <IconStar stroke={1.5} size="1rem" />
+                  </ActionIcon>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  {leadVariables?.map(variable => (
+                    <Menu.Item key={variable} onClick={() => updateSequence({ subject: `${subject} {{${variable}}}` })}>
+                      {variable}
+                    </Menu.Item>
+                  ))}
+                </Menu.Dropdown>
+              </Menu>
+            </Tooltip>
             <Button loading={isLoading} radius="md" onClick={createSequence}>
               Save
             </Button>
