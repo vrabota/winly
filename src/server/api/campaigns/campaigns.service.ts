@@ -9,10 +9,10 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { emailApi } from '@utils/emailApi';
 import { logger } from '@utils/logger';
 
+import type { Account, Campaign, Lead } from '@prisma/client';
 import type { AccountActivityMailMerge, ActivityMailMergeOutput } from '@server/api/activity/activity.dto';
 import type { Dayjs } from 'dayjs';
 import type { SequencesType } from './campaigns.dto';
-import type { Account, Campaign, Lead } from '@prisma/client';
 
 extend(timezone);
 extend(isoWeek);
@@ -69,12 +69,15 @@ export class CampaignsService {
           .hour(startTime.hour())
           .minute(startTime.minute());
       }
+      const emailBodyText = emailBody.replace(/{{(.*?)}}/g, '{{params.$1}}');
+      const emailSubjectText = sequence.subject.replace(/{{(.*?)}}/g, '{{{params.$1}}}');
+
       for (const [index, account] of accounts.entries()) {
         const leadsChunk = chunk(leads, ratio);
 
         const response = await emailApi.post(`/account/${account.id}/submit`, {
-          subject: sequence.subject,
-          html: emailBody,
+          subject: emailSubjectText,
+          html: emailBodyText,
           trackingEnabled: campaign.openTracking,
           mailMerge: leadsChunk?.[index]?.map(lead => {
             nextAvailableDateTime = nextAvailableDateTime.add(random(6, 9), 'm');
@@ -100,13 +103,26 @@ export class CampaignsService {
               dailyLimitCounter = 0;
             }
 
+            const dbCustomVariables = lead.customVariables as any;
+            const customVariables = dbCustomVariables?.reduce((acc: any, obj: any) => {
+              Object.keys(obj).forEach(key => {
+                acc[key] = obj[key];
+              });
+              return acc;
+            }, {});
+
             const payload = {
               to: {
                 name: `${lead.firstName} ${lead.lastName}`,
                 address: lead.email,
               },
               params: {
-                firstName: lead.firstName,
+                firstName: lead?.firstName,
+                lastName: lead?.lastName,
+                companyName: lead?.companyName,
+                phone: lead?.phone,
+                website: lead?.website,
+                ...customVariables,
               },
               sendAt: nextAvailableDateTime.format(),
             };
