@@ -128,7 +128,6 @@ export class CampaignsRepository {
           campaignId: payload.campaignId,
           organizationId: payload.organizationId,
           status: { equals: ActivityStatus.QUEUED },
-          leadEmail,
         },
         select: { queueId: true },
       });
