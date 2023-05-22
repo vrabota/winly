@@ -198,7 +198,7 @@ model Activity {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   campaign     Campaign     @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  account      Account      @relation(fields: [accountId], references: [id])
+  account      Account      @relation(fields: [accountId], references: [id], onDelete: Cascade)
   organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([queueId])

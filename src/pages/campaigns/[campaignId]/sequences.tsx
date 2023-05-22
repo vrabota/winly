@@ -34,7 +34,7 @@ const Sequences: NextPage = () => {
         if (activeIndex === i) {
           if (subject || subject === '') return { ...sequence, subject };
           if (body || body === '') return { ...sequence, body };
-          if (delay) return { ...sequence, delay };
+          if (delay || delay === '') return { ...sequence, delay };
           return sequence;
         } else {
           return sequence;
@@ -63,17 +63,18 @@ const Sequences: NextPage = () => {
           <SkeletonData isLoading={isFetching || isLoading} skeletonProps={{ w: '100%', h: 50 }}>
             <Stack>
               {sequences.map((sequence, index) => (
-                <SequenceTab
-                  deleteStep={() => deleteStep(index)}
-                  setActive={() => onStepClick(index)}
-                  index={index}
-                  isActive={index === activeIndex}
-                  isFirst={index === 0}
-                  updateSequence={updateSequence}
-                  key={`${sequence.subject}-${index}`}
-                  subject={sequence?.subject || ''}
-                  delay={sequences[activeIndex]?.delay || ''}
-                />
+                <div key={`${sequence.subject}-${index}`}>
+                  <SequenceTab
+                    deleteStep={() => deleteStep(index)}
+                    setActive={() => onStepClick(index)}
+                    index={index}
+                    isActive={index === activeIndex}
+                    isFirst={index === 0}
+                    updateSequence={updateSequence}
+                    subject={sequence?.subject || ''}
+                    delay={sequences[index]?.delay || ''}
+                  />
+                </div>
               ))}
               <Button variant="outline" radius="md" onClick={addNewStep}>
                 Add Step
@@ -82,7 +83,7 @@ const Sequences: NextPage = () => {
           </SkeletonData>
         </Grid.Col>
         <Grid.Col span="auto">
-          <SkeletonData isLoading={isLoading || isFetching} skeletonProps={{ w: '100%', h: 50 }}>
+          <SkeletonData isLoading={isLoading || isFetching} skeletonProps={{ w: '100%', h: 350 }}>
             <SequenceEditor
               activeIndex={activeIndex}
               updateSequence={updateSequence}

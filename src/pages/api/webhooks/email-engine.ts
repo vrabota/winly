@@ -5,6 +5,7 @@ import { logger } from '@utils/logger';
 import { prisma } from '@server/db';
 import { WEBHOOKS } from '@utils/webhooks';
 import { updateAccountState } from '@webhooks/updateAccountState';
+import { CampaignsService } from '@server/api/campaigns/campaigns.service';
 
 import type { Prisma } from '@prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -68,12 +69,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         [WEBHOOKS.MESSAGE_FAILED]: ActivityStatus.ERROR,
       };
       if (activity) {
-        await prisma.activity.create({
+        const createdActivity = await prisma.activity.create({
           data: {
             ...omit(activity, ['id', 'createdAt', 'updatedAt', 'queueId']),
             status: status[req.body.event as string],
           },
         });
+        const queuedActivity = await prisma.activity.findFirst({
+          where: {
+            messageId: createdActivity.messageId,
+            status: ActivityStatus.QUEUED,
+          },
+        });
+        if (queuedActivity) {
+          await prisma.activity.delete({
+            where: {
+              id: queuedActivity.id,
+            },
+          });
+        }
       }
       break;
     }
@@ -93,7 +107,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           });
 
           if (createdActivity.campaign.sendOnReply) {
-            //find all queueId for this lead and remove them
+            // STOP sending on reply
+            const queueIds = await prisma.activity.findMany({
+              where: {
+                campaignId: activity.campaignId,
+                organizationId: activity.organizationId,
+                status: { equals: ActivityStatus.QUEUED },
+                leadEmail: activity.leadEmail,
+              },
+              select: { queueId: true },
+            });
+
+            for (const item of queueIds) {
+              if (typeof item.queueId === 'string') {
+                await CampaignsService.stopCampaign(item.queueId);
+              }
+            }
+
+            await prisma.activity.deleteMany({
+              where: {
+                campaignId: activity.campaignId,
+                organizationId: activity.organizationId,
+                status: { equals: ActivityStatus.QUEUED },
+              },
+            });
           }
         }
       }
@@ -120,6 +157,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             },
           });
         }
+      }
+      if (activity?.status === ActivityStatus.QUEUED) {
+        await prisma.activity.delete({
+          where: {
+            id: activity.id,
+          },
+        });
       }
       break;
     }
