@@ -93,7 +93,7 @@ export const oauthConnectionModal = () =>
               </Paper>
               <CopyButton value="564866513034-3ii3apd54pj8paj74mmmn70uq7tl1jpk.apps.googleusercontent.com">
                 {({ copied, copy }) => (
-                  <Button leftIcon={<IconCopy size={18} />} color={copied ? 'teal' : 'blue'} onClick={copy}>
+                  <Button leftIcon={<IconCopy size={18} />} color={copied ? 'teal' : 'purple'} onClick={copy}>
                     {copied ? 'Copied Client-ID' : 'Copy Client-ID'}
                   </Button>
                 )}

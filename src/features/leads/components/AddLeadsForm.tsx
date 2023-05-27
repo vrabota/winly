@@ -39,7 +39,7 @@ const AddLeadsForm = ({ onClose }: { onClose: () => void }) => {
   const [files, setFiles] = useState<FileWithPath[]>([]);
   const [parseData, setParseData] = useState<ParseResult<unknown>>();
   const [loadingFiles, setLoadingFiles] = useState(false);
-  const [fields, setFields] = useState({});
+  const [fields, setFields] = useState<any>({});
   const { query } = useRouter();
   const utils = api.useContext();
   const { mutate, isLoading } = api.leads.batchCreateLeads.useMutation({
@@ -205,7 +205,12 @@ const AddLeadsForm = ({ onClose }: { onClose: () => void }) => {
                         placeholder="Pick one"
                         defaultValue={getFieldDefaultValue(field)}
                         data={FIELDS_SELECT_OPTIONS}
-                        onChange={value => setFields(prevState => ({ ...prevState, [field]: value }))}
+                        onChange={value => setFields((prevState: any) => ({ ...prevState, [field]: value }))}
+                        styles={theme => ({
+                          input: {
+                            color: fields[field] == 'noImport' ? theme.colors.gray[4] : theme.colors.purple?.[8],
+                          },
+                        })}
                       />
                     </td>
                     <td>

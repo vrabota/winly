@@ -9,7 +9,7 @@ const data = [
   { link: '/', label: 'Accounts', icon: MailSign },
   { link: '/campaigns', label: 'Campaigns', icon: MailSend },
   { link: '/analytics', label: 'Analytics', icon: ContentChart },
-  { link: '/inbox', label: 'Inbox', icon: MailInbox, disabled: true },
+  { link: '/inbox', label: 'Inbox', icon: MailInbox, disabled: false },
 ];
 
 const NavBarBox = () => {

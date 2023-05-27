@@ -112,7 +112,9 @@ const Header = () => {
                 </Menu.Target>
                 <Menu.Dropdown>
                   <Menu.Label>Settings</Menu.Label>
-                  <Menu.Item icon={<IconSettings size={14} stroke={1.5} />}>Account settings</Menu.Item>
+                  <Menu.Item icon={<IconSettings size={14} stroke={1.5} />} component={Link} href="/settings">
+                    Account settings
+                  </Menu.Item>
                   <Menu.Item icon={<IconLogout size={14} stroke={1.5} />} component="a" href="/api/auth/logout">
                     Logout
                   </Menu.Item>

@@ -190,6 +190,10 @@ model Activity {
   leadEmail      String          @map("lead_email") @db.VarChar(100)
   messageId      String          @map("message_id") @db.VarChar(100)
   queueId        String?         @map("queue_id") @db.VarChar(36)
+  threadId       String?         @map("thread_id") @db.VarChar(36)
+  read           Boolean?
+  subject        String?         @db.Text
+  body           String?         @db.Text
   accountId      String          @map("account_id") @db.VarChar(36)
   step           Int?            @db.SmallInt
   status         ActivityStatus? @default(QUEUED)

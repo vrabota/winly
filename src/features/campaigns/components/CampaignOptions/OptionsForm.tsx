@@ -7,6 +7,8 @@ import { Button, Stack, Group, ActionIcon, Menu, Text } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { IconCheck, IconChevronUp } from '@tabler/icons';
 import { useRouter } from 'next/router';
+import timezone from 'dayjs/plugin/timezone';
+import dayjs, { extend } from 'dayjs';
 
 import { Play } from '@assets/icons';
 import { api } from '@utils/api';
@@ -19,6 +21,8 @@ import Timing from './Timing';
 import StopOnReply from './StopOnReply';
 import OpenTracking from './OpenTracking';
 import DailyLimit from './DailyLimit';
+
+extend(timezone);
 
 const OptionsForm = () => {
   const { query, push } = useRouter();
@@ -47,6 +51,7 @@ const OptionsForm = () => {
       to: '6:00 PM',
       sendOnReply: true,
       openTracking: true,
+      timezone: dayjs.tz.guess(),
     },
     resolver: zodResolver(validationSchema),
   });

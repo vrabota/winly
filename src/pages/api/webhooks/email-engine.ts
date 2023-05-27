@@ -94,13 +94,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     case WEBHOOKS.MESSAGE_NEW: {
       const {
         specialUse,
-        data: { inReplyTo, labels },
+        data: { inReplyTo, labels, threadId },
       } = req.body;
       if ((inReplyTo && specialUse.includes('All')) || labels.includes('\\Inbox')) {
         const activity = await prisma.activity.findFirst({ where: { messageId: inReplyTo } });
         if (activity) {
           const createdActivity = await prisma.activity.create({
-            data: { ...omit(activity, ['id', 'createdAt', 'updatedAt', 'queueId']), status: ActivityStatus.REPLIED },
+            data: {
+              ...omit(activity, ['id', 'createdAt', 'updatedAt', 'queueId']),
+              status: ActivityStatus.REPLIED,
+              threadId,
+            },
             select: {
               campaign: true,
             },

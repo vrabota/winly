@@ -1,5 +1,5 @@
 import { closeAllModals, closeModal, openConfirmModal } from '@mantine/modals';
-import { Anchor, Button, Divider, Group, List, Mark, Paper, Stack, Text, ThemeIcon, Title } from '@mantine/core';
+import { Anchor, Badge, Button, Divider, Group, List, Mark, Paper, Stack, Text, ThemeIcon, Title } from '@mantine/core';
 import Image from 'next/image';
 import React from 'react';
 import { IconArrowLeft, IconCheck, IconExclamationMark } from '@tabler/icons';
@@ -54,61 +54,17 @@ export const selectConnectionModal = () =>
         <Divider my="xl" size={1} variant="solid" color="gray.1" />
         <Group position="apart" grow>
           <Paper
-            p={25}
-            shadow="sm"
-            withBorder
-            onClick={() => appPasswordInfoModal()}
-            sx={theme => ({
-              borderColor: theme.colors.gray[1],
-              transition: 'all 0.3s',
-              cursor: 'pointer',
-              '&:hover': { background: theme.colors.blue[0], boxShadow: theme.shadows.lg },
-            })}
-          >
-            <Title order={5} align="center">
-              Option 1: App Password
-            </Title>
-            <List my={20} center spacing="lg" size="sm">
-              <List.Item
-                sx={{ lineHeight: '1.4em' }}
-                icon={
-                  <ThemeIcon color="teal" radius="xl">
-                    <IconCheck size={16} />
-                  </ThemeIcon>
-                }
-              >
-                Available for GSuite and Gmail accounts
-              </List.Item>
-              <List.Item
-                icon={
-                  <ThemeIcon color="yellow.5" radius="xl">
-                    <IconExclamationMark size={16} />
-                  </ThemeIcon>
-                }
-              >
-                Requires 2-factor authentication
-              </List.Item>
-              <List.Item
-                icon={
-                  <ThemeIcon color="yellow.5" radius="xl">
-                    <IconExclamationMark size={16} />
-                  </ThemeIcon>
-                }
-              >
-                More prone to disconnects
-              </List.Item>
-            </List>
-          </Paper>
-          <Paper
+            mih={267}
             p={25}
             shadow="sm"
             withBorder
             onClick={() => oauthConnectionModal()}
             sx={theme => ({
               borderColor: theme.colors.gray[1],
+              background: theme.colors.purple?.[0],
               transition: 'all 0.3s',
               cursor: 'pointer',
-              '&:hover': { background: theme.colors.blue[0], boxShadow: theme.shadows.lg },
+              '&:hover': { background: theme.colors.purple?.[1], boxShadow: theme.shadows.lg },
             })}
           >
             <Title order={5} align="center">
@@ -142,6 +98,56 @@ export const selectConnectionModal = () =>
                 }
               >
                 Only for GSuite accounts <br /> (no personal Gmail Accounts)
+              </List.Item>
+            </List>
+            <Group position="center">
+              <Badge variant="filled">Recommended</Badge>
+            </Group>
+          </Paper>
+          <Paper
+            mih={267}
+            p={25}
+            shadow="sm"
+            withBorder
+            onClick={() => appPasswordInfoModal()}
+            sx={theme => ({
+              borderColor: theme.colors.gray[1],
+              transition: 'all 0.3s',
+              cursor: 'pointer',
+              '&:hover': { background: theme.colors.purple?.[0], boxShadow: theme.shadows.lg },
+            })}
+          >
+            <Title order={5} align="center">
+              Option 1: App Password
+            </Title>
+            <List my={20} center spacing="lg" size="sm">
+              <List.Item
+                sx={{ lineHeight: '1.4em' }}
+                icon={
+                  <ThemeIcon color="teal" radius="xl">
+                    <IconCheck size={16} />
+                  </ThemeIcon>
+                }
+              >
+                Available for GSuite and Gmail accounts
+              </List.Item>
+              <List.Item
+                icon={
+                  <ThemeIcon color="yellow.5" radius="xl">
+                    <IconExclamationMark size={16} />
+                  </ThemeIcon>
+                }
+              >
+                Requires 2-factor authentication
+              </List.Item>
+              <List.Item
+                icon={
+                  <ThemeIcon color="yellow.5" radius="xl">
+                    <IconExclamationMark size={16} />
+                  </ThemeIcon>
+                }
+              >
+                More prone to disconnects
               </List.Item>
             </List>
           </Paper>

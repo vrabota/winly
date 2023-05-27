@@ -280,7 +280,9 @@ export const Filters = (props: FiltersProps) => {
           </Group>
         </Box>
       </Grid.Col>
-      <Grid.Col span="content">{props.actionBox}</Grid.Col>
+      <Grid.Col span="content" hidden={!props.actionBox}>
+        {props.actionBox}
+      </Grid.Col>
     </Grid>
   );
 };

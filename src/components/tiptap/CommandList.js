@@ -62,7 +62,9 @@ class CommandList extends Component {
     if (items.length === 0) {
       return (
         <div className="tiptap-items">
-          <div className="tiptap-item no-data">No match found!</div>
+          <div className="tiptap-item no-data">
+            Can not find any variables, please make sure that you uploaded some leads.
+          </div>
         </div>
       );
     }

@@ -18,7 +18,7 @@ const DailyLimit = () => {
             </Group>
             <Text>Max number of emails to send per day for this campaign</Text>
           </Stack>
-          <NumberInput w={300} name="dailyLimit" />
+          <NumberInput min={0} w={300} name="dailyLimit" placeholder="ex: 200" />
         </Stack>
       </Paper>
     </Stack>

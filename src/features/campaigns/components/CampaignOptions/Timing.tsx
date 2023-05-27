@@ -12,6 +12,7 @@ const Timing = ({ isLoading }: { isLoading: boolean }) => {
   const fromValue = useWatch({ name: 'from' });
   const selectedIndex = timeData.findIndex(el => el === fromValue);
   const timezoneList = timeZones.map(item => ({ label: item.name, value: item.tzCode }));
+
   return (
     <Stack align="center" spacing={20}>
       <Paper shadow="md" p="xl" radius="md" w={800}>

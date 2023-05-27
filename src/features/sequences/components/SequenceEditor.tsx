@@ -7,7 +7,7 @@ import { Highlight } from '@tiptap/extension-highlight';
 import { Underline } from '@tiptap/extension-underline';
 import { TextAlign } from '@tiptap/extension-text-align';
 import { showNotification } from '@mantine/notifications';
-import { IconCheck, IconStar } from '@tabler/icons';
+import { IconCheck, IconBraces } from '@tabler/icons';
 import { useRouter } from 'next/router';
 import omitBy from 'lodash/omitBy';
 import isNil from 'lodash/isNil';
@@ -137,22 +137,29 @@ export const SequenceEditor = ({
           </Group>
           <Group align="center">
             <Divider color="gray.3" h={25} mt={5} mr={10} orientation="vertical" />
-            <Tooltip label="Insert variables" withArrow>
-              <Menu width={250}>
-                <Menu.Target>
+
+            <Menu width={250}>
+              <Menu.Target>
+                <Tooltip label="Insert variables in subject" withArrow>
                   <ActionIcon size="lg" variant="light">
-                    <IconStar stroke={1.5} size="1rem" />
+                    <IconBraces stroke={1.5} size="1rem" />
                   </ActionIcon>
-                </Menu.Target>
-                <Menu.Dropdown>
-                  {leadVariables?.map(variable => (
-                    <Menu.Item key={variable} onClick={() => updateSequence({ subject: `${subject} {{${variable}}}` })}>
-                      {variable}
-                    </Menu.Item>
-                  ))}
-                </Menu.Dropdown>
-              </Menu>
-            </Tooltip>
+                </Tooltip>
+              </Menu.Target>
+              <Menu.Dropdown>
+                {leadVariables?.map(variable => (
+                  <Menu.Item key={variable} onClick={() => updateSequence({ subject: `${subject} {{${variable}}}` })}>
+                    {variable}
+                  </Menu.Item>
+                ))}
+                {leadVariables?.length === 0 && (
+                  <Text size="sm" p={15}>
+                    Can not find any variables, please make sure that you uploaded some leads.
+                  </Text>
+                )}
+              </Menu.Dropdown>
+            </Menu>
+
             <Button loading={isLoading} radius="md" onClick={createSequence}>
               Save
             </Button>
@@ -224,11 +231,11 @@ export const SequenceEditor = ({
                   editor?.chain().insertContent(' {').run();
                 }}
               >
-                <IconStar stroke={1.5} size="1rem" />
+                <IconBraces stroke={1.5} size="1rem" />
               </RichTextEditor.Control>
             </Tooltip>
             <Box sx={{ marginLeft: 'auto' }}>
-              <Button size="xs" variant="outline">
+              <Button size="xs" variant="outline" hidden>
                 Upgrade
               </Button>
             </Box>

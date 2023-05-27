@@ -81,9 +81,11 @@ const CampaignTabs = () => {
             Options
           </Tabs.Tab>
           <Group ml="auto" mb={10}>
-            <SkeletonData isLoading={isLoading} skeletonProps={{ w: 150, h: 40 }}>
-              <DateFilter />
-            </SkeletonData>
+            {activeTab === 'analytics' && (
+              <SkeletonData isLoading={isLoading} skeletonProps={{ w: 150, h: 40 }}>
+                <DateFilter />
+              </SkeletonData>
+            )}
             <SkeletonData isLoading={isLoading} skeletonProps={{ w: 150, h: 40 }}>
               <Button
                 onClick={handleCampaignAction}

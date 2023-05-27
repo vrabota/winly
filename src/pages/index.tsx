@@ -124,11 +124,9 @@ const Home: NextPage = () => {
           return (
             <Menu position="bottom-end" width={200} arrowOffset={30} withArrow>
               <Menu.Target>
-                <Tooltip label="Row actions" openDelay={200} withArrow>
-                  <ActionIcon radius="md" size="lg">
-                    <IconDots size={26} />
-                  </ActionIcon>
-                </Tooltip>
+                <ActionIcon radius="md" size="lg">
+                  <IconDots size={26} />
+                </ActionIcon>
               </Menu.Target>
               <Menu.Dropdown py={10}>
                 <Menu.Item onClick={() => mutateReconnect({ accountId: row.original?.id })} icon={<Sync size={14} />}>

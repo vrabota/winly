@@ -1,5 +1,5 @@
 import { closeAllModals, openConfirmModal } from '@mantine/modals';
-import { Button, Divider, Group, Stack, Text, Title } from '@mantine/core';
+import { Badge, Button, Divider, Group, Stack, Text, Title } from '@mantine/core';
 import Image from 'next/image';
 import React from 'react';
 
@@ -49,39 +49,24 @@ export const getProvidersModal = () =>
               <Title order={5}>Gmail / G-Suite</Title>
             </Stack>
           </Group>
-          <Group
-            py={15}
-            px={30}
-            sx={{
-              transition: 'all 0.3s',
-              '&:hover': {
-                boxShadow: 'rgb(0 0 0 / 8%) 0px 2px 4px, rgb(0 0 0 / 10%) 0px 2px 12px;',
-                cursor: 'pointer',
-              },
-            }}
-            spacing={25}
-          >
+          <Group py={15} px={30} spacing={25} sx={{ filter: 'grayscale(1)' }}>
             <Image src={OutlookSVG} width={40} height={40} alt="Office 365 / Outlook" />
-            <Stack spacing={0}>
-              <Text color="gray.5">Microsoft</Text>
+            <Stack spacing={1}>
+              <Group position="apart">
+                <Text color="gray.5">Microsoft</Text>
+                <Badge>Soon</Badge>
+              </Group>
+
               <Title order={5}>Office 365 / Outlook</Title>
             </Stack>
           </Group>
-          <Group
-            py={15}
-            px={30}
-            sx={{
-              transition: 'all 0.3s',
-              '&:hover': {
-                boxShadow: 'rgb(0 0 0 / 8%) 0px 2px 4px, rgb(0 0 0 / 10%) 0px 2px 12px;',
-                cursor: 'pointer',
-              },
-            }}
-            spacing={25}
-          >
+          <Group py={15} px={30} spacing={25} sx={{ filter: 'grayscale(1)' }}>
             <Image src={SmtpSVG} width={40} height={40} alt="IMAP / SMTP" />
-            <Stack spacing={0}>
-              <Text color="gray.5">Any Provider</Text>
+            <Stack spacing={1}>
+              <Group position="apart">
+                <Text color="gray.5">Any Provider</Text>
+                <Badge>Soon</Badge>
+              </Group>
               <Title order={5}>IMAP / SMTP</Title>
             </Stack>
           </Group>
