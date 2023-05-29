@@ -1,11 +1,11 @@
 import React, { useRef, useState } from 'react';
-import { Button, Group, Stack, Radio, Alert, Text, ActionIcon, useMantineTheme, Table, Select } from '@mantine/core';
+import { Button, Group, Stack, Radio, Text, ActionIcon, useMantineTheme, Table, Select, Alert } from '@mantine/core';
 import { z } from 'zod';
 import { useForm, FormProvider, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/router';
 import { showNotification } from '@mantine/notifications';
-import { IconBulb, IconCheck } from '@tabler/icons';
+import { IconBulb, IconCheck, IconX, IconAlertTriangle } from '@tabler/icons';
 import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
 import { parse } from 'papaparse';
 import take from 'lodash/take';
@@ -19,7 +19,8 @@ import { getFieldDefaultValue } from '@features/leads/utils';
 
 import type { FileWithPath } from '@mantine/dropzone';
 import type { MouseEvent } from 'react';
-import type { ParseResult } from 'papaparse';
+
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const AddLeadsForm = ({ onClose }: { onClose: () => void }) => {
   const validationSchema = z.object({
@@ -37,8 +38,9 @@ const AddLeadsForm = ({ onClose }: { onClose: () => void }) => {
   const typeValue = useWatch({ name: 'type', control: methods.control });
   const openRef = useRef<() => void>(null);
   const [files, setFiles] = useState<FileWithPath[]>([]);
-  const [parseData, setParseData] = useState<ParseResult<unknown>>();
+  const [parseData, setParseData] = useState<any>();
   const [loadingFiles, setLoadingFiles] = useState(false);
+  const [missingEmails, setMissingEmails] = useState(false);
   const [fields, setFields] = useState<any>({});
   const { query } = useRouter();
   const utils = api.useContext();
@@ -53,6 +55,15 @@ const AddLeadsForm = ({ onClose }: { onClose: () => void }) => {
       });
       onClose();
       await utils.leads.invalidate();
+    },
+    onError: () => {
+      showNotification({
+        color: 'red',
+        title: 'Ooops something went wrong.',
+        message: `Can't create leads.`,
+        autoClose: 4000,
+        icon: <IconX size={16} />,
+      });
     },
   });
   const onSubmit = async (data: ValidationSchema) => {
@@ -78,7 +89,7 @@ const AddLeadsForm = ({ onClose }: { onClose: () => void }) => {
         await mutate(leadsMapping);
       }
       if (typeValue === 'csv') {
-        const data = parseData?.data.map(item => ({
+        const data = parseData?.data.map((item: any) => ({
           ...renameObjectKeys(fields, item, 'noImport'),
           campaignId: query.campaignId as string,
         })) as any;
@@ -92,14 +103,40 @@ const AddLeadsForm = ({ onClose }: { onClose: () => void }) => {
       parse(files[0], {
         header: true,
         complete: function (results) {
+          console.log(results);
+          const { data, meta } = results;
+          const emailColumnName = meta?.fields?.find(columnName => columnName.toLowerCase() === 'email');
+
+          if (!emailColumnName) {
+            showNotification({
+              color: 'red',
+              title: 'Ooops something went wrong.',
+              message: `You must have a email column in CSV file`,
+              autoClose: 4000,
+              icon: <IconX size={16} />,
+            });
+            setLoadingFiles(false);
+            setFiles([]);
+            return;
+          }
+
+          const filteredData = data.filter((item: any) => {
+            return item[emailColumnName] && emailPattern.test(item[emailColumnName]);
+          });
+
+          if (filteredData.length !== data.length) {
+            setMissingEmails(true);
+          }
+
           setLoadingFiles(false);
-          setParseData(results);
-          const fields: string[] = results.meta.fields || [];
+          setParseData({ ...results, data: filteredData });
+          const fields: string[] = meta.fields || [];
           const fieldsMapping = fields.reduce((accumulator, value) => {
             return { ...accumulator, [value]: getFieldDefaultValue(value) };
           }, {});
           setFields(fieldsMapping);
         },
+        skipEmptyLines: true,
       });
     }
     setFiles(files);
@@ -107,6 +144,7 @@ const AddLeadsForm = ({ onClose }: { onClose: () => void }) => {
   const onRemoveFile = (e: MouseEvent) => {
     e.stopPropagation();
     setFiles([]);
+    setMissingEmails(false);
     setParseData(undefined);
   };
   const theme = useMantineTheme();
@@ -173,6 +211,18 @@ const AddLeadsForm = ({ onClose }: { onClose: () => void }) => {
               {files.length === 0 && <Text>Drag file here or click to select files</Text>}
             </Group>
           </Dropzone>
+          {missingEmails && (
+            <Alert
+              my={20}
+              color="yellow"
+              icon={<IconAlertTriangle size={16} />}
+              title="We found rows that doesn't have an email"
+            >
+              We filtered all rows that don`t have a valid email address. <br />
+              Please fix CSV file if you want to have this rows uploaded.
+            </Alert>
+          )}
+
           {parseData?.meta?.fields && (
             <Table
               mt={20}
@@ -195,7 +245,7 @@ const AddLeadsForm = ({ onClose }: { onClose: () => void }) => {
                 </tr>
               </thead>
               <tbody>
-                {parseData?.meta?.fields?.map((field, index) => (
+                {parseData?.meta?.fields?.map((field: any, index: number) => (
                   <tr key={`${field}-${index}`}>
                     <td>{field}</td>
                     <td>
@@ -213,7 +263,7 @@ const AddLeadsForm = ({ onClose }: { onClose: () => void }) => {
                         })}
                       />
                     </td>
-                    <td>
+                    <td width="40%">
                       {take((parseData?.data as []) || [], 3).map((item, indexSamples) => (
                         <Text key={`samples-${field}-${indexSamples}`}>{item[field]}</Text>
                       ))}

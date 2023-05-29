@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import groupBy from 'lodash/groupBy';
-import { ActivityStatus, LeadStatus, Prisma } from '@prisma/client';
+import { ActivityStatus, Prisma } from '@prisma/client';
 
 import { prisma } from '@server/db';
 import { getPeriodDates } from '@utils/period';
