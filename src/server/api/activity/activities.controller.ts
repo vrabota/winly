@@ -2,7 +2,7 @@ import { logger } from '@utils/logger';
 
 import { ActivityRepository } from './activity.repository';
 
-import type { GetActivitiesInput } from './activity.dto';
+import type { GetActivitiesInput, GetRepliedActivitiesInput } from './activity.dto';
 
 export class ActivityController {
   static async getActivitiesHandler({ input }: { input: GetActivitiesInput }) {
@@ -14,6 +14,7 @@ export class ActivityController {
 
     return activities;
   }
+
   static async getActivitiesStatsHandler({ input }: { input: GetActivitiesInput }) {
     logger.info({ input }, `Getting list of activities grouped by date and status.`);
 
@@ -23,6 +24,7 @@ export class ActivityController {
 
     return activities;
   }
+
   static async getActivitiesByStepHandler({ input }: { input: GetActivitiesInput }) {
     logger.info({ input }, `Getting list of activities for campaign ${input.campaignId} grouped by step.`);
 
@@ -32,6 +34,16 @@ export class ActivityController {
       { activities },
       `Successfully returned list of activities for campaign ${input.campaignId} grouped by step.`,
     );
+
+    return activities;
+  }
+
+  static async getRepliedActivities({ input }: { input: GetRepliedActivitiesInput }) {
+    logger.info({ input }, `Getting list of replied activities.`);
+
+    const activities = await ActivityRepository.getRepliedActivities(input);
+
+    logger.info({ activities }, `Successfully returned list of replied activities.`);
 
     return activities;
   }

@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from '@server/api/trpc';
 
-import { getActivitiesSchema } from './activity.dto';
+import { getActivitiesSchema, getRepliedActivitiesSchema } from './activity.dto';
 import { ActivityController } from './activities.controller';
 
 export const activitiesRoutes = createTRPCRouter({
@@ -9,4 +9,7 @@ export const activitiesRoutes = createTRPCRouter({
   getActivitiesByStep: protectedProcedure
     .input(getActivitiesSchema)
     .query(ActivityController.getActivitiesByStepHandler),
+  getRepliedActivities: protectedProcedure
+    .input(getRepliedActivitiesSchema)
+    .query(ActivityController.getRepliedActivities),
 });

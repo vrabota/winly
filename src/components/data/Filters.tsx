@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Badge,
   Group,
@@ -34,7 +34,7 @@ type FiltersProps = {
     key: string;
     label: string;
     title: string;
-    options: {
+    options?: {
       value: string;
       label: string;
     }[];
@@ -70,14 +70,18 @@ const getFilterValues = (filters: any) => {
 
 export const Filters = (props: FiltersProps) => {
   const { classes } = useStyles();
-  const optionsFilters = Object.fromEntries(
-    props?.items?.map(item => [
-      item.key,
-      {
-        values: item?.options?.map(option => ({ value: option.value, label: option.label, checked: false })) || [],
-        opened: false,
-      },
-    ]),
+  const optionsFilters = useMemo(
+    () =>
+      Object.fromEntries(
+        props?.items?.map(item => [
+          item.key,
+          {
+            values: item?.options?.map(option => ({ value: option.value, label: option.label, checked: false })) || [],
+            opened: false,
+          },
+        ]),
+      ),
+    [props?.items],
   );
   const [filters, setFilters] = useState<any>({ search: '', ...optionsFilters });
   const theme = useMantineTheme();
@@ -124,7 +128,7 @@ export const Filters = (props: FiltersProps) => {
     return filterItems.length === 1
       ? filterItems[0].value === 'PAUSE'
         ? 'stopped'
-        : filterItems[0].value
+        : filterItems[0].label
       : filterItems.length;
   };
 

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ActivityStatus } from '@prisma/client';
+import { ActivityStatus, LeadStatus } from '@prisma/client';
 
 import { DateRanges } from '@features/campaigns/utils';
 
@@ -27,10 +27,19 @@ export const getActivitiesSchema = z.object({
   customPeriod: z.array(z.date().nullable()).optional(),
 });
 
+export const getRepliedActivitiesSchema = z.object({
+  organizationId: z.string(),
+  campaignIds: z.array(z.string()).optional(),
+  accountIds: z.array(z.string()).optional(),
+  leadEmail: z.string().optional(),
+  leadStatus: z.nativeEnum(LeadStatus).optional(),
+});
+
 export const createActivityBatchSchema = z.array(createActivitySchema);
 
 export type CreateActivityInput = TypeOf<typeof createActivitySchema>;
 export type GetActivitiesInput = TypeOf<typeof getActivitiesSchema>;
+export type GetRepliedActivitiesInput = TypeOf<typeof getRepliedActivitiesSchema>;
 
 export type ActivityMailMergeOutput = components['schemas']['BulkResponseEntry'];
 export type AccountActivityMailMerge = ActivityMailMergeOutput & { accountId: string; step: number };

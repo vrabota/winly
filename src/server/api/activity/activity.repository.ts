@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import groupBy from 'lodash/groupBy';
-import { ActivityStatus, Prisma } from '@prisma/client';
+import { ActivityStatus, LeadStatus, Prisma } from '@prisma/client';
 
 import { prisma } from '@server/db';
 import { getPeriodDates } from '@utils/period';
@@ -10,6 +10,7 @@ import type {
   GetActivitiesInput,
   ActivityGroupedByDateStatus,
   ActivityStats,
+  GetRepliedActivitiesInput,
 } from './activity.dto';
 import type { Activity } from '@prisma/client';
 
@@ -34,7 +35,7 @@ export class ActivityRepository {
     });
     let nextCursor: typeof payload.cursor | undefined = undefined;
     if (payload?.limit && items.length > payload?.limit) {
-      const nextItem = items.pop(); // return the last item from the array
+      const nextItem = items.pop();
       nextCursor = nextItem?.id;
     }
     return { items, nextCursor };
@@ -90,5 +91,26 @@ GROUP BY 1, 2;`;
       Object.fromEntries(step.map(item => [item.status, { count: item._count, step: item.step }])),
     );
     return activitiesStats;
+  }
+
+  static async getRepliedActivities(payload: GetRepliedActivitiesInput): Promise<{ items: Activity[] }> {
+    const items = await prisma.activity.findMany({
+      where: {
+        organizationId: payload.organizationId,
+        accountId: payload.accountIds && payload.accountIds?.length > 0 ? { in: payload.accountIds } : undefined,
+        leadEmail: { contains: payload?.leadEmail },
+        status: ActivityStatus.REPLIED,
+        campaignId: payload.campaignIds && payload.campaignIds?.length > 0 ? { in: payload.campaignIds } : undefined,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+    // const leads = await prisma.lead.findMany({
+    //   where: {
+    //     status: LeadStatus.INTERESTED,
+    //   },
+    // });
+    return { items };
   }
 }
