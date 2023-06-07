@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from '@server/api/trpc';
 
-import { getActivitiesSchema, getRepliedActivitiesSchema } from './activity.dto';
+import { getActivitiesSchema, getRepliedActivitiesSchema, getRepliedThreadSchema } from './activity.dto';
 import { ActivityController } from './activities.controller';
 
 export const activitiesRoutes = createTRPCRouter({
@@ -12,4 +12,5 @@ export const activitiesRoutes = createTRPCRouter({
   getRepliedActivities: protectedProcedure
     .input(getRepliedActivitiesSchema)
     .query(ActivityController.getRepliedActivities),
+  getRepliedThread: protectedProcedure.input(getRepliedThreadSchema).query(ActivityController.getRepliedThread),
 });

@@ -32,7 +32,14 @@ export const getRepliedActivitiesSchema = z.object({
   campaignIds: z.array(z.string()).optional(),
   accountIds: z.array(z.string()).optional(),
   leadEmail: z.string().optional(),
-  leadStatus: z.nativeEnum(LeadStatus).optional(),
+  leadStatus: z.array(z.nativeEnum(LeadStatus)).optional(),
+  limit: z.number().min(1).max(100).nullish(),
+  cursor: z.string().nullish(),
+});
+
+export const getRepliedThreadSchema = z.object({
+  threadId: z.string(),
+  accountId: z.string(),
 });
 
 export const createActivityBatchSchema = z.array(createActivitySchema);
@@ -40,6 +47,7 @@ export const createActivityBatchSchema = z.array(createActivitySchema);
 export type CreateActivityInput = TypeOf<typeof createActivitySchema>;
 export type GetActivitiesInput = TypeOf<typeof getActivitiesSchema>;
 export type GetRepliedActivitiesInput = TypeOf<typeof getRepliedActivitiesSchema>;
+export type GetRepliedThredInput = TypeOf<typeof getRepliedThreadSchema>;
 
 export type ActivityMailMergeOutput = components['schemas']['BulkResponseEntry'];
 export type AccountActivityMailMerge = ActivityMailMergeOutput & { accountId: string; step: number };

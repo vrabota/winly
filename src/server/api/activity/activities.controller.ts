@@ -1,8 +1,10 @@
 import { logger } from '@utils/logger';
+import { emailApi } from '@utils/emailApi';
 
 import { ActivityRepository } from './activity.repository';
+import { ActivitiesService } from './activities.service';
 
-import type { GetActivitiesInput, GetRepliedActivitiesInput } from './activity.dto';
+import type { GetActivitiesInput, GetRepliedActivitiesInput, GetRepliedThredInput } from './activity.dto';
 
 export class ActivityController {
   static async getActivitiesHandler({ input }: { input: GetActivitiesInput }) {
@@ -46,5 +48,15 @@ export class ActivityController {
     logger.info({ activities }, `Successfully returned list of replied activities.`);
 
     return activities;
+  }
+
+  static async getRepliedThread({ input }: { input: GetRepliedThredInput }) {
+    logger.info({ input }, `Getting list of replied messages for thread ${input.threadId}.`);
+
+    const messages = await ActivitiesService.getThreadMessages(input.accountId, input.threadId);
+
+    logger.info({ messages }, `Successfully returned list of messages for thread ${input.threadId}.`);
+
+    return messages;
   }
 }

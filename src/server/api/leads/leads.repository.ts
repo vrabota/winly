@@ -10,7 +10,7 @@ import type {
   GetLeadsInput,
   UpdateLeadInput,
 } from './leads.dto';
-import type { Prisma, Lead } from '@prisma/client';
+import type { Prisma, Lead, LeadStatus } from '@prisma/client';
 
 export class LeadsRepository {
   static async createLead(payload: CreateLeadsInput, organizationId: string): Promise<Lead> {
@@ -62,6 +62,17 @@ export class LeadsRepository {
     return prisma.lead.findUnique({
       where: {
         id: payload.leadId,
+      },
+    });
+  }
+
+  static async getLeadByEmail(email: string): Promise<{ status: LeadStatus } | null> {
+    return prisma.lead.findFirst({
+      where: {
+        email,
+      },
+      select: {
+        status: true,
       },
     });
   }

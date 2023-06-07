@@ -93,24 +93,41 @@ GROUP BY 1, 2;`;
     return activitiesStats;
   }
 
-  static async getRepliedActivities(payload: GetRepliedActivitiesInput): Promise<{ items: Activity[] }> {
-    const items = await prisma.activity.findMany({
+  static async getRepliedActivities(
+    payload: GetRepliedActivitiesInput,
+  ): Promise<{ items: Activity[]; nextCursor: string | undefined }> {
+    let items = [];
+    items = await prisma.activity.findMany({
       where: {
         organizationId: payload.organizationId,
-        accountId: payload.accountIds && payload.accountIds?.length > 0 ? { in: payload.accountIds } : undefined,
+        accountId: payload?.accountIds && payload.accountIds?.length > 0 ? { in: payload.accountIds } : undefined,
         leadEmail: { contains: payload?.leadEmail },
         status: ActivityStatus.REPLIED,
-        campaignId: payload.campaignIds && payload.campaignIds?.length > 0 ? { in: payload.campaignIds } : undefined,
+        campaignId: payload?.campaignIds && payload.campaignIds?.length > 0 ? { in: payload.campaignIds } : undefined,
       },
       orderBy: {
         createdAt: 'desc',
       },
+      take: payload.limit ? payload.limit + 1 : undefined,
+      cursor: payload.cursor ? { id: payload.cursor } : undefined,
     });
-    // const leads = await prisma.lead.findMany({
-    //   where: {
-    //     status: LeadStatus.INTERESTED,
-    //   },
-    // });
-    return { items };
+    if (payload?.leadStatus && payload?.leadStatus?.length > 0) {
+      const leads = await prisma.lead.findMany({
+        where: {
+          status: {
+            in: payload.leadStatus,
+          },
+        },
+      });
+      items = items.filter(item => leads.map(lead => lead.email).includes(item.leadEmail));
+    }
+
+    let nextCursor: typeof payload.cursor | undefined = undefined;
+    if (payload?.limit && items.length > payload?.limit) {
+      const nextItem = items.pop();
+      nextCursor = nextItem?.id;
+    }
+
+    return { items, nextCursor };
   }
 }

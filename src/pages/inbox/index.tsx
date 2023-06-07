@@ -1,18 +1,21 @@
-import { Grid, Paper, Title, Stack } from '@mantine/core';
+import { Grid, Paper, Title, Stack, Text } from '@mantine/core';
 import { withPageAuthRequired } from '@auth0/nextjs-auth0/client';
 import { LeadStatus } from '@prisma/client';
 import { useContext, useState } from 'react';
 import capitalize from 'lodash/capitalize';
+import Image from 'next/image';
 
 import { Filters, SkeletonData } from '@components/data';
 import RepliedList from '@features/inbox/components/RepliedList';
 import RepliedThread from '@features/inbox/components/RepliedThread';
 import { OrganizationContext } from '@context/OrganizationContext';
 import { api } from '@utils/api';
+import noDataImage from '@assets/images/no-data.png';
 
 import type { NextPage } from 'next';
 
 const Inbox: NextPage = () => {
+  const [activeThread, setActiveThread] = useState();
   const [filters, applyFilters] = useState<{
     account?: string[];
     campaign?: string[];
@@ -66,13 +69,23 @@ const Inbox: NextPage = () => {
         <Grid gutter={20}>
           <Grid.Col span={4}>
             <Paper p={20} bg="white" radius="md" shadow="xs">
-              <RepliedList filters={filters} />
+              <RepliedList filters={filters} setActiveThread={setActiveThread} activeThread={activeThread} />
             </Paper>
           </Grid.Col>
           <Grid.Col span="auto">
-            <Paper bg="white" radius="md" shadow="xs">
-              <RepliedThread />
-            </Paper>
+            {activeThread ? (
+              <RepliedThread activeThread={activeThread} />
+            ) : (
+              <Stack align="center" justify="center" my={50}>
+                <Image height={200} src={noDataImage} alt="No data iamge" />
+                <Text mt={20} size="lg" weight="500" sx={{ fontStyle: 'normal' }}>
+                  There is no messages for your request.
+                </Text>
+                <Text size="md" weight="400" mb={30} sx={{ fontStyle: 'normal' }}>
+                  Click on left side items to load thread of messages.
+                </Text>
+              </Stack>
+            )}
           </Grid.Col>
         </Grid>
       </Stack>

@@ -1,11 +1,13 @@
 import { AccountState, ActivityStatus } from '@prisma/client';
 import omit from 'lodash/omit';
+import truncate from 'lodash/truncate';
 
 import { logger } from '@utils/logger';
 import { prisma } from '@server/db';
 import { WEBHOOKS } from '@utils/webhooks';
 import { updateAccountState } from '@webhooks/updateAccountState';
 import { CampaignsService } from '@server/api/campaigns/campaigns.service';
+import { emailApi } from '@utils/emailApi';
 
 import type { Prisma } from '@prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -93,17 +95,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
     case WEBHOOKS.MESSAGE_NEW: {
       const {
+        account,
         specialUse,
-        data: { inReplyTo, labels, threadId },
+        data: { inReplyTo, labels, threadId, subject, text },
       } = req.body;
       if ((inReplyTo && specialUse.includes('All')) || labels.includes('\\Inbox')) {
         const activity = await prisma.activity.findFirst({ where: { messageId: inReplyTo } });
         if (activity) {
+          const { data: textData } = await emailApi.get(`/account/${account}/text/${text.id}`);
           const createdActivity = await prisma.activity.create({
             data: {
               ...omit(activity, ['id', 'createdAt', 'updatedAt', 'queueId']),
               status: ActivityStatus.REPLIED,
               threadId,
+              subject,
+              body: textData?.plain ? truncate(textData?.plain, { length: 150 }) : null,
             },
             select: {
               campaign: true,
