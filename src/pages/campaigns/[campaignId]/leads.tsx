@@ -72,7 +72,7 @@ const Leads: NextPage = () => {
         enableRowSelection={true}
         mantineTableContainerProps={{
           ref: tableContainerRef,
-          sx: { maxHeight: '600px', overflowY: 'auto !important', overflowX: 'hidden !important' },
+          sx: { maxHeight: '600px', overflow: 'auto' },
           onScroll: (event: UIEvent<HTMLDivElement>) => fetchMoreOnBottomReached(event.target as HTMLDivElement),
         }}
         renderTopToolbarCustomActions={({ table }) => {
@@ -159,35 +159,38 @@ const Leads: NextPage = () => {
                 </Menu.Target>
                 <Menu.Dropdown py={10}>
                   <Menu.Item
-                    onClick={() =>
+                    onClick={e => {
+                      e.stopPropagation();
                       editLeadModal({
                         leadId: row.original.id,
                         email: row.original.email,
-                      })
-                    }
+                      });
+                    }}
                     icon={<Pencil size={14} />}
                   >
                     Edit lead
                   </Menu.Item>
                   <Menu.Item
-                    onClick={() =>
+                    onClick={e => {
+                      e.stopPropagation();
                       viewActivityModal({
                         leadId: row.original.id,
                         email: row.original.email,
                         organizationId: selectedOrganization?.id as string,
-                      })
-                    }
+                      });
+                    }}
                     icon={<ViewDetails size={14} />}
                   >
                     View activity
                   </Menu.Item>
                   <Menu.Item
-                    onClick={() =>
+                    onClick={e => {
+                      e.stopPropagation();
                       deleteLeadModal({
                         leadId: row.original.id,
                         email: row.original.email,
-                      })
-                    }
+                      });
+                    }}
                     color="red"
                     icon={<Trash size={14} />}
                   >

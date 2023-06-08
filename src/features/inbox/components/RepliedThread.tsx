@@ -17,11 +17,16 @@ import capitalize from 'lodash/capitalize';
 import { api } from '@utils/api';
 import { getInitials } from '@utils/getInitials';
 
-const RepliedThread = ({ activeThread }: { activeThread: any }) => {
-  const { data, isLoading } = api.activity.getRepliedThread.useQuery({
-    accountId: activeThread?.accountId,
-    threadId: activeThread?.threadId,
-  });
+import type { Activity } from '@prisma/client';
+
+const RepliedThread = ({ activeThread }: { activeThread: Activity }) => {
+  const { data, isLoading } = api.activity.getRepliedThread.useQuery(
+    {
+      accountId: activeThread?.accountId,
+      threadId: activeThread?.threadId as string,
+    },
+    { enabled: !!activeThread?.accountId && !!activeThread?.threadId },
+  );
   if (isLoading) {
     return (
       <Center my={50}>
@@ -36,7 +41,9 @@ const RepliedThread = ({ activeThread }: { activeThread: any }) => {
           <Stack p={25}>
             <Group align="flex-start">
               <Avatar color="purple" radius="xl" size={45}>
-                <Text sx={{ textTransform: 'uppercase' }}>{getInitials(message?.from?.name as string)}</Text>
+                {message?.from?.name && (
+                  <Text sx={{ textTransform: 'uppercase' }}>{getInitials(message?.from?.name)}</Text>
+                )}
               </Avatar>
               <Stack spacing={3} sx={{ flex: 1 }}>
                 <Group position="apart" align="flex-start">
@@ -61,11 +68,13 @@ const RepliedThread = ({ activeThread }: { activeThread: any }) => {
                 },
               })}
             >
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: message?.bodyText?.html,
-                }}
-              />
+              {message?.bodyText?.html && (
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: message?.bodyText?.html,
+                  }}
+                />
+              )}
             </TypographyStylesProvider>
           </Stack>
         </Paper>

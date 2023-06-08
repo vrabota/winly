@@ -8,7 +8,7 @@ import { api } from '@utils/api';
 import { OrganizationContext } from '@context/OrganizationContext';
 import { SkeletonData } from '@components/data';
 
-import type { LeadStatus } from '@prisma/client';
+import type { Activity, LeadStatus } from '@prisma/client';
 
 const SCROLL_OFFSET = 1600;
 
@@ -42,8 +42,8 @@ const RepliedList = ({
     leadStatus?: LeadStatus[];
     search?: string;
   };
-  setActiveThread: any;
-  activeThread: any;
+  setActiveThread: (activity: Activity) => void;
+  activeThread?: Activity;
 }) => {
   const [yOffset, setYOffset] = useState(0);
   const { selectedOrganization } = useContext(OrganizationContext);
@@ -104,7 +104,15 @@ const RepliedList = ({
   );
 };
 
-const ActivityItem = ({ activity, onClick, activeThread }: { activity: any; onClick: any; activeThread: any }) => {
+const ActivityItem = ({
+  activity,
+  onClick,
+  activeThread,
+}: {
+  activity: Activity;
+  onClick: () => void;
+  activeThread?: Activity;
+}) => {
   const { classes, cx } = useStyles();
   return (
     <Stack
@@ -124,9 +132,11 @@ const ActivityItem = ({ activity, onClick, activeThread }: { activity: any; onCl
       <Text color="gray.9" weight={500} size="sm">
         {activity?.subject}
       </Text>
-      <Text color="gray.7" size="sm">
-        {truncate(activity?.body, { length: 100 })}
-      </Text>
+      {activity?.body && (
+        <Text color="gray.7" size="sm">
+          {truncate(activity?.body, { length: 100 })}
+        </Text>
+      )}
     </Stack>
   );
 };

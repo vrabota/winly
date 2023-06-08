@@ -5,10 +5,22 @@ import { logger } from '@utils/logger';
 
 import { LeadsRepository } from '../leads/leads.repository';
 
+import type { LeadStatus } from '@prisma/client';
+import type { components } from '@schema/api';
+
+type MessageListEntry = components['schemas']['MessageListEntry'];
+
+interface ThreadMessages extends MessageListEntry {
+  bodyText: components['schemas']['TextResponse'];
+  lead: {
+    status: LeadStatus;
+  };
+}
+
 export class ActivitiesService {
-  static async getThreadMessages(accountId: string, threadId: string): Promise<any> {
+  static async getThreadMessages(accountId: string, threadId: string): Promise<ThreadMessages[]> {
     try {
-      const messages = [];
+      const messages: ThreadMessages[] = [];
       const { data: searchData } = await emailApi.post(
         `/account/${accountId}/search?documentStore=false&path=[Gmail]/All Mail`,
         {

@@ -12,10 +12,11 @@ import { OrganizationContext } from '@context/OrganizationContext';
 import { api } from '@utils/api';
 import noDataImage from '@assets/images/no-data.png';
 
+import type { Activity } from '@prisma/client';
 import type { NextPage } from 'next';
 
 const Inbox: NextPage = () => {
-  const [activeThread, setActiveThread] = useState();
+  const [activeThread, setActiveThread] = useState<Activity>();
   const [filters, applyFilters] = useState<{
     account?: string[];
     campaign?: string[];

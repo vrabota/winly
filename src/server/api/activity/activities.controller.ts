@@ -1,5 +1,4 @@
 import { logger } from '@utils/logger';
-import { emailApi } from '@utils/emailApi';
 
 import { ActivityRepository } from './activity.repository';
 import { ActivitiesService } from './activities.service';
