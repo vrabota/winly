@@ -4,7 +4,7 @@ import { LeadStatus } from '@prisma/client';
 import type { TypeOf } from 'zod';
 
 export const createLeadsSchema = z.object({
-  campaignId: z.string(),
+  campaignId: z.string().optional(),
   email: z.string().email(),
   firstName: z.string().optional(),
   lastName: z.string().optional(),

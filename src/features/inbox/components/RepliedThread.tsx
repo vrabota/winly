@@ -13,9 +13,12 @@ import {
 import React from 'react';
 import dayjs from 'dayjs';
 import capitalize from 'lodash/capitalize';
+import { IconChevronDown } from '@tabler/icons-react';
 
 import { api } from '@utils/api';
 import { getInitials } from '@utils/getInitials';
+
+import { changeLeadStatus } from './changeLeadStatus';
 
 import type { Activity } from '@prisma/client';
 
@@ -27,6 +30,7 @@ const RepliedThread = ({ activeThread }: { activeThread: Activity }) => {
     },
     { enabled: !!activeThread?.accountId && !!activeThread?.threadId },
   );
+  console.log(data);
   if (isLoading) {
     return (
       <Center my={50}>
@@ -49,7 +53,24 @@ const RepliedThread = ({ activeThread }: { activeThread: Activity }) => {
                 <Group position="apart" align="flex-start">
                   <Group my={5}>
                     <Text weight={600}>{message?.from?.address}</Text>
-                    {message?.lead?.status && <Badge>{capitalize(message.lead.status.replaceAll('_', ' '))}</Badge>}
+                    {message?.lead?.status && (
+                      <Badge
+                        onClick={() =>
+                          changeLeadStatus({
+                            email: message?.from?.address,
+                            status: message?.lead?.status,
+                            leadId: message?.lead?.id,
+                          })
+                        }
+                        rightSection={<IconChevronDown size={10} />}
+                        sx={theme => ({
+                          cursor: 'pointer',
+                          ':hover': { background: theme.colors?.purple?.[6], color: 'white' },
+                        })}
+                      >
+                        {capitalize(message.lead.status.replaceAll('_', ' '))}
+                      </Badge>
+                    )}
                   </Group>
                   <Text size="xs" color="gray.7">
                     {dayjs(message.date).format('MMM DD, YYYY, HH:mm')}

@@ -14,6 +14,7 @@ interface ThreadMessages extends MessageListEntry {
   bodyText: components['schemas']['TextResponse'];
   lead: {
     status: LeadStatus;
+    id: string;
   };
 }
 

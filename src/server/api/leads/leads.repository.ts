@@ -73,6 +73,7 @@ export class LeadsRepository {
       },
       select: {
         status: true,
+        id: true,
       },
     });
   }
