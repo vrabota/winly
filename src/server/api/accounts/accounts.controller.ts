@@ -1,4 +1,5 @@
 import { AccountType } from '@prisma/client';
+import { faker } from '@faker-js/faker';
 
 import { logger } from '@utils/logger';
 
@@ -35,6 +36,7 @@ export class AccountsController {
       modifiedById: ctx.user.id,
       email: oauth2Account.email,
       type: AccountType.GOOGLE_OAUTH,
+      code: faker.string.alphanumeric({ casing: 'upper', length: 7 }),
     };
 
     const createdAccount = await AccountsRepository.createOrUpdateAccount(payload);
@@ -55,6 +57,7 @@ export class AccountsController {
       modifiedById: ctx.user?.id as string,
       email: input.email,
       type: AccountType.GOOGLE_APP_PASSWORD,
+      code: faker.string.alphanumeric({ casing: 'upper', length: 7 }),
     };
 
     const createdAccount = await AccountsRepository.createOrUpdateAccount(payload);

@@ -103,7 +103,6 @@ const AddLeadsForm = ({ onClose }: { onClose: () => void }) => {
       parse(files[0], {
         header: true,
         complete: function (results) {
-          console.log(results);
           const { data, meta } = results;
           const emailColumnName = meta?.fields?.find(columnName => columnName.toLowerCase() === 'email');
 

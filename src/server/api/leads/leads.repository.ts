@@ -15,13 +15,13 @@ import type { Prisma, Lead, LeadStatus } from '@prisma/client';
 export class LeadsRepository {
   static async createLead(payload: CreateLeadsInput, organizationId: string): Promise<Lead> {
     return prisma.lead.create({
-      data: { ...payload, organizationId },
+      data: { ...payload, organizationId, campaignId: payload?.campaignId as string },
     });
   }
 
   static async batchCreateLeads(payload: CreateLeadsInput[], organizationId: string): Promise<Prisma.BatchPayload> {
     return prisma.lead.createMany({
-      data: payload.map(lead => ({ ...lead, organizationId })),
+      data: payload.map(lead => ({ ...lead, organizationId, campaignId: lead?.campaignId as string })),
     });
   }
 

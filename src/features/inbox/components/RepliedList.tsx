@@ -69,7 +69,6 @@ const RepliedList = ({
 
   const fetchMoreOnBottomReached = useCallback(
     (position?: { x: number; y: number }) => {
-      console.log({ position: position?.y, yOffset });
       if (position?.y) {
         if (position.y - yOffset >= SCROLL_OFFSET && !isFetching) {
           setYOffset(offset => offset + SCROLL_OFFSET);

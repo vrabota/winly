@@ -30,7 +30,7 @@ const RepliedThread = ({ activeThread }: { activeThread: Activity }) => {
     },
     { enabled: !!activeThread?.accountId && !!activeThread?.threadId },
   );
-  console.log(data);
+
   if (isLoading) {
     return (
       <Center my={50}>

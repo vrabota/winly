@@ -1,6 +1,6 @@
 import { type NextPage } from 'next';
 import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
-import { ActionIcon, Menu, Stack, Text, Title, Tooltip, Group } from '@mantine/core';
+import { ActionIcon, Menu, Stack, Text, Title, Tooltip, Group, Button } from '@mantine/core';
 import { withPageAuthRequired } from '@auth0/nextjs-auth0/client';
 import Image from 'next/image';
 import { IconDots } from '@tabler/icons';
@@ -12,7 +12,7 @@ import { Table, Filters } from '@components/data';
 import ConnectAccount from '@features/accounts/components/ConnectAccount';
 import { useAccountsColDef } from '@features/accounts/col.def';
 import noDataImage from '@assets/images/no-data.png';
-import { Trash, Sync } from '@assets/icons';
+import { Trash, Sync, WarmupOn, WarmupOff } from '@assets/icons';
 import { OrganizationContext } from '@context/OrganizationContext';
 
 import type { UIEvent } from 'react';
@@ -122,25 +122,38 @@ const Home: NextPage = () => {
         }
         renderRowActions={({ row }) => {
           return (
-            <Menu position="bottom-end" width={200} arrowOffset={30} withArrow>
-              <Menu.Target>
-                <ActionIcon radius="md" size="lg">
-                  <IconDots size={26} />
-                </ActionIcon>
-              </Menu.Target>
-              <Menu.Dropdown py={10}>
-                <Menu.Item onClick={() => mutateReconnect({ accountId: row.original?.id })} icon={<Sync size={14} />}>
-                  Reconnect account
-                </Menu.Item>
-                <Menu.Item
-                  onClick={() => mutateDeleteAccount({ accountId: row.original?.id })}
-                  color="red"
-                  icon={<Trash size={14} />}
-                >
-                  Delete account
-                </Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
+            <Group position="right" spacing="xl" align="center">
+              <Button
+                onClick={e => {
+                  e.stopPropagation();
+                }}
+                variant="light"
+                radius="md"
+                loading={false}
+                leftIcon={row.original.warmupState ? <WarmupOff size={16} /> : <WarmupOn size={16} />}
+              >
+                {row.original.warmupState ? 'Disable Warmup' : 'Enable Warmup'}
+              </Button>
+              <Menu position="bottom-end" width={200} arrowOffset={30} withArrow>
+                <Menu.Target>
+                  <ActionIcon radius="md" size="lg">
+                    <IconDots size={26} />
+                  </ActionIcon>
+                </Menu.Target>
+                <Menu.Dropdown py={10}>
+                  <Menu.Item onClick={() => mutateReconnect({ accountId: row.original?.id })} icon={<Sync size={14} />}>
+                    Reconnect account
+                  </Menu.Item>
+                  <Menu.Item
+                    onClick={() => mutateDeleteAccount({ accountId: row.original?.id })}
+                    color="red"
+                    icon={<Trash size={14} />}
+                  >
+                    Delete account
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
+            </Group>
           );
         }}
         localization={{

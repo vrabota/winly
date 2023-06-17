@@ -31,3 +31,5 @@ export { default as Save } from './Save';
 export { default as Cursor } from './Cursor';
 export { default as StopIcon } from './StopIcon';
 export { default as CalendarIcon } from './CalendarIcon';
+export { default as WarmupOn } from './WarmupOn';
+export { default as WarmupOff } from './WarmupOff';

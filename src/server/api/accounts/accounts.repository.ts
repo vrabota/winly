@@ -8,7 +8,10 @@ import type { Prisma, Account } from '@prisma/client';
 
 export class AccountsRepository {
   static async getAccounts(payload: AccountsInput): Promise<{
-    items: Omit<Account, 'appPassword' | 'refreshToken' | 'addedById' | 'organizationId' | 'modifiedById'>[];
+    items: Omit<
+      Account,
+      'appPassword' | 'refreshToken' | 'addedById' | 'organizationId' | 'modifiedById' | 'code' | 'replyRate'
+    >[];
     nextCursor: string | undefined;
   }> {
     const accounts = await prisma.account.findMany({
@@ -37,6 +40,7 @@ export class AccountsRepository {
         updatedAt: true,
         createdAt: true,
         type: true,
+        warmupState: true,
       },
       take: payload.limit ? payload.limit + 1 : undefined,
       cursor: payload.cursor ? { id: payload.cursor } : undefined,

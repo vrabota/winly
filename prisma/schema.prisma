@@ -68,6 +68,9 @@ model Account {
   organizationId String       @map("organization_id") @db.VarChar(36)
   addedById      String       @map("added_by_id") @db.VarChar(100)
   modifiedById   String       @map("modified_by_id") @db.VarChar(100)
+  code           String       @db.VarChar(7)
+  replyRate      Int?         @default(30) @db.SmallInt
+  warmupState    Boolean?     @default(false) @map("warmup_state")
   type           AccountType
   state          AccountState @default(CONNECTING)
 
@@ -197,6 +200,7 @@ model Activity {
   accountId      String          @map("account_id") @db.VarChar(36)
   step           Int?            @db.SmallInt
   status         ActivityStatus? @default(QUEUED)
+  type           ActivityType?   @default(CAMPAIGN)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -208,6 +212,7 @@ model Activity {
   @@index([queueId])
   @@index([accountId])
   @@index([status])
+  @@index([type])
   @@index([leadEmail])
   @@index([messageId])
   @@index([campaignId])
@@ -226,4 +231,11 @@ enum ActivityStatus {
   QUEUED
 
   @@map("activity_status_enum")
+}
+
+enum ActivityType {
+  WARMUP
+  CAMPAIGN
+
+  @@map("activity_type_enum")
 }

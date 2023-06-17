@@ -27,6 +27,7 @@ async function main() {
       addedById: user.id,
       modifiedById: user.id,
       organizationId: organization.id,
+      code: faker.string.alphanumeric(7),
     },
   });
 
