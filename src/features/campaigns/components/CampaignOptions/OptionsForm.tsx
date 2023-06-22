@@ -127,7 +127,7 @@ const OptionsForm = () => {
       },
     };
     await saveCampaign(omit(payload, ['from', 'to', 'accounts']), {
-      onSuccess: () => {
+      onSuccess: async () => {
         !isStartEnabled &&
           showNotification({
             color: 'teal',
@@ -136,14 +136,14 @@ const OptionsForm = () => {
             autoClose: 2000,
             icon: <IconCheck size={16} />,
           });
+        if (isStartEnabled) {
+          await startCampaign({
+            campaignId: query.campaignId as string,
+            organizationId: selectedOrganization?.id as string,
+          });
+        }
       },
     });
-    if (isStartEnabled) {
-      await startCampaign({
-        campaignId: query.campaignId as string,
-        organizationId: selectedOrganization?.id as string,
-      });
-    }
   };
 
   return (

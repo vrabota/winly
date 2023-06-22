@@ -1,5 +1,7 @@
+import { text } from 'stream/consumers';
+
 import React, { useContext } from 'react';
-import { useRouter } from 'next/router';
+import router, { useRouter } from 'next/router';
 import { Tabs, Stack, Group, ActionIcon, Title, Badge, Button } from '@mantine/core';
 import Link from 'next/link';
 import { CampaignStatus } from '@prisma/client';
@@ -26,11 +28,14 @@ const CampaignTabs = () => {
   const activeTab = path[path.length - 1];
   const { text, color } = CAMPAIGN_STATUS_MAPPING[data?.status as CampaignStatus] || {};
   const handleCampaignAction = () => {
-    if (data?.status === CampaignStatus.PAUSE) {
-      startCampaign({
-        campaignId: router.query.campaignId as string,
-        organizationId: selectedOrganization?.id as string,
-      });
+    if (data?.status === CampaignStatus.PAUSE || data?.status === CampaignStatus.DRAFT) {
+      startCampaign(
+        {
+          campaignId: router.query.campaignId as string,
+          organizationId: selectedOrganization?.id as string,
+        },
+        { onSuccess: async () => await router.push('/campaigns') },
+      );
     }
 
     if (data?.status === CampaignStatus.ACTIVE) {
