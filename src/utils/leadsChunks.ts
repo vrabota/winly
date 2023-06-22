@@ -1,7 +1,6 @@
 import chunk from 'lodash/chunk';
 import flatten from 'lodash/flatten';
 import difference from 'lodash/difference';
-import random from 'lodash/random';
 
 import type { Lead } from '@prisma/client';
 
@@ -12,9 +11,11 @@ export const createLeadsChunk = (accounts: any[], leads: any[]): Lead[][] => {
 
   const remainingLeads = difference(leads, flatten(leadsChunk)); // Get remaining leads
 
+  const smallestChunkLength = Math.min(...leadsChunk.map(chunk => chunk.length));
+
   remainingLeads.forEach(lead => {
-    const randomIndex = random(0, accounts.length - 1);
-    leadsChunk?.[randomIndex]?.push(lead);
+    const smallestChunkIndex = leadsChunk.findIndex(chunk => chunk.length === smallestChunkLength);
+    leadsChunk?.[smallestChunkIndex]?.push(lead);
   });
 
   return leadsChunk;
