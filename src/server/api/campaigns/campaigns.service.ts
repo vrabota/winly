@@ -1,6 +1,6 @@
 import dayjs, { extend } from 'dayjs';
-import chunk from 'lodash/chunk';
 import random from 'lodash/random';
+import take from 'lodash/take';
 import timezone from 'dayjs/plugin/timezone';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import isToday from 'dayjs/plugin/isToday';
@@ -8,6 +8,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 
 import { emailApi } from '@utils/emailApi';
 import { logger } from '@utils/logger';
+import { createLeadsChunk } from '@utils/leadsChunks';
 
 import type { Account, Campaign, Lead } from '@prisma/client';
 import type { AccountActivityMailMerge, ActivityMailMergeOutput } from '@server/api/activity/activity.dto';
@@ -57,7 +58,6 @@ export class CampaignsService {
     let dailyLimitCounter = 0;
     const messages = [];
 
-    const ratio = Math.round(leads.length / accounts.length);
     for (const [sequenceIndex, sequence] of sequences.entries()) {
       const isFreePlan = true;
       const emailBody = isFreePlan
@@ -72,8 +72,11 @@ export class CampaignsService {
       const emailBodyText = emailBody.replace(/{{(.*?)}}/g, '{{params.$1}}');
       const emailSubjectText = sequence.subject.replace(/{{(.*?)}}/g, '{{{params.$1}}}');
 
-      for (const [index, account] of accounts.entries()) {
-        const leadsChunk = chunk(leads, ratio);
+      const ratio = Math.floor(leads.length / accounts.length);
+      const sendingAccounts = ratio === 0 ? take(accounts, leads.length) : accounts;
+
+      for (const [index, account] of sendingAccounts.entries()) {
+        const leadsChunk = createLeadsChunk(accounts, leads);
 
         const response = await emailApi.post(`/account/${account.id}/submit`, {
           subject: emailSubjectText,
