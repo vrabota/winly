@@ -10,7 +10,16 @@ export class AccountsRepository {
   static async getAccounts(payload: AccountsInput): Promise<{
     items: Omit<
       Account,
-      'appPassword' | 'refreshToken' | 'addedById' | 'organizationId' | 'modifiedById' | 'code' | 'replyRate'
+      | 'appPassword'
+      | 'refreshToken'
+      | 'addedById'
+      | 'organizationId'
+      | 'modifiedById'
+      | 'code'
+      | 'replyRate'
+      | 'dailyMaxLimit'
+      | 'currentMaxLimit'
+      | 'stepLimit'
     >[];
     nextCursor: string | undefined;
   }> {

@@ -21,6 +21,8 @@ const Home: NextPage = () => {
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const { selectedOrganization } = useContext(OrganizationContext);
   const [filters, applyFilters] = useState<{ accountState?: AccountState[]; search?: string }>();
+  const { mutate: mutateEnableWarmup, isLoading: isLoadingWarmupEnable } = api.warmup.enableWarmup.useMutation();
+  const [activeActionButton, setActiveActionButton] = useState('');
   const {
     data: accountsData,
     refetch,
@@ -126,10 +128,12 @@ const Home: NextPage = () => {
               <Button
                 onClick={e => {
                   e.stopPropagation();
+                  setActiveActionButton(row.original.id);
+                  mutateEnableWarmup({ accountId: row.original.id });
                 }}
                 variant="light"
                 radius="md"
-                loading={false}
+                loading={isLoadingWarmupEnable && activeActionButton === row.original.id}
                 leftIcon={row.original.warmupState ? <WarmupOff size={16} /> : <WarmupOn size={16} />}
               >
                 {row.original.warmupState ? 'Disable Warmup' : 'Enable Warmup'}

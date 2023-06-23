@@ -1,6 +1,7 @@
-import { AccountState, ActivityStatus } from '@prisma/client';
+import { AccountState, ActivityStatus, WarmupStatus } from '@prisma/client';
 import omit from 'lodash/omit';
 import truncate from 'lodash/truncate';
+import axios from 'axios';
 
 import { logger } from '@utils/logger';
 import { prisma } from '@server/db';
@@ -8,6 +9,8 @@ import { WEBHOOKS } from '@utils/webhooks';
 import { updateAccountState } from '@webhooks/updateAccountState';
 import { CampaignsService } from '@server/api/campaigns/campaigns.service';
 import { emailApi } from '@utils/emailApi';
+import { calcRate } from '@utils/calcRate';
+import { baseUrl } from '@utils/baseUrl';
 
 import type { Prisma } from '@prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -63,6 +66,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     case WEBHOOKS.MESSAGE_FAILED:
     case WEBHOOKS.MESSAGE_BOUNCE: {
       const activity = await prisma.activity.findFirst({ where: { messageId: req.body.data.messageId } });
+      const warmup = await prisma.warmup.findFirst({ where: { messageId: req.body.data.messageId } });
       const status: Record<string, ActivityStatus> = {
         [WEBHOOKS.TRACK_OPEN]: ActivityStatus.OPENED,
         [WEBHOOKS.MESSAGE_BOUNCE]: ActivityStatus.BOUNCED,
@@ -70,11 +74,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         [WEBHOOKS.MESSAGE_DELIVERY_ERROR]: ActivityStatus.ERROR,
         [WEBHOOKS.MESSAGE_FAILED]: ActivityStatus.ERROR,
       };
-      if (activity) {
+      const warmupStatus: Record<string, WarmupStatus> = {
+        [WEBHOOKS.MESSAGE_BOUNCE]: WarmupStatus.BOUNCED,
+        [WEBHOOKS.MESSAGE_MISSING]: WarmupStatus.ERROR,
+        [WEBHOOKS.MESSAGE_DELIVERY_ERROR]: WarmupStatus.ERROR,
+        [WEBHOOKS.MESSAGE_FAILED]: WarmupStatus.ERROR,
+      };
+      if (activity || warmup) {
         const createdActivity = await prisma.activity.create({
           data: {
             ...omit(activity, ['id', 'createdAt', 'updatedAt', 'queueId']),
             status: status[req.body.event as string],
+          },
+        });
+        const createdWarmupActivity = await prisma.warmup.create({
+          data: {
+            ...omit(warmup, ['id', 'createdAt', 'updatedAt', 'queueId']),
+            status: warmupStatus[req.body.event as string],
           },
         });
         const queuedActivity = await prisma.activity.findFirst({
@@ -83,10 +99,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             status: ActivityStatus.QUEUED,
           },
         });
+        const queuedWarmupActivity = await prisma.warmup.findFirst({
+          where: {
+            messageId: createdWarmupActivity.messageId,
+            status: ActivityStatus.QUEUED,
+          },
+        });
+
         if (queuedActivity) {
           await prisma.activity.delete({
             where: {
               id: queuedActivity.id,
+            },
+          });
+        }
+        if (queuedWarmupActivity) {
+          await prisma.activity.delete({
+            where: {
+              id: queuedWarmupActivity.id,
             },
           });
         }
@@ -97,10 +127,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const {
         account,
         specialUse,
-        data: { inReplyTo, labels, threadId, subject, text },
+        data: { inReplyTo, labels, threadId, subject, text, seemsLikeNew, from, messageSpecialUse, id, date },
       } = req.body;
-      if ((inReplyTo && specialUse.includes('All')) || labels.includes('\\Inbox')) {
-        const activity = await prisma.activity.findFirst({ where: { messageId: inReplyTo } });
+      if (inReplyTo && messageSpecialUse.includes('Inbox')) {
+        const activity = inReplyTo ? await prisma.activity.findFirst({ where: { messageId: inReplyTo } }) : null;
+        const warmup = inReplyTo ? await prisma.warmup.findFirst({ where: { messageId: inReplyTo } }) : null;
+
         if (activity) {
           const { data: textData } = await emailApi.get(`/account/${account}/text/${text.id}`);
           const createdActivity = await prisma.activity.create({
@@ -143,7 +175,79 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             });
           }
         }
+
+        if (warmup) {
+          const createdWarmupActivity = await prisma.warmup.create({
+            data: {
+              ...omit(warmup, ['id', 'createdAt', 'updatedAt', 'queueId']),
+              status: WarmupStatus.REPLIED,
+              threadId,
+            },
+          });
+          const queuedWarmupActivity = await prisma.warmup.findFirst({
+            where: {
+              messageId: createdWarmupActivity.messageId,
+              status: ActivityStatus.QUEUED,
+            },
+          });
+
+          if (queuedWarmupActivity) {
+            await prisma.activity.delete({
+              where: {
+                id: queuedWarmupActivity.id,
+              },
+            });
+          }
+        }
       }
+      if (messageSpecialUse.includes('Inbox') && seemsLikeNew) {
+        const warmup = await prisma.warmup.findFirst({ where: { recipientAccountId: account } });
+        if (warmup) {
+          await prisma.warmup.create({
+            data: {
+              ...omit(warmup, ['id', 'createdAt', 'updatedAt', 'queueId']),
+              status: WarmupStatus.INBOX,
+            },
+          });
+        }
+      }
+
+      if ((specialUse.includes('Junk') || labels.includes('Junk')) && seemsLikeNew) {
+        const warmup = await prisma.warmup.findFirst({ where: { recipientAccountId: account } });
+        if (warmup) {
+          await prisma.warmup.create({
+            data: {
+              ...omit(warmup, ['id', 'createdAt', 'updatedAt', 'queueId']),
+              status: WarmupStatus.SPAM,
+            },
+          });
+          await emailApi.put(`/account/${account}/message/${warmup.messageId}/move`, { path: 'INBOX' });
+        }
+      }
+
+      if (messageSpecialUse.includes('Inbox') && seemsLikeNew) {
+        const senderId = await prisma.account.findUnique({ where: { email: from.address } });
+        if (senderId) {
+          const counts = await prisma.warmup.groupBy({
+            where: { senderAccountId: senderId.id },
+            by: ['status'],
+            _count: true,
+          });
+          const sent = counts.find(item => item.status === 'SENT')?._count || 0;
+          const replied = counts.find(item => item.status === 'REPLIED')?._count || 0;
+          const replyRate = calcRate(replied, sent, false) as number;
+          if (replyRate < 30) {
+            const { data: textData } = await emailApi.get(`/account/${account}/text/${text.id}`);
+            await axios.post(`${baseUrl}/api/reply-warmup-ai`, {
+              messageText: textData.plain,
+              messageId: id,
+              date,
+              account,
+            });
+          }
+        }
+      }
+
       break;
     }
     case WEBHOOKS.MESSAGE_SENT: {
@@ -151,7 +255,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         where: { messageId: req.body.data.messageId },
         include: { campaign: true },
       });
-      const sequences = activity?.campaign.sequences as Prisma.JsonArray;
+      const warmup = await prisma.warmup.findFirst({
+        where: { messageId: req.body.data.messageId },
+      });
+      const sequences = activity?.campaign?.sequences as Prisma.JsonArray;
       if (activity) {
         await prisma.activity.create({
           data: {
@@ -168,10 +275,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           });
         }
       }
+
+      if (warmup) {
+        await prisma.warmup.create({
+          data: {
+            ...omit(warmup, ['id', 'createdAt', 'updatedAt', 'queueId']),
+            status: WarmupStatus.SENT,
+          },
+        });
+      }
+
       if (activity?.status === ActivityStatus.QUEUED) {
         await prisma.activity.delete({
           where: {
             id: activity.id,
+          },
+        });
+      }
+      if (warmup?.status === WarmupStatus.QUEUED) {
+        await prisma.warmup.delete({
+          where: {
+            id: warmup.id,
           },
         });
       }

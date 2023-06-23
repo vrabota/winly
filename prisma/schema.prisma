@@ -53,34 +53,40 @@ model Organization {
   campaigns Campaign[]
   Activity  Activity[]
   Lead      Lead[]
+  Warmup    Warmup[]
 
   @@map("organizations")
 }
 
 model Account {
-  id             String       @id @default(uuid()) @db.VarChar(36)
-  refreshToken   String?      @map("refresh_token") @db.Text
-  picture        String?      @map("picture") @db.Text
-  email          String       @unique @db.VarChar(100)
-  appPassword    String?      @map("app_password") @db.VarChar(100)
-  firstName      String?      @map("first_name") @db.VarChar(100)
-  lastName       String?      @map("last_name") @db.VarChar(100)
-  organizationId String       @map("organization_id") @db.VarChar(36)
-  addedById      String       @map("added_by_id") @db.VarChar(100)
-  modifiedById   String       @map("modified_by_id") @db.VarChar(100)
-  code           String       @db.VarChar(7)
-  replyRate      Int?         @default(30) @db.SmallInt
-  warmupState    Boolean?     @default(false) @map("warmup_state")
-  type           AccountType
-  state          AccountState @default(CONNECTING)
+  id              String       @id @default(uuid()) @db.VarChar(36)
+  refreshToken    String?      @map("refresh_token") @db.Text
+  picture         String?      @map("picture") @db.Text
+  email           String       @unique @db.VarChar(100)
+  appPassword     String?      @map("app_password") @db.VarChar(100)
+  firstName       String?      @map("first_name") @db.VarChar(100)
+  lastName        String?      @map("last_name") @db.VarChar(100)
+  organizationId  String       @map("organization_id") @db.VarChar(36)
+  addedById       String       @map("added_by_id") @db.VarChar(100)
+  modifiedById    String       @map("modified_by_id") @db.VarChar(100)
+  code            String       @db.VarChar(7)
+  replyRate       Int?         @default(30) @db.SmallInt
+  dailyMaxLimit   Int?         @default(40) @db.SmallInt
+  currentMaxLimit Int?         @db.SmallInt
+  stepLimit       Int?         @default(1) @db.SmallInt
+  warmupState     Boolean?     @default(false) @map("warmup_state")
+  type            AccountType
+  state           AccountState @default(CONNECTING)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  organization Organization @relation(fields: [organizationId], references: [id])
-  addedBy      User         @relation("addedBy", fields: [addedById], references: [id])
-  modifiedBy   User         @relation("modifiedBy", fields: [modifiedById], references: [id])
-  Activity     Activity[]
+  organization           Organization @relation(fields: [organizationId], references: [id])
+  addedBy                User         @relation("addedBy", fields: [addedById], references: [id])
+  modifiedBy             User         @relation("modifiedBy", fields: [modifiedById], references: [id])
+  Activity               Activity[]
+  recipientWarmupAccount Warmup[]     @relation("recipientWarmupAccount")
+  senderWarmupAccount    Warmup[]     @relation("senderWarmupAccount")
 
   @@index([organizationId])
   @@index([type])
@@ -229,4 +235,39 @@ enum ActivityStatus {
   QUEUED
 
   @@map("activity_status_enum")
+}
+
+model Warmup {
+  id                 String        @id @default(uuid()) @db.VarChar(36)
+  organizationId     String        @map("organization_id") @db.VarChar(36)
+  recipientAccountId String        @map("recipient_account_id") @db.VarChar(100)
+  senderAccountId    String        @map("sender_account_id") @db.VarChar(100)
+  messageId          String        @map("message_id") @db.VarChar(100)
+  queueId            String?       @map("queue_id") @db.VarChar(36)
+  threadId           String?       @map("thread_id") @db.VarChar(36)
+  status             WarmupStatus? @default(QUEUED)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  recipientWarmupAccount Account      @relation("recipientWarmupAccount", fields: [recipientAccountId], references: [id], onDelete: Cascade)
+  senderWarmupAccount    Account      @relation("senderWarmupAccount", fields: [senderAccountId], references: [id], onDelete: Cascade)
+  organization           Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([recipientAccountId])
+  @@index([senderAccountId])
+  @@index([organizationId])
+  @@map("warmups")
+}
+
+enum WarmupStatus {
+  REPLIED
+  QUEUED
+  SENT
+  SPAM
+  INBOX
+  ERROR
+  BOUNCED
+
+  @@map("warmup_status_enum")
 }

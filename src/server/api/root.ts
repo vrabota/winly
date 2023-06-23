@@ -6,6 +6,7 @@ import { organizationRoutes } from './organizations/organizations.routes';
 import { campaignRoutes } from './campaigns/campaigns.routes';
 import { infoRoutes } from './info/info.routes';
 import { activitiesRoutes } from './activity/activities.routes';
+import { warmupRoutes } from './warmup/warmup.routes';
 
 export const appRouter = createTRPCRouter({
   account: accountsRoutes,
@@ -14,6 +15,7 @@ export const appRouter = createTRPCRouter({
   leads: leadsRoutes,
   info: infoRoutes,
   activity: activitiesRoutes,
+  warmup: warmupRoutes,
 });
 
 export type AppRouter = typeof appRouter;

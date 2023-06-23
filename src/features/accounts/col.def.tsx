@@ -1,6 +1,5 @@
 import { Avatar, Badge, Box, Group, Text, Tooltip } from '@mantine/core';
 import React, { useMemo } from 'react';
-import dayjs from 'dayjs';
 
 import { getInitials } from '@utils/getInitials';
 import { StatsIcon } from '@components/data';
@@ -51,7 +50,7 @@ export const useAccountsColDef = () => {
       {
         id: 'stats',
         header: 'Stats',
-        size: 300,
+        size: 250,
         Cell: () => {
           return (
             <Group align="center" spacing={10}>
@@ -72,13 +71,6 @@ export const useAccountsColDef = () => {
               </Tooltip>
             </Group>
           );
-        },
-      },
-      {
-        accessorKey: 'updatedAt',
-        header: 'Last sync',
-        Cell: ({ renderedCellValue }) => {
-          return renderedCellValue ? dayjs(renderedCellValue?.toString()).format('MMM DD, YYYY, HH:mm') : null;
         },
       },
     ],
