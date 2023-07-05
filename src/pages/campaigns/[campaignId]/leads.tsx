@@ -72,7 +72,7 @@ const Leads: NextPage = () => {
         enableRowSelection={true}
         mantineTableContainerProps={{
           ref: tableContainerRef,
-          sx: { maxHeight: '600px', overflow: 'auto' },
+          sx: { maxHeight: '600px', overflowY: 'auto !important' },
           onScroll: (event: UIEvent<HTMLDivElement>) => fetchMoreOnBottomReached(event.target as HTMLDivElement),
         }}
         renderTopToolbarCustomActions={({ table }) => {

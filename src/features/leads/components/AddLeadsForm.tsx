@@ -5,7 +5,7 @@ import { useForm, FormProvider, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/router';
 import { showNotification } from '@mantine/notifications';
-import { IconBulb, IconCheck, IconX, IconAlertTriangle } from '@tabler/icons';
+import { IconBulb, IconCheck, IconX, IconAlertTriangle, IconAlertCircle } from '@tabler/icons';
 import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
 import { parse } from 'papaparse';
 import take from 'lodash/take';
@@ -46,13 +46,25 @@ const AddLeadsForm = ({ onClose }: { onClose: () => void }) => {
   const utils = api.useContext();
   const { mutate, isLoading } = api.leads.batchCreateLeads.useMutation({
     onSuccess: async data => {
-      showNotification({
-        color: 'teal',
-        title: 'Leads added.',
-        message: `We added ${data.count} for your campaign.`,
-        autoClose: 2000,
-        icon: <IconCheck size={16} />,
-      });
+      const nonUploadedLeads = parseData.data.length - data.count;
+      if (nonUploadedLeads > 0) {
+        showNotification({
+          color: 'yellow',
+          title: `We added ${data.count} leads for your campaign.`,
+          message: `There are ${nonUploadedLeads} duplicate emails that we can't add.`,
+          autoClose: 4000,
+          icon: <IconAlertCircle size={16} />,
+        });
+      } else {
+        showNotification({
+          color: 'teal',
+          title: 'Leads added.',
+          message: `We added ${data.count} leads for your campaign.`,
+          autoClose: 2000,
+          icon: <IconCheck size={16} />,
+        });
+      }
+
       onClose();
       await utils.leads.invalidate();
     },

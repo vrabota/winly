@@ -22,6 +22,7 @@ export class LeadsRepository {
   static async batchCreateLeads(payload: CreateLeadsInput[], organizationId: string): Promise<Prisma.BatchPayload> {
     return prisma.lead.createMany({
       data: payload.map(lead => ({ ...lead, organizationId, campaignId: lead?.campaignId as string })),
+      skipDuplicates: true,
     });
   }
 
