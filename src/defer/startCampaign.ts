@@ -2,10 +2,9 @@ import { defer } from '@defer/client';
 
 import { ActivityRepository } from '@server/api/activity/activity.repository';
 import { CampaignsService } from '@server/api/campaigns/campaigns.service';
-import { logger } from '@utils/logger';
 
 async function startCampaign({ campaign, leads, accounts, organizationId }: any) {
-  logger.info(`Starting camapign in defer mode ${campaign?.id}`);
+  console.log(`Starting camapign in defer mode ${campaign?.id}`);
 
   const accountMessages = await CampaignsService.startCampaign({ campaign, leads, accounts });
   const messages = accountMessages.map(message => ({
@@ -20,7 +19,7 @@ async function startCampaign({ campaign, leads, accounts, organizationId }: any)
 
   await ActivityRepository.createActivitiesRepository(messages);
 
-  logger.info(`Successfully started campaign in defer mode ${campaign?.id}`);
+  console.log(`Successfully started campaign in defer mode ${campaign?.id}`);
 }
 
 export default defer(startCampaign);
