@@ -5,7 +5,6 @@ import { CampaignsService } from '@server/api/campaigns/campaigns.service';
 
 async function startCampaign({ campaign, leads, accounts, organizationId }: any) {
   console.log(`Starting camapign in defer mode ${campaign?.id}`);
-
   const accountMessages = await CampaignsService.startCampaign({ campaign, leads, accounts });
   const messages = accountMessages.map(message => ({
     campaignId: campaign.id,
@@ -18,7 +17,6 @@ async function startCampaign({ campaign, leads, accounts, organizationId }: any)
   }));
 
   await ActivityRepository.createActivitiesRepository(messages);
-
   console.log(`Successfully started campaign in defer mode ${campaign?.id}`);
 }
 

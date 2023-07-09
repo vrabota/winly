@@ -9,4 +9,4 @@ const transport = {
   },
 };
 
-export const logger = pino(process.env.NODE_ENV === 'development' ? transport : {});
+export const logger = pino(process.env.NODE_ENV === 'development' && !process.env.DEFER_TOKEN ? transport : {});
