@@ -3,9 +3,8 @@ import { CampaignStatus } from '.prisma/client';
 
 import { logger } from '@utils/logger';
 import { AccountsRepository } from '@server/api/accounts/accounts.repository';
-import { ActivityRepository } from '@server/api/activity/activity.repository';
-import { CampaignsService } from '@server/api/campaigns/campaigns.service';
 import { LeadsRepository } from '@server/api/leads/leads.repository';
+import startCampaign from 'defer/startCampaign';
 
 import { CampaignsRepository } from './campaigns.repository';
 
@@ -147,18 +146,7 @@ export class CampaignsController {
       });
     }
 
-    const accountMessages = await CampaignsService.startCampaign({ campaign, leads, accounts });
-    const messages = accountMessages.map(message => ({
-      campaignId: campaign.id,
-      organizationId: ctx.organizationId,
-      messageId: message.messageId as string,
-      leadEmail: message.to?.address as string,
-      queueId: message.queueId,
-      accountId: message.accountId,
-      step: message.step,
-    }));
-
-    await ActivityRepository.createActivitiesRepository(messages);
+    await startCampaign({ campaign, leads, accounts, organizationId: ctx.organizationId });
 
     logger.info({ campaign }, `Successfully started campaign ${input.campaignId}`);
 

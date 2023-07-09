@@ -4,15 +4,12 @@ import { OrganizationsRepository } from '@server/api/organizations/organizations
 import { emailApi } from '@utils/emailApi';
 import { prisma } from '@server/db';
 import { logger } from '@utils/logger';
-import helloWorld from 'defer/helloWorld';
 
 import type { Context } from '@server/api/trpc';
 
 export class InfoController {
   static async getInitHandler({ ctx }: { ctx: Context }) {
     logger.info(`Trying to init the app for user ${ctx.user?.id}.`);
-
-    await helloWorld('Defer');
 
     try {
       await emailApi.get('/license');
