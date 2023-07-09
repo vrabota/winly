@@ -1,12 +1,13 @@
 import { pino } from 'pino';
 
-const transport = {
-  transport: {
-    target: 'pino-pretty',
-    options: {
-      translateTime: 'SYS:standard',
+export const logger = pino({
+  formatters: {
+    level(label) {
+      return { level: label.toUpperCase() };
+    },
+    bindings() {
+      return {};
     },
   },
-};
-
-export const logger = pino(process.env.NODE_ENV === 'development' && !process.env.DEFER_TOKEN ? transport : {});
+  timestamp: pino.stdTimeFunctions.isoTime,
+});
