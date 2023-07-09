@@ -22,4 +22,4 @@ async function startCampaign({ campaign, leads, accounts, organizationId }: any)
   console.log(`Successfully started campaign in defer mode ${campaign?.id}`);
 }
 
-export default defer(startCampaign);
+export default defer(startCampaign, { retry: 5 });
