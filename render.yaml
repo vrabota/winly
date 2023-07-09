@@ -18,7 +18,7 @@ services:
       - key: EENGINE_WORKERS
         value: 2
       - key: EENGINE_TIMEOUT
-        value: 120s
+        value: 600s
       - key: EENGINE_HOST
         value: 0.0.0.0
       - key: EENGINE_API_PROXY
