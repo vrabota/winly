@@ -4,7 +4,6 @@ import { ActivityStatus, Prisma } from '@prisma/client';
 
 import { prisma } from '@server/db';
 import { getPeriodDates } from '@utils/period';
-import { DateRanges } from '@features/campaigns/utils';
 
 import type {
   CreateActivityInput,
