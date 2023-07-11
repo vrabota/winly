@@ -4,6 +4,7 @@ import { ActivityStatus, Prisma } from '@prisma/client';
 
 import { prisma } from '@server/db';
 import { getPeriodDates } from '@utils/period';
+import { DateRanges } from '@features/campaigns/utils';
 
 import type {
   CreateActivityInput,
@@ -74,21 +75,24 @@ GROUP BY 1, 2;`;
   }
 
   static async getActivitiesByStep(payload: GetActivitiesInput): Promise<any> {
-    const activities = await prisma.activity.groupBy({
-      by: ['step', 'status'],
-      where: {
-        campaignId: payload.campaignId,
-        organizationId: payload.organizationId,
-        createdAt: {
-          lte: getPeriodDates(payload.period, payload.customPeriod)[1],
-          gte: getPeriodDates(payload.period, payload.customPeriod)[0],
-        },
-      },
-      _count: true,
-    });
+    const activities = await prisma.$queryRaw<any[]>`
+SELECT step, status , COUNT(DISTINCT message_id) as _count
+FROM activities AS a 
+WHERE 
+${payload.organizationId ? Prisma.sql`organization_id = ${payload.organizationId} AND` : Prisma.empty}
+${Prisma.sql`created_at BETWEEN ${getPeriodDates(payload.period, payload.customPeriod)[0]} AND ${
+  getPeriodDates(payload.period, payload.customPeriod)[1]
+}`}
+GROUP BY 1, 2;`;
+
     const groupedByStep = Object.values(groupBy(activities, 'step'));
     const activitiesStats = groupedByStep.map(step =>
-      Object.fromEntries(step.map(item => [item.status, { count: item._count, step: item.step }])),
+      Object.fromEntries(
+        step.map(item => [
+          item.status,
+          { count: typeof item._count === 'bigint' ? parseInt(item._count) : item._count, step: item.step },
+        ]),
+      ),
     );
     return activitiesStats;
   }

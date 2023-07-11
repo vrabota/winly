@@ -46,8 +46,8 @@ const AddLeadsForm = ({ onClose }: { onClose: () => void }) => {
   const utils = api.useContext();
   const { mutate, isLoading } = api.leads.batchCreateLeads.useMutation({
     onSuccess: async data => {
-      const nonUploadedLeads = parseData.data.length - data.count;
-      if (nonUploadedLeads > 0) {
+      const nonUploadedLeads = parseData?.data?.length - data?.count;
+      if (nonUploadedLeads > 0 && typeValue === 'csv') {
         showNotification({
           color: 'yellow',
           title: `We added ${data.count} leads for your campaign.`,

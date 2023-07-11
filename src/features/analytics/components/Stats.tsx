@@ -21,7 +21,7 @@ const Stats = () => {
     customPeriod: customDateRange,
   });
   const contacted = statusCount(data)?.[ActivityStatus.CONTACTED] || 0;
-  const opened = statusCount(data)?.[ActivityStatus.OPENED] || 0;
+  const opened = statusCount(data)?.['UNIQUE_OPENED'] || 0;
   const replied = statusCount(data)?.[ActivityStatus.REPLIED] || 0;
   return (
     <Grid>

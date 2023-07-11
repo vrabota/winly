@@ -25,7 +25,7 @@ const CampaignStatsData = () => {
     customPeriod: customDateRange,
   });
   const contacted = statusCount(activityStats)?.[ActivityStatus.CONTACTED] || 0;
-  const opened = statusCount(activityStats)?.[ActivityStatus.OPENED] || 0;
+  const opened = statusCount(activityStats)?.['UNIQUE_OPENED'] || 0;
   const replied = statusCount(activityStats)?.[ActivityStatus.REPLIED] || 0;
   return (
     <Paper shadow="sm" radius="md" h={239.5} px="xl">

@@ -1,4 +1,4 @@
-import { ActivityStatus, CampaignStatus } from '@prisma/client';
+import { ActivityStatus, CampaignStatus, Prisma } from '@prisma/client';
 import omit from 'lodash/omit';
 
 import { prisma } from '@server/db';
@@ -33,17 +33,13 @@ export class CampaignsRepository {
 
   static async getCampaigns(payload: withUserOrgIds<GetAllCampaignsInput>): Promise<CampaignWithStats[]> {
     return prisma.$transaction(async prisma => {
-      const activitiesByCampaign = await prisma.activity.groupBy({
-        by: ['status', 'campaignId'],
-        _count: true,
-        where: {
-          organizationId: payload.organizationId,
-          createdAt: {
-            lte: getPeriodDates(DateRanges.Week)[1],
-            gte: getPeriodDates(DateRanges.Week)[0],
-          },
-        },
-      });
+      const activitiesByCampaign = await prisma.$queryRaw<any[]>`
+SELECT status, campaign_id , COUNT(DISTINCT message_id) as _count
+FROM activities AS a 
+WHERE 
+${payload.organizationId ? Prisma.sql`organization_id = ${payload.organizationId} AND` : Prisma.empty}
+${Prisma.sql`created_at BETWEEN ${getPeriodDates(DateRanges.Week)[0]} AND ${getPeriodDates(DateRanges.Week)[1]}`}
+GROUP BY 1, 2;`;
 
       const allCampaigns = await prisma.campaign.findMany({
         where: {
@@ -64,8 +60,14 @@ export class CampaignsRepository {
         ...campaign,
         stats: Object.fromEntries(
           activitiesByCampaign
-            .filter(item => item.campaignId === campaign.id)
-            .map(activity => [activity.status, { ...activity }]),
+            .filter(item => item.campaign_id === campaign.id)
+            .map(activity => [
+              activity.status,
+              {
+                campaignId: activity.campaign_id,
+                _count: typeof activity._count === 'bigint' ? parseInt(activity._count) : activity._count,
+              },
+            ]),
         ),
       }));
 
