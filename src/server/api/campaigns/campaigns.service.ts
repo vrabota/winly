@@ -2,6 +2,7 @@ import dayjs, { extend } from 'dayjs';
 import random from 'lodash/random';
 import take from 'lodash/take';
 import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import isToday from 'dayjs/plugin/isToday';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -15,10 +16,13 @@ import type { AccountActivityMailMerge, ActivityMailMergeOutput } from '@server/
 import type { Dayjs } from 'dayjs';
 import type { SequencesType } from './campaigns.dto';
 
+extend(utc);
 extend(timezone);
 extend(isoWeek);
 extend(isToday);
 extend(customParseFormat);
+
+dayjs.utc();
 
 export class CampaignsService {
   static async startCampaign({
@@ -33,10 +37,9 @@ export class CampaignsService {
     const sequences = campaign.sequences as SequencesType[];
     const time = campaign.time as { from: string; to: string };
     const scheduleDays = campaign.scheduleDays as string[];
-    campaign?.timezone && dayjs.tz.setDefault(campaign?.timezone);
+    const today = campaign.timezone ? dayjs().tz(campaign.timezone) : dayjs();
 
     function getNextAvailableDate(startTime: Dayjs, endTime: Dayjs, availableDays: number[]) {
-      const today = dayjs();
       const todayDayOfWeek = today.isoWeekday();
 
       if (availableDays.includes(todayDayOfWeek) && today.diff(endTime, 'm') < 0) {
@@ -51,8 +54,8 @@ export class CampaignsService {
       return nextAvailableDay.hour(startTime.hour()).minute(startTime.minute());
     }
 
-    const startTime = dayjs(time.from, 'HH:mm A');
-    const endTime = dayjs(time.to, 'hh:mm A');
+    const startTime = today.hour(dayjs(time.from, 'HH:mm A').get('hour')).startOf('hour');
+    const endTime = today.hour(dayjs(time.to, 'HH:mm A').get('hour')).startOf('hour');
     const availableDays = scheduleDays.map(item => Number(item));
     let nextAvailableDateTime = getNextAvailableDate(startTime, endTime, availableDays);
     let dailyLimitCounter = 0;
@@ -64,7 +67,7 @@ export class CampaignsService {
         ? `${sequence.body} <br> This email was sent by <a href="https://winly.ai">winly.ai</a>`
         : sequence.body;
       if (sequence?.delay) {
-        nextAvailableDateTime = dayjs()
+        nextAvailableDateTime = today
           .add(Number(sequence.delay), 'd')
           .hour(startTime.hour())
           .minute(startTime.minute());
