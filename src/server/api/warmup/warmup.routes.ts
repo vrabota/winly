@@ -5,4 +5,5 @@ import { WarmupController } from './warmup.controller';
 
 export const warmupRoutes = createTRPCRouter({
   enableWarmup: protectedProcedure.input(warmupAccount).mutation(WarmupController.enableWarmupHandler),
+  disableWarmup: protectedProcedure.input(warmupAccount).mutation(WarmupController.disableWarmupHandler),
 });

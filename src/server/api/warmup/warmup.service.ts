@@ -12,8 +12,6 @@ export class WarmupService {
       const dailyMaxLimit = typeof account?.dailyMaxLimit === 'number' ? account?.dailyMaxLimit : 0;
       const stepLimit = typeof account?.stepLimit === 'number' ? account?.stepLimit : 0;
 
-      console.log('wtf', currentMaxLimit, dailyMaxLimit);
-
       // We call this endpoint to generate an email for us using AI
       for (let i = 0; i <= Array.from({ length: currentMaxLimit }).length; i++) {
         const toAccount =

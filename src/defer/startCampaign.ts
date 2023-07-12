@@ -5,8 +5,6 @@ import { CampaignsService } from '@server/api/campaigns/campaigns.service';
 
 async function startCampaign({ campaign, leads, accounts, organizationId }: any) {
   console.log(`Starting camapign in defer mode ${campaign?.id}`);
-  console.log(process.env.EMAIL_ENGINE_URL);
-  console.log(process.env.EMAIL_ENGINE_TOKEN);
   const accountMessages = await CampaignsService.startCampaign({ campaign, leads, accounts });
   const messages = accountMessages.map(message => ({
     campaignId: campaign.id,
