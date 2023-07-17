@@ -13,7 +13,7 @@ model User {
   auth0Id   String    @unique @map("auth0_id") @db.VarChar(100)
   firstName String?   @map("first_name") @db.VarChar(100)
   lastName  String?   @map("last_name") @db.VarChar(100)
-  picture   String?   @map("picture") @db.VarChar(300)
+  picture   String?   @map("picture") @db.Text
   email     String    @db.VarChar(100)
   role      UserRole? @default(ADMIN)
 
