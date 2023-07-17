@@ -3755,12 +3755,12 @@ export interface operations {
      * List accounts 
      * @description Lists registered accounts
      */
-    parameters?: {
+    parameters: {
         /** @description Page number (zero indexed, so use 0 for first page) */
         /** @description How many entries per page */
         /** @description Filter accounts by state */
         /** @description Filter accounts by string match */
-      query?: {
+      query: {
         page?: number;
         pageSize?: number;
         state?: "init" | "syncing" | "connecting" | "connected" | "authenticationError" | "connectError" | "unset" | "disconnected";
@@ -3801,10 +3801,10 @@ export interface operations {
      * List blocklists 
      * @description List blocklists with blocked addresses
      */
-    parameters?: {
+    parameters: {
         /** @description Page number (zero indexed, so use 0 for first page) */
         /** @description How many entries per page */
-      query?: {
+      query: {
         page?: number;
         pageSize?: number;
       };
@@ -3837,10 +3837,10 @@ export interface operations {
      * List gateways 
      * @description Lists registered gateways
      */
-    parameters?: {
+    parameters: {
         /** @description Page number (zero indexed, so use 0 for first page) */
         /** @description How many entries per page */
-      query?: {
+      query: {
         page?: number;
         pageSize?: number;
       };
@@ -3906,10 +3906,10 @@ export interface operations {
      * List OAuth2 applications 
      * @description Lists registered OAuth2 applications
      */
-    parameters?: {
+    parameters: {
         /** @description Page number (zero indexed, so use 0 for first page) */
         /** @description How many entries per page */
-      query?: {
+      query: {
         page?: number;
         pageSize?: number;
       };
@@ -3947,10 +3947,10 @@ export interface operations {
      * List queued messages 
      * @description Lists messages in the Outbox
      */
-    parameters?: {
+    parameters: {
         /** @description Page number (zero indexed, so use 0 for first page) */
         /** @description How many entries per page */
-      query?: {
+      query: {
         page?: number;
         pageSize?: number;
       };
@@ -3969,8 +3969,8 @@ export interface operations {
      * List specific settings 
      * @description List setting values for specific keys
      */
-    parameters?: {
-      query?: {
+    parameters: {
+      query: {
         eventTypes?: boolean;
         webhooksEnabled?: boolean;
         webhooks?: boolean;
@@ -4067,9 +4067,9 @@ export interface operations {
   };
   getV1Stats: {
     /** Return server stats */
-    parameters?: {
+    parameters: {
         /** @description Duration for counters */
-      query?: {
+      query: {
         seconds?: number;
       };
     };
@@ -4087,11 +4087,11 @@ export interface operations {
      * List account templates 
      * @description Lists stored templates for the account
      */
-    parameters?: {
+    parameters: {
         /** @description Account ID to list the templates for */
         /** @description Page number (zero indexed, so use 0 for first page) */
         /** @description How many entries per page */
-      query?: {
+      query: {
         account?: string;
         page?: number;
         pageSize?: number;
@@ -4193,7 +4193,7 @@ export interface operations {
     parameters: {
         /** @description Page number (zero indexed, so use 0 for first page) */
         /** @description How many entries per page */
-      query?: {
+      query: {
         page?: number;
         pageSize?: number;
       };
@@ -4451,7 +4451,7 @@ export interface operations {
      */
     parameters: {
         /** @description If true, then includes message counters in the response */
-      query?: {
+      query: {
         counters?: boolean;
       };
         /** @description Account ID */
@@ -4603,7 +4603,7 @@ export interface operations {
         /** @description Which text content to return, use * for all. By default text content is not returned. */
         /** @description If true, then fetches attached images and embeds these in the HTML as data URIs */
         /** @description If enabled then fetch the data from the Document Store instead of IMAP */
-      query?: {
+      query: {
         maxBytes?: number;
         textType?: "html" | "plain" | "*";
         embedAttachedImages?: boolean;
@@ -4659,7 +4659,7 @@ export interface operations {
      */
     parameters: {
         /** @description Delete message even if not in Trash */
-      query?: {
+      query: {
         force?: boolean;
       };
         /** @description Account ID */
@@ -4709,7 +4709,7 @@ export interface operations {
         /** @description Max length of text content. This setting is ignored if `documentStore` is `true`. */
         /** @description Which text content to return, use * for all. By default all contents are returned. */
         /** @description If enabled then fetch the data from the Document Store instead of IMAP */
-      query?: {
+      query: {
         maxBytes?: number;
         textType?: "html" | "plain" | "*";
         documentStore?: boolean;
@@ -4877,7 +4877,7 @@ export interface operations {
         /** @description How many entries per page */
         /** @description If enabled then fetch the data from the Document Store instead of IMAP */
         /** @description If enabled then returns the ElasticSearch query for debugging as part of the response */
-      query?: {
+      query: {
         path?: string;
         page?: number;
         pageSize?: number;
@@ -5099,7 +5099,7 @@ export interface operations {
      */
     parameters: {
         /** @description Must be true in order to flush templates */
-      query?: {
+      query: {
         force?: true;
       };
         /** @description Account ID */

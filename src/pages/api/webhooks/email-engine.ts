@@ -129,7 +129,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         specialUse,
         data: { inReplyTo, labels, threadId, subject, text, seemsLikeNew, from, messageSpecialUse, id, date },
       } = req.body;
-      if (inReplyTo && messageSpecialUse??.includes('Inbox')) {
+      if (inReplyTo && messageSpecialUse?.includes('Inbox')) {
         const activity = inReplyTo ? await prisma.activity.findFirst({ where: { messageId: inReplyTo } }) : null;
         const warmup = inReplyTo ? await prisma.warmup.findFirst({ where: { messageId: inReplyTo } }) : null;
 

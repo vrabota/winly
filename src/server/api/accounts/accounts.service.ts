@@ -50,6 +50,7 @@ export class AccountsService {
         account: account.id,
         name: account.email,
         email: account.email,
+        syncFrom: new Date().toISOString(),
         imap: {
           useAuthServer: type === AccountType.GOOGLE_OAUTH || undefined,
           auth: type === AccountType.GOOGLE_APP_PASSWORD ? appPasswordAuth : undefined,
