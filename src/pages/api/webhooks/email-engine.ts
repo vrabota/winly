@@ -129,7 +129,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         specialUse,
         data: { inReplyTo, labels, threadId, subject, text, seemsLikeNew, from, messageSpecialUse, id, date },
       } = req.body;
-      if (inReplyTo && messageSpecialUse.includes('Inbox')) {
+      if (inReplyTo && messageSpecialUse??.includes('Inbox')) {
         const activity = inReplyTo ? await prisma.activity.findFirst({ where: { messageId: inReplyTo } }) : null;
         const warmup = inReplyTo ? await prisma.warmup.findFirst({ where: { messageId: inReplyTo } }) : null;
 
@@ -200,7 +200,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           }
         }
       }
-      if (messageSpecialUse.includes('Inbox') && seemsLikeNew) {
+      if (messageSpecialUse?.includes('Inbox') && seemsLikeNew) {
         const warmup = await prisma.warmup.findFirst({ where: { recipientAccountId: account } });
         if (warmup) {
           await prisma.warmup.create({
@@ -212,7 +212,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
 
-      if ((specialUse.includes('Junk') || labels.includes('Junk')) && seemsLikeNew) {
+      if ((specialUse?.includes('Junk') || labels?.includes('Junk')) && seemsLikeNew) {
         const warmup = await prisma.warmup.findFirst({ where: { recipientAccountId: account } });
         if (warmup) {
           await prisma.warmup.create({
@@ -225,7 +225,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
 
-      if (messageSpecialUse.includes('Inbox') && seemsLikeNew) {
+      if (messageSpecialUse?.includes('Inbox') && seemsLikeNew) {
         const senderId = await prisma.account.findUnique({ where: { email: from.address } });
         if (senderId) {
           const counts = await prisma.warmup.groupBy({
