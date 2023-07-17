@@ -22,7 +22,6 @@ function generateRandomDate() {
 export const runtime = 'experimental-edge';
 
 export default async function POST(req: Request) {
-  // Extract the `prompt` from the body of the request
   const { messages, from, to, organizationId } = await req.json();
 
   // Ask OpenAI for a streaming chat completion given the prompt
