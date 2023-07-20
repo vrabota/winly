@@ -19,7 +19,7 @@ function generateRandomDate(date: Date) {
 
 export const runtime = 'experimental-edge';
 
-export default async function POST(req: Request) {
+export default async function handler(req: Request) {
   // Extract the `prompt` from the body of the request
   const { date, messageText, messageId, account, senderAccount, recepientAccount } = await req.json();
 
