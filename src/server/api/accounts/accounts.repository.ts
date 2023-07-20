@@ -1,10 +1,15 @@
+// import { ActivityStatus } from '@prisma/client';
+// import dayjs from 'dayjs';
+
 import { prisma } from '@server/db';
 import { logger } from '@utils/logger';
+// import { DateRanges } from '@features/campaigns/utils';
+// import { getPeriodDates } from '@utils/period';
 
 import { AccountsService } from './accounts.service';
 
 import type { AccountDeleteOutput, AccountsInput } from '@server/api/accounts/accounts.dto';
-import type { Prisma, Account } from '@prisma/client';
+import type { Account, Prisma } from '@prisma/client';
 
 export class AccountsRepository {
   static async getAccounts(payload: AccountsInput): Promise<{
@@ -23,6 +28,21 @@ export class AccountsRepository {
     >[];
     nextCursor: string | undefined;
   }> {
+    //     let accountsWithStats;
+    //     let campaignActivitiesByAccount;
+    //     if (payload.withStats) {
+    //       campaignActivitiesByAccount = await prisma.$queryRaw<any[]>`
+    // SELECT status, account_id , COUNT(DISTINCT message_id) as _count
+    // FROM activities AS a
+    // WHERE
+    // ${payload.organizationId ? Prisma.sql`organization_id = ${payload.organizationId} AND` : Prisma.empty}
+    // ${Prisma.sql`DATE(created_at) = CURDATE() AND`}
+    // ${Prisma.sql`status = ${ActivityStatus.CONTACTED}`}
+    // GROUP BY 1, 2;`;
+    //     }
+
+    // console.log(campaignActivitiesByAccount, 'campaignActivitiesByAccount');
+
     const accounts = await prisma.account.findMany({
       where: {
         organizationId: payload.organizationId,

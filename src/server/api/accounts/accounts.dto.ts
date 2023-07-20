@@ -18,6 +18,7 @@ export const accountsSchema = z.object({
   accountState: z.nativeEnum(AccountState).array().optional(),
   limit: z.number().min(1).max(100).nullish(),
   cursor: z.string().nullish(),
+  withStats: z.boolean().optional(),
 });
 
 export const accountIdSchema = z.object({

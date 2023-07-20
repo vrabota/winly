@@ -4,7 +4,7 @@ import { WarmupService } from '@server/api/warmup/warmup.service';
 
 import type { Account } from '@prisma/client';
 
-async function enableWarmup(accounts: Account[], organizationId: string) {
+async function enableWarmup(accounts: Account[], organizationId?: string) {
   const accountIds = accounts.map(account => account.id);
   console.log(`Enabling warmup in defer mode for accounts`, { accountIds });
 

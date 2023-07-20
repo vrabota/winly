@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/warmup?key=78e060b8c1aa5a27c767b441",
+      "path": "/api/warmup-cron?key=78e060b8c1aa5a27c767b441",
       "schedule": "0 5 * * *"
     }
   ]

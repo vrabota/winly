@@ -226,10 +226,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       if (messageSpecialUse?.includes('Inbox') && seemsLikeNew) {
-        const senderId = await prisma.account.findUnique({ where: { email: from.address } });
-        if (senderId) {
+        const senderAccount = await prisma.account.findUnique({ where: { email: from.address } });
+        const recepientAccount = await prisma.account.findUnique({ where: { id: account } });
+        if (senderAccount) {
           const counts = await prisma.warmup.groupBy({
-            where: { senderAccountId: senderId.id },
+            where: { senderAccountId: senderAccount.id },
             by: ['status'],
             _count: true,
           });
@@ -243,6 +244,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               messageId: id,
               date,
               account,
+              senderAccount,
+              recepientAccount,
             });
           }
         }

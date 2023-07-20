@@ -41,6 +41,7 @@ const Home: NextPage = () => {
       organizationId: selectedOrganization?.id as string,
       accountState: filters?.accountState && filters?.accountState?.length > 0 ? filters?.accountState : undefined,
       search: filters?.search && filters?.search?.length > 0 ? filters?.search : undefined,
+      withStats: true,
     },
     {
       getNextPageParam: lastPage => lastPage.nextCursor,

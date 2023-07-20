@@ -22,6 +22,7 @@ function generateRandomDate() {
 export const runtime = 'experimental-edge';
 
 export default async function POST(req: Request) {
+  // Extract the `prompt` from the body of the request
   const { messages, from, to, organizationId } = await req.json();
 
   // Ask OpenAI for a streaming chat completion given the prompt
@@ -42,8 +43,8 @@ export default async function POST(req: Request) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.EMAIL_ENGINE_TOKEN}` },
         body: JSON.stringify({
-          subject: parsedData.subject,
-          text: parsedData.body,
+          subject: `${parsedData.subject} | ${from.code}-${to.code}`,
+          text: `${parsedData.body} \n\n ${from.code}-${to.code}`,
           to: [
             {
               name: `${to['first_name']} ${to['last_name']}`,

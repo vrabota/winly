@@ -6,7 +6,7 @@ import { baseUrl } from '@utils/baseUrl';
 import type { Account } from '@prisma/client';
 
 export class WarmupService {
-  static async enableWarmupService(accounts: Account[], organizationId: string): Promise<any> {
+  static async enableWarmupService(accounts: Account[], organizationId?: string): Promise<any> {
     for (const account of accounts) {
       const currentMaxLimit = typeof account?.currentMaxLimit === 'number' ? account?.currentMaxLimit : 0;
       const dailyMaxLimit = typeof account?.dailyMaxLimit === 'number' ? account?.dailyMaxLimit : 0;
@@ -27,7 +27,7 @@ export class WarmupService {
         };
         const user = {
           role: 'user',
-          content: `Generate an email text for recepient ${toAccount[0]['first_name']}, email will be sent by ${account.firstName}.`,
+          content: `Generate an email text for recepient ${toAccount[0]['first_name']}, email will be sent by ${account.firstName}. Subject should contain recepient first name ${toAccount[0]['first_name']}.`,
         };
 
         // prepare instruction for AI to generate message
@@ -36,7 +36,7 @@ export class WarmupService {
           messages: [system, user],
           from: account,
           to: toAccount[0],
-          organizationId,
+          organizationId: organizationId || account.organizationId,
         });
       }
 

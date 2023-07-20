@@ -21,7 +21,7 @@ export const runtime = 'experimental-edge';
 
 export default async function POST(req: Request) {
   // Extract the `prompt` from the body of the request
-  const { date, messageText, messageId, account } = await req.json();
+  const { date, messageText, messageId, account, senderAccount, recepientAccount } = await req.json();
 
   const system = {
     role: ChatCompletionRequestMessageRoleEnum.System,
@@ -55,7 +55,7 @@ export default async function POST(req: Request) {
             inline: true,
             action: 'reply',
           },
-          text: completion,
+          text: `${completion} \n\n ${recepientAccount.code}-${senderAccount.code}`,
           sendAt: generateRandomDate(date),
         }),
       });
