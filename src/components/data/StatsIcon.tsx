@@ -4,7 +4,7 @@ import { Stack, Text } from '@mantine/core';
 import type { ReactNode } from 'react';
 
 // eslint-disable-next-line react/display-name
-const StatsIcon = forwardRef<HTMLDivElement, { icon: ReactNode; count: number }>(({ icon, count }, ref) => {
+const StatsIcon = forwardRef<HTMLDivElement, { icon: ReactNode; count: number | string }>(({ icon, count }, ref) => {
   return (
     <Stack
       ref={ref}

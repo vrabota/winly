@@ -1,4 +1,12 @@
-import { AccountState, AccountType, ActivityStatus, CampaignStatus, LeadStatus, PrismaClient } from '@prisma/client';
+import {
+  AccountState,
+  AccountType,
+  ActivityStatus,
+  CampaignStatus,
+  LeadStatus,
+  PrismaClient,
+  WarmupStatus,
+} from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import dayjs from 'dayjs';
 const prisma = new PrismaClient();
@@ -82,6 +90,17 @@ async function main() {
       })),
     });
   }
+
+  await prisma.warmup.createMany({
+    data: Array.from({ length: faker.datatype.number({ min: 150, max: 200 }) }, (v, k) => ({
+      status: faker.helpers.arrayElement(k % 10 == 0 ? [WarmupStatus.SENT] : Object.values(WarmupStatus)),
+      messageId: faker.datatype.uuid(),
+      recipientAccountId: account.id,
+      senderAccountId: account.id,
+      organizationId: organization.id,
+      createdAt: faker.date.between(dayjs().subtract(6, 'd').toISOString(), dayjs().toISOString()),
+    })),
+  });
 }
 
 main()
