@@ -69,6 +69,6 @@ export default async function handler(req: Request) {
       // We can call here send email API to create queue message in emailengine
     },
   });
-  // Respond with the stream
+  // Respond with the streaming
   return new StreamingTextResponse(stream);
 }
